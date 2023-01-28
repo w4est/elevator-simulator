@@ -4,15 +4,28 @@ import java.util.ArrayList;
 
 public class ElevatorSubsystem implements Runnable{
 	
-	ArrayList<Elevator> elevators;
+	public enum Direction{
+		UP, DOWN, NOT_MOVING
+	}
 	
-	public ElevatorSubsystem() {
+	ArrayList<Elevator> elevators;
+	//ArrayList<Instructions> queue;
+	
+	public ElevatorSubsystem(Object o) {
 		elevators = new ArrayList<>();
+	}
+	
+	public void updateQueue() {
+		
 	}
 
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
+		
+		while(true) {
+			updateQueue();
+		}
 		
 	}
 }
