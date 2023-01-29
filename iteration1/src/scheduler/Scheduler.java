@@ -1,5 +1,7 @@
 package scheduler;
 
+import elevator.ElevatorSubsystem.Direction;
+
 /**
  * @author Jacob Hovey
  * 
