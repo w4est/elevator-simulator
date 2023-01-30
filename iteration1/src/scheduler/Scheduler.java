@@ -3,7 +3,6 @@ package scheduler;
 import java.util.ArrayList;
 
 import elevator.*;
-import elevator.ElevatorSubsystem.Direction;
 
 /**
  * @author Jacob Hovey
