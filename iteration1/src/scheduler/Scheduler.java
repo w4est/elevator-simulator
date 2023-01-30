@@ -28,6 +28,9 @@ public class Scheduler {
 
 	}
 	
+        /**
+        * For iteration 1, we need to have references to the elevator subsystem, this will be replaced by network communication in the future.
+        **/
 	public void addElevatorSubsys(ElevatorSubsystem e) {
 		elevatorSubsys.add(e);
 	}
