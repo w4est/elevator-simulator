@@ -1,6 +1,8 @@
 package scheduler;
 
-import elevator.ElevatorSubsystem.Direction;
+import java.util.ArrayList;
+
+import elevator.*;
 
 /**
  * @author Jacob Hovey
@@ -12,13 +14,24 @@ import elevator.ElevatorSubsystem.Direction;
 public class Scheduler {	
 	//this will be set to true when there are people in the queue who have not been serviced
 	private boolean elevatorNeeded = false;
+	private ArrayList<ElevatorSubsystem> elevatorSubsys;
 	
+	public Scheduler() {
+		elevatorSubsys = new ArrayList<>();
+	}
 	/**
 	 * TBD
 	 */
 	public static void main(String[] args) {
 		// TBD
 
+	}
+	
+        /**
+        * For iteration 1, we need to have references to the elevator subsystem, this will be replaced by network communication in the future.
+        **/
+	public void addElevatorSubsys(ElevatorSubsystem e) {
+		elevatorSubsys.add(e);
 	}
 	
 	/**
@@ -31,6 +44,11 @@ public class Scheduler {
 	 */
 	public synchronized void requestElevator(int floorNumber, Direction direction, int elevatorNumber) {
 		//this will log the time it was received and parse the information to prioritize the request.
+		
+		/*
+		 * Scheduler parses through the different elevator subsystems and find the one whose car number is elavatorNumber
+		 * It sends the floor request to the elevator subsystem
+		 */
 		
 	}
 	
