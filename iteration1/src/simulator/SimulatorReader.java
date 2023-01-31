@@ -15,7 +15,7 @@ import java.util.Optional;
  * @author William Forrest
  *
  */
-public class SimulatorReader {
+public class SimulatorReader implements AutoCloseable {
 
 	File file;
 	BufferedReader bufferedReader;
@@ -25,6 +25,7 @@ public class SimulatorReader {
 		File fileToRead = new File(filePath);
 		FileReader fs;
 		try {
+			System.out.println(fileToRead.getAbsolutePath());
 			fs = new FileReader(fileToRead);
 			bufferedReader = new BufferedReader(fs);
 		} catch (FileNotFoundException e) {
@@ -38,6 +39,11 @@ public class SimulatorReader {
 			return Optional.empty();
 		}
 		return Optional.of(SimulationEntry.fromString(line));
+	}
+
+	@Override
+	public void close() throws Exception {
+		this.bufferedReader.close();
 	}
 
 }
