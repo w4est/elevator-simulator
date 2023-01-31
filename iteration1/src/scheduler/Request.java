@@ -7,9 +7,9 @@ package scheduler;
  * for optimizing scheduling.
  */
 public class Request {
-	private int floorNumber;
-	private elevator.ElevatorSubsystem.Direction floorButton;
-	private int carButton;
+	private final int floorNumber;
+	private final elevator.ElevatorSubsystem.Direction floorButton;
+	private final int carButton;
 
 	public Request(int floorNumber, elevator.ElevatorSubsystem.Direction floorButton, int carButton) {
 		this.floorNumber = floorNumber;
