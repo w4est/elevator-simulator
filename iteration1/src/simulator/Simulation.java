@@ -19,8 +19,7 @@ public class Simulation {
 		
 		Scheduler schedular = new Scheduler();
 		Thread floorSubsystemThread = new Thread(new FloorSubsystem(schedular));
-		// TODO figure out elevator
-		Thread elevatorSubsystemThread = new Thread(new ElevatorSubsystem(new Elevator(ElevatorSubsystem.DEFAULT_MAX_FLOOR, 0), schedular));
+		Thread elevatorSubsystemThread = new Thread(new ElevatorSubsystem(schedular, 1));
 		
 		floorSubsystemThread.start();
 		elevatorSubsystemThread.start();
