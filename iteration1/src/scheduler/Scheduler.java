@@ -1,101 +1,86 @@
 package scheduler;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 import elevator.*;
 
 /**
  * @author Jacob Hovey
  * 
- * The scheduler for the elevator system. All thread synchronization
- * will occur in this class.
+ * The Scheduler for the elevator system. All thread synchronization
+ * will occur in this class. Communicates withe floor and elevator
+ * subsystems.
  *
  */
 public class Scheduler {	
 	//this will be set to true when there are people in the queue who have not been serviced
 	private boolean elevatorNeeded = false;
-	private ArrayList<ElevatorSubsystem> elevatorSubsys;
-	
+	private HashMap<Date, Request> requests;
+	private final ArrayList<ElevatorSubsystem> elevatorSubsys;
+
 	public Scheduler() {
 		elevatorSubsys = new ArrayList<>();
 	}
-	/**
-	 * TBD
-	 */
-	public static void main(String[] args) {
-		// TBD
-
-	}
 	
-        /**
-        * For iteration 1, we need to have references to the elevator subsystem, this will be replaced by network communication in the future.
-        **/
+    /**
+    * For iteration 1, we need to have references to the elevator subsystem, this will be replaced by network communication in the future.
+    **/
 	public void addElevatorSubsys(ElevatorSubsystem e) {
 		elevatorSubsys.add(e);
 	}
 	
 	/**
 	 * This is the command that runs when a user presses a call elevator button on a specific floor.
+	 * It sends the information to the elevator subsystem, which then assigns an elevator to the job.
 	 * 
-	 * 
-	 * @param floorNumber
-	 * @param direction		The Direction enum. If this is named differently I can fix that.
-	 * @param elevatorNumber
+	 * @param time				Date, the specific time that the request was made.
+	 * @param floorNumber		int, the number of the floor that the elevator request was sent from.
+	 * @param floorButton		Enum, the direction of the button that was pressed to call the elevator; up or down.
+	 * @param carButton			int, the number of the floor that the person wants to go to.
 	 */
-	public synchronized void requestElevator(int floorNumber, Direction direction, int elevatorNumber) {
-		//this will log the time it was received and parse the information to prioritize the request.
-		
-		/*
-		 * Scheduler parses through the different elevator subsystems and find the one whose car number is elavatorNumber
-		 * It sends the floor request to the elevator subsystem
-		 */
-		
+	public synchronized void requestElevator(Date time, int floorNumber, elevator.ElevatorSubsystem.Direction floorButton, int carButton) {
+		requests.put(time, new Request(floorNumber, floorButton, carButton));
+		elevatorNeeded = true;
+		notifyAll();
 	}
 	
 	/**
-	 * this is the command that runs when a user presses an elevator button 
-	 * to select a floor.
-	 * 
-	 * @param currentFloor
-	 * @param targetFloor
-	 * @param elevatorNumber
-	 */
-	public synchronized void setDestination(int currentFloor, int targetFloor, int elevatorNumber) {
-		//this will log the time it was received and parse the information to prioritize the request.
-	}
-	
-	/**
-	 * This should be constantly called by waiting elevator threads
-	 * to see if there is a job for them.
+	 * This is constantly called by waiting elevator threads
+	 * to see if there is a new job for them.
 	 */
 	public synchronized void elevatorNeeded() {
-		//this will set the elevator to wait if elevatorNeeded is false, 
-		//otherwise will pull the queue and prioritize where the elevator should go
+		while(!elevatorNeeded) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				System.out.println("Scheduler ran into an error: ");
+				e.printStackTrace();
+			}
+		}
+		Date oldestRequest = null;
+		for (Date d: requests.keySet()) {
+			if( oldestRequest == null || d.before(oldestRequest))
+		        oldestRequest = d;
+		}
+		requests.remove(oldestRequest);
+		//send the Request info to the elevator subsystem
+		if (requests.isEmpty()) {
+			elevatorNeeded = false;
+		}
+		notifyAll();
 	}
 	
-	
-	//below are ideas for me later of how to send pending info
-	
-	public void setDirectionLamp(int elevatorNumber, Direction direction) {
-		//this will set the direction lamp for a specific elevator to the correct direction
+	/**
+	 * This is the command called by the elevator subsystem when it has received a request
+	 * and is dispatching an elevator.
+	 * 
+	 * @param elevatorNumber			int, the number of the elevator dispatched for the job.
+	 * @param departureFloorNumber		int, the number of the floor the elevator is leaving from.
+	 * @param targetFloorNumber			int, the number of the floor the elevator is going towards.
+	 */
+	public synchronized void requestReceived(int elevatorNumber, int departureFloorNumber, int targetFloorNumber) {
+		//will call a function in the floor subsystem to share the info which can then be printed to the console.
 	}
-	
-	public void setFloorButton(int elevatorNumber, int floorNumber) {
-		//this will set the floor button for a specific elevator to on or off
-	}
-	
-	public void setDirectionButton(int floorNumber, Direction direction) {
-		//this will set the direction button for a specific elevator to the correct direction
-		//these probably need more differentiated names tbh
-	}
-	
-	public void closeDoor(int elevatorNumber) {
-		//this will tell a specific elevator to close the door (will likely be wrapped into "elevatorNeeded" function)
-	}
-	
-	public void startMotor(int elevatorNumber) {
-		//this will tell a specific elevator to start the motor (will likely be wrapped into "elevatorNeeded" function)
-	}
-	
-	//finally, need to add and maintain the queue of requests, and determine how best to prioritize it
 }
