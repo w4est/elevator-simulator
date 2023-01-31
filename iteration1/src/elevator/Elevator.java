@@ -8,20 +8,18 @@ public class Elevator implements Runnable {
 
 	private int currentFloor;
 	private Direction currentDirection;
-	private ElevatorSubsystem subsys;
 	private int carNumber;
 	private HashMap<Integer, Integer> destinationQueue;
 	private HashMap<Integer, Integer> floorQueues;
 
-	public Elevator(ElevatorSubsystem s, int carNum) {
+	public Elevator(int maxFloor, int carNum) {
 		currentFloor = 1;
 		currentDirection = Direction.NOT_MOVING;
-		subsys = s;
 		carNumber = carNum;
 		destinationQueue = new HashMap<Integer, Integer>();
 		floorQueues = new HashMap<Integer, Integer>();
 
-		for (int i = 0; i < subsys.getMaxFloor(); i++) {
+		for (int i = 0; i < maxFloor; i++) {
 			destinationQueue.put(i + 1, 0);
 		}
 	}
@@ -29,11 +27,11 @@ public class Elevator implements Runnable {
 	public int getCarNumber() {
 		return carNumber;
 	}
-	
+
 	public int getCurrentFloor() {
 		return currentFloor;
 	}
-	
+
 	public Direction getCurrentDirection() {
 		return currentDirection;
 	}
@@ -56,7 +54,7 @@ public class Elevator implements Runnable {
 
 		return people;
 	}
-	
+
 	public HashMap<Integer, Integer> getDestinationQueue() {
 		return destinationQueue;
 	}

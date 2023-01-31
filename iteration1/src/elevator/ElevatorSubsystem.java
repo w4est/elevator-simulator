@@ -19,13 +19,12 @@ public class ElevatorSubsystem implements Runnable {
 	private final int MAX_FLOOR;
 	private final int MIN_FLOOR;
 
-	public ElevatorSubsystem(Elevator e, Scheduler s) {
-		this(e, s, DEFAULT_MAX_FLOOR, DEFAULT_MIN_FLOOR);
+	public ElevatorSubsystem(Scheduler s, int carNumber) {
+		this(s, carNumber, DEFAULT_MAX_FLOOR, DEFAULT_MIN_FLOOR);
 	}
 
-	public ElevatorSubsystem(Elevator e, Scheduler s, int max, int min) {
-		elevator = e;
-		scheduler = s;
+	public ElevatorSubsystem(Scheduler s, int carNumber, int max, int min) {
+		this.scheduler = s;
 		
 		if (min >= max) {
 			throw new IllegalArgumentException("Elevator needs at least 2 floors");
@@ -33,6 +32,8 @@ public class ElevatorSubsystem implements Runnable {
 		
 		this.MIN_FLOOR = min;
 		this.MAX_FLOOR = max;
+		
+		this.elevator = new Elevator(this.MAX_FLOOR, carNumber);
 	}
 
 	public int getMinFloor() {
