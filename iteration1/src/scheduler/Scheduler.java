@@ -18,7 +18,7 @@ public class Scheduler {
 	//this will be set to true when there are people in the queue who have not been serviced
 	private boolean elevatorNeeded = false;
 	private HashMap<Date, Request> requests;
-	private ArrayList<ElevatorSubsystem> elevatorSubsys;
+	private final ArrayList<ElevatorSubsystem> elevatorSubsys;
 
 	public Scheduler() {
 		elevatorSubsys = new ArrayList<>();
