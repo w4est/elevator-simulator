@@ -85,6 +85,13 @@ public class ElevatorSubsystem implements Runnable {
 			System.out.println("Elevator is going down");
 			elevator.setCurrentFloor(currentFloor - 1);
 		}
+		
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		// notifySubsys();
 
@@ -199,21 +206,26 @@ public class ElevatorSubsystem implements Runnable {
 		return false;
 	}
 
-	public boolean allCompleted() {
-		for (int i = 0; i < floorQueues.size(); i++) {
-			if (floorQueues.get(i).getRequestStatus() == false) {
-				return false;
-			}
-		}
+	//public boolean allCompleted() {
+		//for (int i = 0; i < floorQueues.size(); i++) {
+			//if (floorQueues.get(i).getRequestStatus() == false) {
+				//return false;
+			//}
+		//}
 
-		return true;
-	}
+		//return true;
+	//}
 
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-
-		while (!allCompleted()) {
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		while (scheduler.getElevatorNeeded()) {
 			move();
 		}
 

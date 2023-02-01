@@ -1,9 +1,7 @@
 package floor;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 
 import scheduler.Request;
 import scheduler.Scheduler;
@@ -20,7 +18,7 @@ public class FloorSubsystem implements Runnable{
 	private Scheduler scheduler;
 	private int peopleWaitingOnAllFloors;
 	private final int MAX_FLOOR;
-	private HashMap<LocalTime, Request> allRequests; //data structure holds timestamp key and (currentFloor,direction,destination) value
+	private TreeMap<LocalTime, Request> allRequests; //data structure holds timestamp key and (currentFloor,direction,destination) value
 	
 	/**
 	 * FloorSybsystem Constructor shares a scheduler and sets up floors
@@ -31,7 +29,7 @@ public class FloorSubsystem implements Runnable{
 		this.MAX_FLOOR = maxFloor;
 		this.allFloors = new ArrayList<Floor>(MAX_FLOOR);
 		this.peopleWaitingOnAllFloors = 0;
-		this.allRequests = new HashMap<LocalTime,Request>();
+		this.allRequests = new TreeMap<LocalTime,Request>();
 		//initialize all floors to have 0 people
 		for (int i = 1; i < MAX_FLOOR + 1; i++) {
 			addFloor(i,0);
@@ -153,7 +151,7 @@ public class FloorSubsystem implements Runnable{
 		//another way could have a condition to check if all requests (from allEntries) have been completed.
 		while (peopleWaitingOnAllFloors != 0) {
 			//loop through each key value pair in allRequests and send to simulator
-			for (HashMap.Entry<LocalTime, Request> timestampRequest : allRequests.entrySet()) {
+			for (Map.Entry<LocalTime, Request> timestampRequest : allRequests.entrySet()) {
 			    //if the request hasn't been complete, send to scheduler (ex. 03:50:5.010 1 Up 3)
 			    if (timestampRequest.getValue().getRequestStatus() == false) {
 					scheduler.requestElevator(timestampRequest.getKey(), timestampRequest.getValue());
