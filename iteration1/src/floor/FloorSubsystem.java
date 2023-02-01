@@ -5,10 +5,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import scheduler.Request;
 import scheduler.Scheduler;
 
 /**
- * FloorSybsystem Class communicates with Scheduler (Scheduler shared with the Elevator)
+ * FloorSubsystem Class communicates with Scheduler (Scheduler shared with the Elevator)
  * Gets call from person, sends info to Scheduler.
  * Receives elevator status from Scheduler, shows person (light indicator, #)
  * @author Subear Jama
@@ -18,37 +21,32 @@ public class FloorSubsystem implements Runnable{
 	private ArrayList<Floor> allFloors;
 	private Scheduler scheduler;
 	private int peopleWaitingOnAllFloors;
-	private final int MAX_FLOOR = 7;
-	//my suggestion: request class have a date instead of hashmap. also have a boolean in it to complete a request.
-	//created a datatype to handle all of this
-	private ArrayList<Entry> allEntries;
+	private final int MAX_FLOOR;
+	private HashMap<LocalTime, Request> allRequests; //data structure holds timestamp key and (currentFloor,direction,destination) value
 	
 	/**
 	 * FloorSybsystem Constructor shares a scheduler and sets up floors
 	 * @param schedule Scheduler, the scheduler shared with the ElevatorSubsystem
 	 */
-	public FloorSubsystem(Scheduler schedule) {
-		this.allFloors = new ArrayList<Floor>(MAX_FLOOR);
+	public FloorSubsystem(Scheduler schedule, int maxFloor) {
 		this.scheduler = schedule;
+		this.MAX_FLOOR = maxFloor;
+		this.allFloors = new ArrayList<Floor>(MAX_FLOOR);
 		this.peopleWaitingOnAllFloors = 0;
-		this.allEntries = new ArrayList<Entry>();
-		//Manually set up 7 floors
-		addFloor(1,0);
-		addFloor(2,0);
-		addFloor(3,0);
-		addFloor(4,0);
-		addFloor(5,0);
-		addFloor(6,0);
-		addFloor(7,0);
+		this.allRequests = new HashMap<LocalTime,Request>();
+		//initialize all floors to have 0 people
+		for (int i = 1; i < MAX_FLOOR + 1; i++) {
+			addFloor(i,0);
+		}
 	}
 	
 	/**
-	 * This method adds a floor to the FloorSubsystem. 
+	 * private method adds a floor to the FloorSubsystem. 
 	 * It uses the floor's number & the number of people on that floor
 	 * @param floorNumber int, the floor's number
 	 * @param numPeople int, the number of people on that floor
 	 */
-	public void addFloor(int floorNumber, int numPeople) {
+	private void addFloor(int floorNumber, int numPeople) {
 		if (allFloors.size() != MAX_FLOOR) {
 			Floor newFloor = new Floor(floorNumber);
 			newFloor.addNumberOfPeople(numPeople);
@@ -90,12 +88,13 @@ public class FloorSubsystem implements Runnable{
 				//fileline ex: "03:50:5.010 1 Up 3" (split fileline whitespace string into tokens)
 				String[] splitTokens = fileLine.split("\\s+");
 				
-				//Set up Entry
+				//Set up allRequests Hashmap with timestamp key & Request value
 				LocalTime timestamp = LocalTime.parse(splitTokens[0]);
 				int floorNumber = Integer.parseInt(splitTokens[1]);
 				String direction = splitTokens[2];
 				int floorDestination = Integer.parseInt(splitTokens[3]);
-				allEntries.add(new Entry(timestamp, floorNumber, direction, floorDestination));
+				
+				allRequests.put(timestamp, new Request(floorNumber,direction, floorDestination));
 				
 				//Set up Floor (increase # of people and set direction for every line)
 				for (Floor oneFloor: allFloors) {
@@ -133,13 +132,11 @@ public class FloorSubsystem implements Runnable{
 	 * Method used by Scheduler to share with the FloorSubsystem the Elevator info which will be printed to the console.
 	 */
 	public void getElevatorInfoFromScheduler(int elevatorNumber, int departureFloorNumber, int targetFloorNumber) {
-		//My Suggestion: Scheduler Class should also provide which request that was so the FloorSubsystem can properly identify it? (like the timestamp)
-		//Also Scheduler Class should have the same FloorSubsystem in its constructor so that it talks to the right one.
 		System.out.println("FloorSubsystem: Elevator#"+ elevatorNumber + "recieved the request and will go from Floor#"
 		+ departureFloorNumber + " to " + targetFloorNumber);
-		//either this way or just change entry object's requestComplete to true.
 		removeAllPeopleFromFloor(targetFloorNumber);
 	}
+	
 	/**
 	 * Communicate with scheduler until there are no more people to move on all floors.
 	 * Steps: 1. Reads request input from file and stores in FloorSubsystem.
@@ -153,22 +150,24 @@ public class FloorSubsystem implements Runnable{
 		updatePeopleWaitingOnAllFloors();
 		//another way could have a condition to check if all requests (from allEntries) have been completed.
 		while (peopleWaitingOnAllFloors != 0) {
-			//loop through all entries (organized by timestamp) and send to simulator
-			for (Entry oneEntry: allEntries) {
-				if (oneEntry.getRequestStatus() == false) {
-					//NOTE: used String "Up" "Down" to represent direction (stated in project document). Also used LocalTime.
-					scheduler.requestElevator(oneEntry.getTimestamp(),oneEntry.getCurrentFloor(), oneEntry.getDirection(), oneEntry.getFloorDestination());
-					System.out.println("FloorSubsystem Sending to Scheduler: Time "+ oneEntry.getTimestamp().toString() +
-							" Floor#" + oneEntry.getCurrentFloor() + " Direction"+ oneEntry.getDirection() +
-							" Destination " + oneEntry.getFloorDestination());
+			//loop through each key value pair in allRequests and send to simulator
+			for (HashMap.Entry<LocalTime, Request> timestampRequest : allRequests.entrySet()) {
+			    //if the request hasn't been complete, send to scheduler (ex. 03:50:5.010 1 Up 3)
+			    if (timestampRequest.getValue().getRequestStatus() == false) {
+					scheduler.requestElevator(timestampRequest.getKey(), timestampRequest.getValue());
+					System.out.println("FloorSubsystem Sending to Scheduler: Time "+ timestampRequest.getKey().toString() +
+							" Floor#" + timestampRequest.getValue().getFloorNumber() + " Direction"+ timestampRequest.getValue().getFloorButton() +
+							" Destination " + timestampRequest.getValue().getCarButton());
+					//FloorSubsystem will receive messages from Scheduler about the elevator using getElevatorInfoFromScheduler()
+					//Mark request as complete
+					timestampRequest.getValue().setRequest(true);
+					
 				} else {
-					System.out.println("FloorSubsystem: Already completed rq Floor#" + oneEntry.getCurrentFloor() + " wants to go to Floor#" + oneEntry.getFloorDestination());
+					System.out.println("FloorSubsystem: Already completed request with timestamp:" + timestampRequest.getKey().toString());
 				}
-				//update the count for the peopleWaitingOnAllFloors
-				//NOTE: should be in else block but no way of setting true status yet (see getElevatorInfoFromScheduler() method for reasoning)
-				updatePeopleWaitingOnAllFloors();
 			}
-			//FloorSubsystem will receive messages from Scheduler about the elevator using getElevatorInfoFromScheduler()
+			//update the count for peopleWaitingOnAllFloors
+			updatePeopleWaitingOnAllFloors();
 			try {
 				Thread.sleep(120); // slow down for correct order of print statements
 			} catch (InterruptedException e) {
@@ -177,10 +176,4 @@ public class FloorSubsystem implements Runnable{
 		}
 		System.out.println("People on all floors have successfully reached their destination!\n");
 	}
-	/*
-	public static void main(String[] args) {
-		Scheduler s = new Scheduler();
-		FloorSubsystem test = new FloorSubsystem(s);
-		test.readInputFromFile(); //tested by changing to a public method. delete later
-	}*/
 }
