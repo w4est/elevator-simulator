@@ -13,7 +13,7 @@ import scheduler.Scheduler;
 public class Simulation {
 	public static void main(String[] args) throws IOException {
 				
-		SimulatorReader reader = determineFileToRead(args);
+		//SimulatorReader reader = determineFileToRead(args);
 		
 		List<SimulationEntry> entries = new ArrayList<>();
 		
@@ -32,28 +32,28 @@ public class Simulation {
 		
 		
 		// TODO this should maybe go into the floor? Debatable, ask TA
-		Optional<SimulationEntry> entry;
-		do {
-			entry = reader.getNextEntry();
-			if (entry.isPresent()) {
-				entries.add(entry.get());
-				System.out.println(entry.get());
-			}
-		} while (entry.isPresent());
+		//Optional<SimulationEntry> entry;
+		//do {
+			//entry = reader.getNextEntry();
+			//if (entry.isPresent()) {
+				//entries.add(entry.get());
+				//System.out.println(entry.get());
+			//}
+		//} while (entry.isPresent());
 	}
 	
-	private static SimulatorReader determineFileToRead(String[] args)
-			throws FileNotFoundException, IllegalStateException {
+	//private static SimulatorReader determineFileToRead(String[] args)
+			//throws FileNotFoundException, IllegalStateException {
 
-		if (args.length % 2 != 0) {
-			throw new IllegalArgumentException();
-		}
+		//if (args.length % 2 != 0) {
+			//throw new IllegalArgumentException();
+		//}
 
-		for (int i = 0; i < args.length; i += 2) {
-			if (args[i].equals("-file") && args[i + 1].endsWith(".txt")) {
-				return new SimulatorReader(args[i + 1]);
-			}
-		}
-		throw new IllegalStateException("No file given, cannot run.");
-	}
+		//for (int i = 0; i < args.length; i += 2) {
+			//if (args[i].equals("-file") && args[i + 1].endsWith(".txt")) {
+				//return new SimulatorReader(args[i + 1]);
+			//}
+		//}
+		//throw new IllegalStateException("No file given, cannot run.");
+	//}
 }

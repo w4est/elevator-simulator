@@ -25,7 +25,9 @@ public class Scheduler {
 	private ElevatorSubsystem elevatorSubsys;
 	private FloorSubsystem floorSubsystem;
 	
-	public Scheduler() {};
+	public Scheduler() {
+		requests = new HashMap<LocalTime, Request>();
+	};
 	
     /**
     * For iteration 1, we need to have references to the elevator subsystem, this will be replaced by network communication in the future.
@@ -49,6 +51,7 @@ public class Scheduler {
 	 * @param request	Request, contains all necessary information about the elevator request.	
 	 */
 	public synchronized void requestElevator(LocalTime time, Request request) {
+		System.out.println("scheduler got request");
 		requests.put(time, request);
 		elevatorNeeded = true;
 		notifyAll();
@@ -90,14 +93,16 @@ public class Scheduler {
 				}
 			}
 		}
-		//remove the sent request from the queue. 
-		requests.remove(priorityRequest);
+		
 		//send the request information to the elevator.	
 		elevatorSubsys.updateFloorQueue(requests.get(priorityRequest));
+		//remove the sent request from the queue. 
+		requests.remove(priorityRequest);
 		//stops calling elevators if there are no more requests in the queue.
 		if (requests.isEmpty()) {
 			elevatorNeeded = false;
 		}
+		System.out.println("sent to elevator");
 		notifyAll();
 	}
 	

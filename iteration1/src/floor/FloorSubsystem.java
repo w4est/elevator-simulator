@@ -163,7 +163,7 @@ public class FloorSubsystem implements Runnable{
 					timestampRequest.getValue().setRequest(true);
 					
 				} else {
-					System.out.println("FloorSubsystem: Already completed request with timestamp:" + timestampRequest.getKey().toString());
+					//System.out.println("FloorSubsystem: Already completed request with timestamp:" + timestampRequest.getKey().toString());
 				}
 			}
 			//update the count for peopleWaitingOnAllFloors

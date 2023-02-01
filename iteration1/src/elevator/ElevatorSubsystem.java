@@ -74,6 +74,8 @@ public class ElevatorSubsystem implements Runnable {
 
 	public synchronized void move() {
 
+		scheduler.elevatorNeeded();
+		
 		changeDirection();
 
 		String direction = elevator.getCurrentDirection();
@@ -212,7 +214,7 @@ public class ElevatorSubsystem implements Runnable {
 	public void run() {
 		// TODO Auto-generated method stub
 
-		while(elevator.hasJobs() || !allCompleted()) {
+		while(true) {
 			move();
 		}
 
