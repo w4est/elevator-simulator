@@ -69,8 +69,9 @@ public class Scheduler {
 				e.printStackTrace();
 			}
 		}
-		//tells the elevator to service the oldest job. This will be updated in later iterations to prioritize
-		//based on other factors as well (direction of moving elevator, etc.)
+		//Tells the elevator to service the oldest job. This will be updated in later iterations to prioritize
+		//based on other factors as well (direction of moving elevator, etc.). Currently requests are instantaneous so 
+		//it just works from old to new.
 		LocalTime priorityRequest = null;
 		for (LocalTime t: requests.keySet()) {
 			if(priorityRequest == null || t.isBefore(priorityRequest)) {
