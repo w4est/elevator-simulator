@@ -17,9 +17,9 @@ public class Simulation {
 		
 		List<SimulationEntry> entries = new ArrayList<>();
 		
-		Scheduler schedular = new Scheduler();
-		Thread floorSubsystemThread = new Thread(new FloorSubsystem(schedular));
-		Thread elevatorSubsystemThread = new Thread(new ElevatorSubsystem(schedular, 1));
+		Scheduler scheduler = new Scheduler();
+		Thread floorSubsystemThread = new Thread(new FloorSubsystem(scheduler));
+		Thread elevatorSubsystemThread = new Thread(new ElevatorSubsystem(scheduler, 1));
 		
 		//floorSubsystemThread.start();
 		//elevatorSubsystemThread.start();

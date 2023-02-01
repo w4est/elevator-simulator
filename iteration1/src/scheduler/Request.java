@@ -8,10 +8,10 @@ package scheduler;
  */
 public class Request {
 	private final int floorNumber;
-	private final elevator.ElevatorSubsystem.Direction floorButton;
+	private final String floorButton;
 	private final int carButton;
 
-	public Request(int floorNumber, elevator.ElevatorSubsystem.Direction floorButton, int carButton) {
+	public Request(int floorNumber, String floorButton, int carButton) {
 		this.floorNumber = floorNumber;
 		this.floorButton = floorButton;
 		this.carButton = carButton;
@@ -21,7 +21,7 @@ public class Request {
 		return floorNumber;
 	}
 
-	public elevator.ElevatorSubsystem.Direction getFloorButton() {
+	public String getFloorButton() {
 		return floorButton;
 	}
 
