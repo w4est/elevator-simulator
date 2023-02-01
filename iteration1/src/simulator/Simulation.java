@@ -18,15 +18,17 @@ public class Simulation {
 		List<SimulationEntry> entries = new ArrayList<>();
 		
 		Scheduler scheduler = new Scheduler();
-		Thread floorSubsystemThread = new Thread(new FloorSubsystem(scheduler));
-		Thread elevatorSubsystemThread = new Thread(new ElevatorSubsystem(scheduler, 1));
+		ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem(scheduler, 1);
+		FloorSubsystem floorSubsystem = new FloorSubsystem(scheduler);
 		
-		//needs to be updated
-		scheduler.addElevatorSubsys(elevatorSubsystemThread);
-		scheduler.addFloorSubsys(floorSubsystemThread);
+		scheduler.addElevatorSubsys(elevatorSubsystem);
+		scheduler.addFloorSubsys(floorSubsystem);
 		
-		//floorSubsystemThread.start();
-		//elevatorSubsystemThread.start();
+		Thread floorSubsystemThread = new Thread(floorSubsystem);
+		Thread elevatorSubsystemThread = new Thread(elevatorSubsystem);
+		
+		floorSubsystemThread.start();
+		elevatorSubsystemThread.start();
 		
 		
 		// TODO this should maybe go into the floor? Debatable, ask TA

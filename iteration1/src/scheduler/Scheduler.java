@@ -45,13 +45,11 @@ public class Scheduler {
 	 * This is the command that runs when a user presses a call elevator button on a specific floor.
 	 * It adds the request information to the requests queue, and then notifies the elevator threads to check for a job.
 	 * 
-	 * @param time				LocalTime, the specific time that the request was made.
-	 * @param floorNumber		int, the number of the floor that the elevator request was sent from.
-	 * @param floorButton		String, the direction of the button that was pressed to call the elevator; up or down.
-	 * @param carButton			int, the number of the floor that the person wants to go to.
+	 * @param time		LocalTime, the specific time that the request was made.
+	 * @param request	Request, contains all necessary information about the elevator request.	
 	 */
-	public synchronized void requestElevator(LocalTime time, int floorNumber, String floorButton, int carButton) {
-		requests.put(time, new Request(floorNumber, floorButton, carButton));
+	public synchronized void requestElevator(LocalTime time, Request request) {
+		requests.put(time, request);
 		elevatorNeeded = true;
 		notifyAll();
 	}
