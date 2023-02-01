@@ -42,7 +42,7 @@ public class SimulationEntry {
 
 		LocalTime time = LocalTime.parse(tokens[0]);
 		int sourceFloor = Integer.parseInt(tokens[1]);
-		boolean directionIsUp = tokens[2].equals("up");
+		boolean directionIsUp = tokens[2].equalsIgnoreCase("up");
 		int destinationFloor = Integer.parseInt(tokens[3]);
 
 		return new SimulationEntry(time, sourceFloor, directionIsUp, destinationFloor);

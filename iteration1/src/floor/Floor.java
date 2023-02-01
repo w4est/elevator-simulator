@@ -65,9 +65,9 @@ public class Floor{
 			System.out.println("Cannot remove people that don't exist. People on Floor #" + floorNumber +
 					": " + numberOfPeople);
 		} else {
-			numberOfPeople -= peopleLeavingFloor;
-			System.out.println("Successfylly Removed " + peopleLeavingFloor + " Out of " + numberOfPeople +
+			System.out.println("Successfully Removed " + peopleLeavingFloor + " Out of " + numberOfPeople +
 					" People from Floor #" + floorNumber);
+			numberOfPeople -= peopleLeavingFloor;
 		}
 	}
 	
