@@ -101,4 +101,11 @@ public class Scheduler {
 		floorSubsystem.getElevatorInfoFromScheduler(elevatorNumber, departureFloorNumber, targetFloorNumber);
 		notifyAll();
 	}
+	
+	/*
+	 * Method used to get the list of pending requests.
+	 */
+	public HashMap<LocalTime, Request> getRequests() {
+		return requests;
+	}
 }
