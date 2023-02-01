@@ -65,6 +65,11 @@ public class Scheduler {
 		        oldestRequest = d;
 		}
 		requests.remove(oldestRequest);
+		int destination = requests.get(oldestRequest).getCarButton();
+		int carNumber = requests.get(oldestRequest).getFloorNumber();
+		
+		elevatorSubsys.get(0).updateFloorQueue(destination, 1);
+		
 		//send the Request info to the elevator subsystem
 		if (requests.isEmpty()) {
 			elevatorNeeded = false;
