@@ -79,7 +79,7 @@ public class Elevator implements Runnable {
 
 	}
 
-	public int clearElevator() {
+	public int clearCurrentFloor() {
 		int people = destinationQueue.get(currentFloor);
 		destinationQueue.put(currentFloor, 0);
 		
