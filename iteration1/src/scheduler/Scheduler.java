@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import elevator.*;
+import elevator.ElevatorSubsystem.Direction;
 import floor.*;
 
 /**
@@ -21,18 +22,16 @@ public class Scheduler {
 	//HashMap chosen to store requests with the key being time; this will be the main way of scheduling requests to be picked up,
 	//but in future iterations there will also be logic to schedule based on other factors (request going same direction as moving elevator, etc.)
 	private HashMap<LocalTime, Request> requests;
-	private final ArrayList<ElevatorSubsystem> elevatorSubsys;
+	private ElevatorSubsystem elevatorSubsys;
 	private FloorSubsystem floorSubsystem;
-
-	public Scheduler() {
-		elevatorSubsys = new ArrayList<>();
-	}
+	
+	public Scheduler() {};
 	
     /**
-    * For iteration 1, we need to have references to the elevator subsystems, this will be replaced by network communication in the future.
+    * For iteration 1, we need to have references to the elevator subsystem, this will be replaced by network communication in the future.
     **/
 	public void addElevatorSubsys(ElevatorSubsystem e) {
-		elevatorSubsys.add(e);
+		elevatorSubsys = e;
 	}
 	
 	/**
@@ -71,15 +70,32 @@ public class Scheduler {
 				e.printStackTrace();
 			}
 		}
-		LocalTime oldestRequest = null;
-		for (LocalTime t: requests.keySet()) {
-			if( oldestRequest == null || t.isBefore(oldestRequest))
-		        oldestRequest = t;
+		LocalTime priorityRequest = null;
+		//first checks if the elevator is moving past the request in the same direction to pick it up.
+		//this will need to be updated when there is more than 1 elevator.
+		if(elevatorSubsys.getElevator().getCurrentDirection() != "Idle") {
+			for (LocalTime t: requests.keySet()) {
+				if(requests.get(t).getFloorButton() == elevatorSubsys.getElevator().getCurrentDirection()) {
+					//checks if the direction matches and the elevator will move past the correct floor on its current path
+					if((elevatorSubsys.getElevator().getCurrentFloor() < requests.get(t).getFloorNumber()) && (requests.get(t).getFloorButton() == "Up") || 
+							(elevatorSubsys.getElevator().getCurrentFloor() > requests.get(t).getFloorNumber()) && (requests.get(t).getFloorButton() == "Down")) {
+						priorityRequest = t;
+					}
+				}	        
+			}
+		}
+		//then if not, tells the elevator to service the oldest job
+		else {
+			for (LocalTime t: requests.keySet()) {
+				if(priorityRequest == null || t.isBefore(priorityRequest)) {
+					priorityRequest = t;
+				}
+			}
 		}
 		//remove the sent request from the queue. 
-		requests.remove(oldestRequest);
+		requests.remove(priorityRequest);
 		//send the request information to the elevator.	
-		elevatorSubsys.get(0).updateFloorQueue(requests.get(oldestRequest));
+		elevatorSubsys.updateFloorQueue(requests.get(priorityRequest));
 		//stops calling elevators if there are no more requests in the queue.
 		if (requests.isEmpty()) {
 			elevatorNeeded = false;
