@@ -51,7 +51,6 @@ public class Scheduler {
 	 * @param request	Request, contains all necessary information about the elevator request.	
 	 */
 	public synchronized void requestElevator(LocalTime time, Request request) {
-		System.out.println("scheduler got request");
 		requests.put(time, request);
 		elevatorNeeded = true;
 		notifyAll();
@@ -74,7 +73,7 @@ public class Scheduler {
 		LocalTime priorityRequest = null;
 		//first checks if the elevator is moving past the request in the same direction to pick it up.
 		//this will need to be updated when there is more than 1 elevator.
-		if(elevatorSubsys.getElevator().getCurrentDirection() != "Idle") {
+		if(!elevatorSubsys.getElevator().getCurrentDirection().equals("Idle")) {
 			for (LocalTime t: requests.keySet()) {
 				if(requests.get(t).getFloorButton() == elevatorSubsys.getElevator().getCurrentDirection()) {
 					//checks if the direction matches and the elevator will move past the correct floor on its current path
@@ -102,7 +101,6 @@ public class Scheduler {
 		if (requests.isEmpty()) {
 			elevatorNeeded = false;
 		}
-		System.out.println("sent to elevator");
 		notifyAll();
 	}
 	

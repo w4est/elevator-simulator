@@ -155,9 +155,9 @@ public class FloorSubsystem implements Runnable{
 			    //if the request hasn't been complete, send to scheduler (ex. 03:50:5.010 1 Up 3)
 			    if (timestampRequest.getValue().getRequestStatus() == false) {
 					scheduler.requestElevator(timestampRequest.getKey(), timestampRequest.getValue());
-					System.out.println("FloorSubsystem Sending to Scheduler: Time "+ timestampRequest.getKey().toString() +
-							" Floor#" + timestampRequest.getValue().getFloorNumber() + " Direction"+ timestampRequest.getValue().getFloorButton() +
-							" Destination " + timestampRequest.getValue().getCarButton());
+					System.out.println("FloorSubsystem Sending to Scheduler: Time: "+ timestampRequest.getKey().toString() +
+							" Departure: Floor " + timestampRequest.getValue().getFloorNumber() + " Direction: "+ timestampRequest.getValue().getFloorButton() +
+							" Destination: Floor " + timestampRequest.getValue().getCarButton());
 					//FloorSubsystem will receive messages from Scheduler about the elevator using getElevatorInfoFromScheduler()
 					//Mark request as complete
 					timestampRequest.getValue().setRequest(true);
@@ -168,11 +168,6 @@ public class FloorSubsystem implements Runnable{
 			}
 			//update the count for peopleWaitingOnAllFloors
 			updatePeopleWaitingOnAllFloors();
-			try {
-				Thread.sleep(120); // slow down for correct order of print statements
-			} catch (InterruptedException e) {
-				System.err.println(e);
-			}
 		}
 		System.out.println("People on all floors have successfully reached their destination!\n");
 	}
