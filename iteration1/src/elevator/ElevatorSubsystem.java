@@ -65,6 +65,7 @@ public class ElevatorSubsystem implements Runnable {
 	public synchronized void updateFloorQueue(Request r) {
 		// Called by scheduler to add a job to the queue
 		floorQueues.add(r);
+		scheduler.requestReceived(elevator.getCarNumber(), elevator.getCurrentFloor(), r.getCarButton());
 	}
 
 	public void addJob(int destination, int people) {
@@ -75,12 +76,12 @@ public class ElevatorSubsystem implements Runnable {
 
 		changeDirection();
 
-		Direction direction = elevator.getCurrentDirection();
+		String direction = elevator.getCurrentDirection();
 		int currentFloor = elevator.getCurrentFloor();
 
-		if (direction.equals(Direction.UP)) {
+		if (direction.equals("Up")) {
 			elevator.setCurrentFloor(currentFloor + 1);
-		} else if (direction.equals(Direction.DOWN)) {
+		} else if (direction.equals("Down")) {
 			elevator.setCurrentFloor(currentFloor - 1);
 		}
 
@@ -108,11 +109,11 @@ public class ElevatorSubsystem implements Runnable {
 	private synchronized void changeDirection() {
 
 		if (goUp()) {
-			elevator.setCurrentDirection(Direction.UP);
+			elevator.setCurrentDirection("Up");
 		} else if (goDown()) {
-			elevator.setCurrentDirection(Direction.DOWN);
+			elevator.setCurrentDirection("Down");
 		} else {
-			elevator.setCurrentDirection(Direction.NOT_MOVING);
+			elevator.setCurrentDirection("Idle");
 		}
 	}
 
@@ -201,9 +202,9 @@ public class ElevatorSubsystem implements Runnable {
 	public void run() {
 		// TODO Auto-generated method stub
 
-//		while(true) {
-//			updateQueue();
-//		}
+		while(elevator.hasJobs() && !floorQueues.isEmpty()) {
+			move();
+		}
 
 	}
 }

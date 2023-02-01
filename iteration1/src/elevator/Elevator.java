@@ -7,13 +7,13 @@ import elevator.ElevatorSubsystem.Direction;
 public class Elevator implements Runnable {
 
 	private int currentFloor;
-	private Direction currentDirection;
+	private String currentDirection;
 	private int carNumber;
 	private HashMap<Integer, Integer> destinationQueue;
 
 	public Elevator(int maxFloor, int carNum) {
 		currentFloor = 1;
-		currentDirection = Direction.NOT_MOVING;
+		currentDirection = "Idle";
 		carNumber = carNum;
 		destinationQueue = new HashMap<Integer, Integer>();
 
@@ -30,7 +30,7 @@ public class Elevator implements Runnable {
 		return currentFloor;
 	}
 
-	public Direction getCurrentDirection() {
+	public String getCurrentDirection() {
 		return currentDirection;
 	}
 
@@ -61,7 +61,7 @@ public class Elevator implements Runnable {
 		this.currentFloor = currentFloor;
 	}
 
-	public void setCurrentDirection(Direction currentDirection) {
+	public void setCurrentDirection(String currentDirection) {
 		this.currentDirection = currentDirection;
 	}
 	
@@ -73,10 +73,15 @@ public class Elevator implements Runnable {
 		currentFloor--;
 	}
 
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-
+	public boolean hasJobs() {
+		
+		for (Map.Entry<Integer, Integer> floor : destinationQueue.entrySet()) {
+			if (floor.getValue() > 0) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	public int clearCurrentFloor() {
@@ -84,6 +89,12 @@ public class Elevator implements Runnable {
 		destinationQueue.put(currentFloor, 0);
 		
 		return people;
+		
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
 		
 	}
 }
