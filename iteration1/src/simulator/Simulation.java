@@ -19,7 +19,7 @@ public class Simulation {
 		
 		Scheduler scheduler = new Scheduler();
 		ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem(scheduler, 1);
-		FloorSubsystem floorSubsystem = new FloorSubsystem(scheduler);
+		FloorSubsystem floorSubsystem = new FloorSubsystem(scheduler, 7);
 		
 		scheduler.addElevatorSubsys(elevatorSubsystem);
 		scheduler.addFloorSubsys(floorSubsystem);
