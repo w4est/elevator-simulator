@@ -66,7 +66,7 @@ public class Floor{
 					": " + numberOfPeople);
 		} else {
 			numberOfPeople -= peopleLeavingFloor;
-			System.out.println("Successfylly Removed " + peopleLeavingFloor + " Out of " + numberOfPeople +
+			System.out.println("Successfully Removed " + peopleLeavingFloor + " Out of " + numberOfPeople +
 					" People from Floor #" + floorNumber);
 		}
 	}

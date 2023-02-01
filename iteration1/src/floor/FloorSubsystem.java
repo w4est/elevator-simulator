@@ -132,7 +132,7 @@ public class FloorSubsystem implements Runnable{
 	 * Method used by Scheduler to share with the FloorSubsystem the Elevator info which will be printed to the console.
 	 */
 	public void getElevatorInfoFromScheduler(int elevatorNumber, int departureFloorNumber, int targetFloorNumber) {
-		System.out.println("FloorSubsystem: Elevator#"+ elevatorNumber + "recieved the request and will go from Floor#"
+		System.out.println("FloorSubsystem: Elevator "+ elevatorNumber + " received the request and will go from Floor "
 		+ departureFloorNumber + " to " + targetFloorNumber);
 		removeAllPeopleFromFloor(targetFloorNumber);
 	}
