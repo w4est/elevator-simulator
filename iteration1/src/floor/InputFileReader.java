@@ -7,8 +7,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Optional;
 
-import scheduler.Request;
-
 /**
  * This class loads the simulation's file and creates an object
  * 
