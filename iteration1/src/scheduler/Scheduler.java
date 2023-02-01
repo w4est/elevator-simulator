@@ -19,8 +19,7 @@ import floor.*;
 public class Scheduler {	
 	//this will be set to true when there are people in the queue who have not been serviced
 	private boolean elevatorNeeded = false;
-	//HashMap chosen to store requests with the key being time; this will be the main way of scheduling requests to be picked up,
-	//but in future iterations there will also be logic to schedule based on other factors (request going same direction as moving elevator, etc.)
+	//List of requests received from the Floor Subsystem
 	private HashMap<LocalTime, Request> requests;
 	private ElevatorSubsystem elevatorSubsys;
 	private FloorSubsystem floorSubsystem;
@@ -70,29 +69,15 @@ public class Scheduler {
 				e.printStackTrace();
 			}
 		}
+		//Tells the elevator to service the oldest job. This will be updated in later iterations to prioritize
+		//based on other factors as well (direction of moving elevator, etc.). Currently requests are instantaneous so 
+		//it just works from old to new.
 		LocalTime priorityRequest = null;
-		//first checks if the elevator is moving past the request in the same direction to pick it up.
-		//this will need to be updated when there is more than 1 elevator.
-		if(!elevatorSubsys.getElevator().getCurrentDirection().equals("Idle")) {
-			for (LocalTime t: requests.keySet()) {
-				if(requests.get(t).getFloorButton() == elevatorSubsys.getElevator().getCurrentDirection()) {
-					//checks if the direction matches and the elevator will move past the correct floor on its current path
-					if((elevatorSubsys.getElevator().getCurrentFloor() < requests.get(t).getFloorNumber()) && (requests.get(t).getFloorButton() == "Up") || 
-							(elevatorSubsys.getElevator().getCurrentFloor() > requests.get(t).getFloorNumber()) && (requests.get(t).getFloorButton() == "Down")) {
-						priorityRequest = t;
-					}
-				}	        
-			}
-		}
-		//then if not, tells the elevator to service the oldest job
-		else {
-			for (LocalTime t: requests.keySet()) {
-				if(priorityRequest == null || t.isBefore(priorityRequest)) {
+		for (LocalTime t: requests.keySet()) {
+			if(priorityRequest == null || t.isBefore(priorityRequest)) {
 					priorityRequest = t;
-				}
 			}
 		}
-		
 		//send the request information to the elevator.	
 		elevatorSubsys.updateFloorQueue(requests.get(priorityRequest));
 		//remove the sent request from the queue. 
