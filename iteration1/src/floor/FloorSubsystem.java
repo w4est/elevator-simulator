@@ -59,9 +59,9 @@ public class FloorSubsystem implements Runnable{
 	/**
 	 * Private method used in run() to update the total number of people waiting on floors by
 	 * checking the while loop condition until there are no more people waiting.
-	 * @return int, total number of floors
+	 * Package level for testing
 	 */
-	private void updatePeopleWaitingOnAllFloors() {
+	void updatePeopleWaitingOnAllFloors() {
 		this.peopleWaitingOnAllFloors = 0;
 		for (Floor oneFloor: allFloors) {
 			this.peopleWaitingOnAllFloors += oneFloor.getNumPeople();
@@ -69,12 +69,25 @@ public class FloorSubsystem implements Runnable{
 	}
 	
 	/**
+	 * Returns the current people waiting on all floors.
+	 * To be used with performance tests.
+	 * 
+	 * Package level for testing
+	 * @return The number of people waiting on all floors
+	 */
+	int getPeopleWaitingOnAllFloors() {
+		return peopleWaitingOnAllFloors;
+	}
+	
+	/**
 	 * Private method used in run() to Read file inputs & store data in allEntries list and allFloors list.
 	 * FloorSubsystem reads an input file format where each row represents 1 person.
 	 * request format: "timestamp floornumber "up" floorPersonWantsToGoTo"
 	 * timestamp format: LocalTime(hh:mm:ss.mmm)
+	 * 
+	 * Package level function to allow testing
 	 */
-	private void readInputFromFile() {
+	void readInputFromFile() {
 		String TEST_FILE = "src/input/request_test.txt";
 		try (InputFileReader iReader = new InputFileReader(TEST_FILE)) {
 			Optional<SimulationEntry> entry = iReader.getNextEntry();
@@ -120,9 +133,10 @@ public class FloorSubsystem implements Runnable{
 	 * Method used by Scheduler to share with the FloorSubsystem the Elevator info which will be printed to the console.
 	 */
 	public void getElevatorInfoFromScheduler(int elevatorNumber, int departureFloorNumber, int targetFloorNumber) {
-		System.out.println("FloorSubsystem: Elevator "+ elevatorNumber + " received the request and will go from Floor "
-		+ departureFloorNumber + " to Floor " + targetFloorNumber);
-		removeAllPeopleFromFloor(targetFloorNumber);
+		System.out.println(
+				String.format("FloorSubsystem: Elevator# %s recieved the request and will go from Floor# %s to %s",
+						elevatorNumber, departureFloorNumber, targetFloorNumber));
+		removeAllPeopleFromFloor(departureFloorNumber);
 	}
 	
 	/**
