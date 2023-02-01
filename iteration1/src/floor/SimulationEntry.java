@@ -1,4 +1,4 @@
-package simulator;
+package floor;
 
 import java.io.IOException;
 import java.time.LocalTime;

@@ -1,4 +1,4 @@
-package simulator;
+package floor;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -7,23 +7,25 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Optional;
 
+import scheduler.Request;
+
 /**
  * This class loads the simulation's file and creates an object
  * 
  * 
- * @author William Forrest
+ * @author William Forrest and Subear Jama
  *
  */
-public class SimulatorReader implements AutoCloseable {
+public class InputFileReader implements AutoCloseable {
 
 	private BufferedReader bufferedReader;
 
-	SimulatorReader(String filePath) throws FileNotFoundException {
-		File fileToRead = new File(filePath);
-		FileReader fs;
-		fs = new FileReader(fileToRead);
-		bufferedReader = new BufferedReader(fs);
-	}
+	InputFileReader(String filePath) throws FileNotFoundException {
+			File fileToRead = new File(filePath);
+			FileReader fs;
+			fs = new FileReader(fileToRead);
+			bufferedReader = new BufferedReader(fs);
+		}
 
 	public Optional<SimulationEntry> getNextEntry() throws IOException {
 		String line = bufferedReader.readLine();
