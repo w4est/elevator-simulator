@@ -10,7 +10,7 @@ import scheduler.Scheduler;
 public class ElevatorSubsystem implements Runnable {
 
 	public enum Direction {
-		UP, DOWN, NOT_MOVING
+		UP, DOWN, IDLE
 	}
 
 	private Elevator elevator;
@@ -57,53 +57,52 @@ public class ElevatorSubsystem implements Runnable {
 		return floorQueues;
 	}
 
-	public void updateQueue(int destination, int people) {
-		// Used by scheduler to update the queue of floors elevator needs to go to
-		elevator.addJob(destination, people);
-	}
-
 	public synchronized void updateFloorQueue(Request r) {
 		// Called by scheduler to add a job to the queue
 		floorQueues.add(r);
 		scheduler.requestReceived(elevator.getCarNumber(), elevator.getCurrentFloor(), r.getFloorNumber());
+		System.out.println("Elevator subsystem got the request and will send to elevator");
 	}
 
 	public void addJob(int destination, int people) {
-		elevator.addJob(destination, people);
+//		elevator.addJob(destination, people);
+		System.out.println("Elevator got the request");
 	}
 
 	public synchronized void move() {
 
 		scheduler.elevatorNeeded();
-		
+
 		changeDirection();
 
 		String direction = elevator.getCurrentDirection();
 		int currentFloor = elevator.getCurrentFloor();
 
 		if (direction.equals("Up")) {
-			elevator.setCurrentFloor(currentFloor + 1);
+			System.out.println("Elevator is going up");
+//			elevator.setCurrentFloor(currentFloor + 1);
 		} else if (direction.equals("Down")) {
+			System.out.println("Elevator is going down");
 			elevator.setCurrentFloor(currentFloor - 1);
 		}
 
 		// notifySubsys();
 
-		HashMap<Integer, Integer> destinationQueue = elevator.getDestinationQueue();
+//		HashMap<Integer, Integer> destinationQueue = elevator.getDestinationQueue();
+//
+//		if (destinationQueue.get(currentFloor) != 0) {
+//			// Notifies scheduler to open doors
+//			// Door opens
+//			// Add people to elevator
+//			int people = elevator.clearCurrentFloor();
+//		}
 
-		if (destinationQueue.get(currentFloor) != 0) {
-			// Notifies scheduler to open doors
-			// Door opens
-			// Add people to elevator
-			int people = elevator.clearCurrentFloor();
-		}
-
-		int peopleOn = getCallingPeople(currentFloor);
-
-		if (peopleOn != 0) {
-			// If people need to get on
-			addPassengers();
-		}
+//		int peopleOn = getCallingPeople(currentFloor);
+//
+//		if (peopleOn != 0) {
+//			// If people need to get on
+//			addPassengers();
+//		}
 
 		// Notifies scheduler to close doors
 	}
@@ -119,7 +118,7 @@ public class ElevatorSubsystem implements Runnable {
 		}
 	}
 
-	public int getCallingPeople(int floor) {
+	public int getPeopleWaiting(int floor) {
 
 		int people = 0;
 
@@ -132,23 +131,23 @@ public class ElevatorSubsystem implements Runnable {
 		return people;
 	}
 
-	public void getsOn() {
-		for (int i = 0; i < floorQueues.size(); i++) {
-			if (floorQueues.get(i).getFloorNumber() == elevator.getCurrentFloor()) {
-				floorQueues.remove(i);
-			}
-		}
-	}
-	
-	public void addPassengers() {
-		for (int i = 0; i < floorQueues.size(); i++) {
-			Request r = floorQueues.get(i);
-			if (r.getFloorNumber() == elevator.getCurrentFloor()) {
-				elevator.addJob(r.getCarButton(), 1);
-				floorQueues.get(i).setRequest(true);;
-			}
-		}
-	}
+//	public void getsOn() {
+//		for (int i = 0; i < floorQueues.size(); i++) {
+//			if (floorQueues.get(i).getFloorNumber() == elevator.getCurrentFloor()) {
+//				floorQueues.remove(i);
+//			}
+//		}
+//	}
+
+//	public void addPassengers() {
+//		for (int i = 0; i < floorQueues.size(); i++) {
+//			Request r = floorQueues.get(i);
+//			if (r.getFloorNumber() == elevator.getCurrentFloor()) {
+//				elevator.addJob(r.getCarButton(), 1);
+//				floorQueues.get(i).setRequest(true);;
+//			}
+//		}
+//	}
 
 	private boolean goUp() {
 
@@ -158,16 +157,16 @@ public class ElevatorSubsystem implements Runnable {
 			return false;
 		}
 
-		HashMap<Integer, Integer> destinationQueue = elevator.getDestinationQueue();
+//		HashMap<Integer, Integer> destinationQueue = elevator.getDestinationQueue();
+//
+//		for (int i = currentFloor + 1; i <= MAX_FLOOR; i++) {
+//			if (destinationQueue.containsKey(i)) {
+//				return true;
+//			}
+//		}
 
 		for (int i = currentFloor + 1; i <= MAX_FLOOR; i++) {
-			if (destinationQueue.containsKey(i)) {
-				return true;
-			}
-		}
-
-		for (int i = currentFloor + 1; i <= MAX_FLOOR; i++) {
-			if (getCallingPeople(i) > 0) {
+			if (getPeopleWaiting(i) > 0) {
 				return true;
 			}
 		}
@@ -183,30 +182,30 @@ public class ElevatorSubsystem implements Runnable {
 			return false;
 		}
 
-		HashMap<Integer, Integer> destinationQueue = elevator.getDestinationQueue();
-
-		for (int i = currentFloor - 1; i >= MIN_FLOOR; i--) {
-			if (destinationQueue.containsKey(i)) {
-				return true;
-			}
-		}
+//		HashMap<Integer, Integer> destinationQueue = elevator.getDestinationQueue();
+//
+//		for (int i = currentFloor - 1; i >= MIN_FLOOR; i--) {
+//			if (destinationQueue.containsKey(i)) {
+//				return true;
+//			}
+//		}
 
 		for (int i = currentFloor + 1; i <= MAX_FLOOR; i++) {
-			if (getCallingPeople(i) > 0) {
+			if (getPeopleWaiting(i) > 0) {
 				return true;
 			}
 		}
 
 		return false;
 	}
-	
+
 	public boolean allCompleted() {
 		for (int i = 0; i < floorQueues.size(); i++) {
 			if (floorQueues.get(i).getRequestStatus() == false) {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -214,7 +213,7 @@ public class ElevatorSubsystem implements Runnable {
 	public void run() {
 		// TODO Auto-generated method stub
 
-		while(true) {
+		while (!allCompleted()) {
 			move();
 		}
 
