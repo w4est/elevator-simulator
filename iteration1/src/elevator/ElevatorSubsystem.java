@@ -143,7 +143,7 @@ public class ElevatorSubsystem implements Runnable {
 			Request r = floorQueues.get(i);
 			if (r.getFloorNumber() == elevator.getCurrentFloor()) {
 				elevator.addJob(r.getCarButton(), 1);
-				floorQueues.remove(r);
+				floorQueues.get(i).setRequest(true);;
 			}
 		}
 	}
@@ -197,12 +197,22 @@ public class ElevatorSubsystem implements Runnable {
 
 		return false;
 	}
+	
+	public boolean allCompleted() {
+		for (int i = 0; i < floorQueues.size(); i++) {
+			if (floorQueues.get(i).getRequestStatus() == false) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
 
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 
-		while(elevator.hasJobs() && !floorQueues.isEmpty()) {
+		while(elevator.hasJobs() || !allCompleted()) {
 			move();
 		}
 
