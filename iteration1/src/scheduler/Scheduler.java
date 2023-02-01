@@ -1,11 +1,9 @@
 package scheduler;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 import elevator.*;
-import elevator.ElevatorSubsystem.Direction;
 import floor.*;
 
 /**
@@ -20,12 +18,12 @@ public class Scheduler {
 	//this will be set to true when there are people in the queue who have not been serviced
 	private boolean elevatorNeeded = false;
 	//List of requests received from the Floor Subsystem
-	private HashMap<LocalTime, Request> requests;
+	private TreeMap<LocalTime, Request> requests;
 	private ElevatorSubsystem elevatorSubsys;
 	private FloorSubsystem floorSubsystem;
 	
 	public Scheduler() {
-		requests = new HashMap<LocalTime, Request>();
+		requests = new TreeMap<LocalTime, Request>();
 	};
 	
     /**
@@ -100,5 +98,14 @@ public class Scheduler {
 	public synchronized void requestReceived(int elevatorNumber, int departureFloorNumber, int targetFloorNumber) {
 		floorSubsystem.getElevatorInfoFromScheduler(elevatorNumber, departureFloorNumber, targetFloorNumber);
 		notifyAll();
+	}
+	
+	/**
+	 * Method to get the boolean value of elevatorNeeded.
+	 * 
+	 * @return	boolean, value of elevatorNeeded.
+	 */
+	public boolean getElevatorNeeded() {
+		return elevatorNeeded;
 	}
 }
