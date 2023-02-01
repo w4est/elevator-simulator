@@ -1,4 +1,4 @@
-package simulator;
+package floor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-public class SimulatorReaderTest {
+public class InputFileReaderTest {
 
 	private static final String TEST_FILE1 = "test/resources/reader_test1.txt";
 	private static final String TEST_FILE2 = "test/resources/reader_test2.txt";
@@ -18,7 +18,7 @@ public class SimulatorReaderTest {
 	@Test
 	void shouldReadEntry() throws Exception {
 		// Let the read autoclose when done
-		try (SimulatorReader reader = new SimulatorReader(TEST_FILE1)) {
+		try (InputFileReader reader = new InputFileReader(TEST_FILE1)) {
 			Optional<SimulationEntry> entry = reader.getNextEntry();
 
 			assertTrue(entry.isPresent());
@@ -32,7 +32,7 @@ public class SimulatorReaderTest {
 	@Test
 	void shouldReadAllEntries() throws Exception {
 		// Let the read autoclose when done
-		try (SimulatorReader reader = new SimulatorReader(TEST_FILE2)) {
+		try (InputFileReader reader = new InputFileReader(TEST_FILE2)) {
 
 			List<SimulationEntry> results = new ArrayList<>();
 
