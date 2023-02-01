@@ -121,7 +121,7 @@ public class FloorSubsystem implements Runnable{
 	 */
 	public void getElevatorInfoFromScheduler(int elevatorNumber, int departureFloorNumber, int targetFloorNumber) {
 		System.out.println("FloorSubsystem: Elevator "+ elevatorNumber + " received the request and will go from Floor "
-		+ departureFloorNumber + " to " + targetFloorNumber);
+		+ departureFloorNumber + " to Floor " + targetFloorNumber);
 		removeAllPeopleFromFloor(targetFloorNumber);
 	}
 	
