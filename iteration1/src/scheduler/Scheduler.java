@@ -72,10 +72,8 @@ public class Scheduler {
 		}
 		//remove the sent request from the queue. 
 		requests.remove(oldestRequest);
-		//send the request information to the elevator.
-		int destination = requests.get(oldestRequest).getCarButton();
-		int carNumber = requests.get(oldestRequest).getFloorNumber();
-		elevatorSubsys.get(0).updateFloorQueue(destination, 1);
+		//send the request information to the elevator.	
+		elevatorSubsys.get(0).updateFloorQueue(requests.get(oldestRequest));
 		//stops calling elevators if there are no more requests in the queue.
 		if (requests.isEmpty()) {
 			elevatorNeeded = false;
