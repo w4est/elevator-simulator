@@ -1,0 +1,41 @@
+package simulator;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Optional;
+
+/**
+ * This class loads the simulation's file and creates an object
+ * 
+ * 
+ * @author William Forrest
+ *
+ */
+public class SimulatorReader implements AutoCloseable {
+
+	private BufferedReader bufferedReader;
+
+	SimulatorReader(String filePath) throws FileNotFoundException {
+		File fileToRead = new File(filePath);
+		FileReader fs;
+		fs = new FileReader(fileToRead);
+		bufferedReader = new BufferedReader(fs);
+	}
+
+	public Optional<SimulationEntry> getNextEntry() throws IOException {
+		String line = bufferedReader.readLine();
+		if (line == null) {
+			return Optional.empty();
+		}
+		return Optional.of(SimulationEntry.fromString(line));
+	}
+
+	@Override
+	public void close() throws Exception {
+		this.bufferedReader.close();
+	}
+
+}
