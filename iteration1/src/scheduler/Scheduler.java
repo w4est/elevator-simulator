@@ -24,16 +24,22 @@ public class Scheduler {
 	private final ArrayList<ElevatorSubsystem> elevatorSubsys;
 	private FloorSubsystem floorSubsystem;
 
-	public Scheduler(FloorSubsystem floorSubsystem) {
+	public Scheduler() {
 		elevatorSubsys = new ArrayList<>();
-		this.floorSubsystem = floorSubsystem;
 	}
 	
     /**
-    * For iteration 1, we need to have references to the elevator subsystem, this will be replaced by network communication in the future.
+    * For iteration 1, we need to have references to the elevator subsystems, this will be replaced by network communication in the future.
     **/
 	public void addElevatorSubsys(ElevatorSubsystem e) {
 		elevatorSubsys.add(e);
+	}
+	
+	/**
+	* For iteration 1, we need to have references to the floor subsystem, this will be replaced by network communication in the future.
+	**/
+	public void addFloorSubsys(FloorSubsystem f) {
+		floorSubsystem = f;
 	}
 	
 	/**

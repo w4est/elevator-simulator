@@ -21,6 +21,10 @@ public class Simulation {
 		Thread floorSubsystemThread = new Thread(new FloorSubsystem(scheduler));
 		Thread elevatorSubsystemThread = new Thread(new ElevatorSubsystem(scheduler, 1));
 		
+		//needs to be updated
+		scheduler.addElevatorSubsys(elevatorSubsystemThread);
+		scheduler.addFloorSubsys(floorSubsystemThread);
+		
 		//floorSubsystemThread.start();
 		//elevatorSubsystemThread.start();
 		
