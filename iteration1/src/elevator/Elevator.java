@@ -10,14 +10,12 @@ public class Elevator implements Runnable {
 	private Direction currentDirection;
 	private int carNumber;
 	private HashMap<Integer, Integer> destinationQueue;
-	private HashMap<Integer, Integer> floorQueues;
 
 	public Elevator(int maxFloor, int carNum) {
 		currentFloor = 1;
 		currentDirection = Direction.NOT_MOVING;
 		carNumber = carNum;
 		destinationQueue = new HashMap<Integer, Integer>();
-		floorQueues = new HashMap<Integer, Integer>();
 
 		for (int i = 0; i < maxFloor; i++) {
 			destinationQueue.put(i + 1, 0);
@@ -59,10 +57,6 @@ public class Elevator implements Runnable {
 		return destinationQueue;
 	}
 
-	public HashMap<Integer, Integer> getFloorQueues() {
-		return floorQueues;
-	}
-
 	public void setCurrentFloor(int currentFloor) {
 		this.currentFloor = currentFloor;
 	}
@@ -70,10 +64,26 @@ public class Elevator implements Runnable {
 	public void setCurrentDirection(Direction currentDirection) {
 		this.currentDirection = currentDirection;
 	}
+	
+	public void moveUp() {
+		currentFloor++;
+	}
+	
+	public void moveDown() {
+		currentFloor--;
+	}
 
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 
+	}
+
+	public int clearElevator() {
+		int people = destinationQueue.get(currentFloor);
+		destinationQueue.put(currentFloor, 0);
+		
+		return people;
+		
 	}
 }

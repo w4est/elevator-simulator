@@ -18,22 +18,38 @@ public class ElevatorSubsystem implements Runnable {
 	public final static int DEFAULT_MIN_FLOOR = 1;
 	private final int MAX_FLOOR;
 	private final int MIN_FLOOR;
+	private HashMap<Integer, Integer> floorQueues;
 
 	public ElevatorSubsystem(Scheduler s, int carNumber) {
 		this(s, carNumber, DEFAULT_MAX_FLOOR, DEFAULT_MIN_FLOOR);
+		floorQueues = new HashMap<Integer, Integer>();
+
+		for (int i = MIN_FLOOR; i <= MAX_FLOOR; i++) {
+			floorQueues.put(i, 0);
+		}
 	}
 
 	public ElevatorSubsystem(Scheduler s, int carNumber, int max, int min) {
 		this.scheduler = s;
-		
+
 		if (min >= max) {
 			throw new IllegalArgumentException("Elevator needs at least 2 floors");
 		}
-		
+
 		this.MIN_FLOOR = min;
 		this.MAX_FLOOR = max;
-		
+
 		this.elevator = new Elevator(this.MAX_FLOOR, carNumber);
+		floorQueues = new HashMap<Integer, Integer>();
+
+		for (int i = MIN_FLOOR; i <= MAX_FLOOR; i++) {
+			floorQueues.put(i, 0);
+		}
+
+	}
+
+	public Elevator getElevator() {
+		return elevator;
 	}
 
 	public int getMinFloor() {
@@ -44,13 +60,19 @@ public class ElevatorSubsystem implements Runnable {
 		return MAX_FLOOR;
 	}
 
+	public HashMap<Integer, Integer> getFloorQueues() {
+		return floorQueues;
+	}
+
 	public void updateQueue(int destination, int people) {
 		// Used by scheduler to update the queue of floors elevator needs to go to
 		elevator.addJob(destination, people);
 	}
 
-	public synchronized void updateScheduler() {
+	public synchronized void updateFloorQueue(int destination, int people) {
 		// Called by scheduler to add a job to the queue
+		int newPeople = floorQueues.get(destination) + people;
+		floorQueues.put(destination, newPeople);
 	}
 
 	public void notifySceduler() {
@@ -60,6 +82,7 @@ public class ElevatorSubsystem implements Runnable {
 	public void addJob(int destination, int people) {
 		elevator.addJob(destination, people);
 	}
+
 	public synchronized void move() {
 
 		changeDirection();
@@ -75,17 +98,17 @@ public class ElevatorSubsystem implements Runnable {
 
 		// notifySubsys();
 
-		HashMap<Integer, Integer> floorQueues = elevator.getFloorQueues();
+		HashMap<Integer, Integer> destinationQueue = elevator.getDestinationQueue();
 
-		if (floorQueues.get(currentFloor) != 0) {
+		if (destinationQueue.get(currentFloor) != 0) {
 			// Notifies scheduler to open doors
 			// Door opens
 			// Add people to elevator
+			int people = elevator.clearElevator();
 		}
 
-		HashMap<Integer, Integer> destinationQueue = elevator.getDestinationQueue();
-
-		if (destinationQueue.containsKey(currentFloor)) {
+		if (floorQueues.get(currentFloor) != 0) {
+			// If people need to get on
 			int people = floorQueues.get(currentFloor);
 			elevator.addJob(currentFloor, people);
 		}
@@ -108,14 +131,20 @@ public class ElevatorSubsystem implements Runnable {
 
 		int currentFloor = elevator.getCurrentFloor();
 
-		if (currentFloor == DEFAULT_MAX_FLOOR) {
+		if (currentFloor == MAX_FLOOR) {
 			return false;
 		}
 
 		HashMap<Integer, Integer> destinationQueue = elevator.getDestinationQueue();
 
-		for (int i = currentFloor; i <= DEFAULT_MAX_FLOOR; i++) {
+		for (int i = currentFloor + 1; i <= MAX_FLOOR; i++) {
 			if (destinationQueue.containsKey(currentFloor)) {
+				return true;
+			}
+		}
+
+		for (int i = currentFloor + 1; i <= MAX_FLOOR; i++) {
+			if (floorQueues.containsKey(currentFloor)) {
 				return true;
 			}
 		}
@@ -127,14 +156,20 @@ public class ElevatorSubsystem implements Runnable {
 
 		int currentFloor = elevator.getCurrentFloor();
 
-		if (currentFloor == DEFAULT_MIN_FLOOR) {
+		if (currentFloor == MIN_FLOOR) {
 			return false;
 		}
 
 		HashMap<Integer, Integer> destinationQueue = elevator.getDestinationQueue();
 
-		for (int i = currentFloor; i >= DEFAULT_MIN_FLOOR; i--) {
+		for (int i = currentFloor - 1; i >= MIN_FLOOR; i--) {
 			if (destinationQueue.containsKey(currentFloor)) {
+				return true;
+			}
+		}
+
+		for (int i = currentFloor - 1; i >= MIN_FLOOR; i--) {
+			if (floorQueues.containsKey(currentFloor)) {
 				return true;
 			}
 		}

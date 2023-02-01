@@ -16,4 +16,17 @@ public class Request {
 		this.floorButton = floorButton;
 		this.carButton = carButton;
 	}
+	
+	public int getFloorNumber() {
+		return floorNumber;
+	}
+
+	public elevator.ElevatorSubsystem.Direction getFloorButton() {
+		return floorButton;
+	}
+
+	public int getCarButton() {
+		return carButton;
+	}
+
 }
