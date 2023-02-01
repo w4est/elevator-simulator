@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Optional;
 
 /**
@@ -17,20 +16,13 @@ import java.util.Optional;
  */
 public class SimulatorReader implements AutoCloseable {
 
-	File file;
-	BufferedReader bufferedReader;
+	private BufferedReader bufferedReader;
 
-	SimulatorReader(String filePath) {
-
+	SimulatorReader(String filePath) throws FileNotFoundException {
 		File fileToRead = new File(filePath);
 		FileReader fs;
-		try {
-			System.out.println(fileToRead.getAbsolutePath());
-			fs = new FileReader(fileToRead);
-			bufferedReader = new BufferedReader(fs);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		fs = new FileReader(fileToRead);
+		bufferedReader = new BufferedReader(fs);
 	}
 
 	public Optional<SimulationEntry> getNextEntry() throws IOException {

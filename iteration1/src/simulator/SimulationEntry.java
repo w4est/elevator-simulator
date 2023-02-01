@@ -47,6 +47,13 @@ public class SimulationEntry {
 
 		return new SimulationEntry(time, sourceFloor, directionIsUp, destinationFloor);
 	}
+	
+	@Override
+	public String toString() {
+		String direction = up ? "going up" : "going down";
+		return "[" + String.join(",", timestamp.toString(), Integer.valueOf(destinationFloor).toString(), direction,
+				Integer.valueOf(destinationFloor).toString()) + "]";
+	}
 
 	public LocalTime getTimestamp() {
 		return timestamp;
