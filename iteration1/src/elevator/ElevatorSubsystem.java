@@ -1,9 +1,6 @@
 package elevator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-
-import elevator.ElevatorSubsystem.Direction;
 import scheduler.Request;
 import scheduler.Scheduler;
 
@@ -60,58 +57,25 @@ public class ElevatorSubsystem implements Runnable {
 	public synchronized void updateFloorQueue(Request r) {
 		// Called by scheduler to add a job to the queue
 		floorQueues.add(r);
-		scheduler.requestReceived(elevator.getCarNumber(), elevator.getCurrentFloor(), r.getFloorNumber());
-		System.out.println("Elevator subsystem got the request and will send to elevator");
+		scheduler.requestReceived(elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton());
+		r.setRequest(true);
 	}
 
 	public void addJob(int destination, int people) {
-//		elevator.addJob(destination, people);
 		System.out.println("Elevator got the request");
 	}
 
 	public synchronized void move() {
-
-		scheduler.elevatorNeeded();
-
-		changeDirection();
-
-		String direction = elevator.getCurrentDirection();
-		int currentFloor = elevator.getCurrentFloor();
-
-		if (direction.equals("Up")) {
-			System.out.println("Elevator is going up");
-//			elevator.setCurrentFloor(currentFloor + 1);
-		} else if (direction.equals("Down")) {
-			System.out.println("Elevator is going down");
-			elevator.setCurrentFloor(currentFloor - 1);
-		}
 		
 		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
+			Thread.sleep(1000);
+		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e1.printStackTrace();
 		}
 
-		// notifySubsys();
-
-//		HashMap<Integer, Integer> destinationQueue = elevator.getDestinationQueue();
-//
-//		if (destinationQueue.get(currentFloor) != 0) {
-//			// Notifies scheduler to open doors
-//			// Door opens
-//			// Add people to elevator
-//			int people = elevator.clearCurrentFloor();
-//		}
-
-//		int peopleOn = getCallingPeople(currentFloor);
-//
-//		if (peopleOn != 0) {
-//			// If people need to get on
-//			addPassengers();
-//		}
-
-		// Notifies scheduler to close doors
+		scheduler.elevatorNeeded();
+		
 	}
 
 	private synchronized void changeDirection() {
@@ -138,24 +102,6 @@ public class ElevatorSubsystem implements Runnable {
 		return people;
 	}
 
-//	public void getsOn() {
-//		for (int i = 0; i < floorQueues.size(); i++) {
-//			if (floorQueues.get(i).getFloorNumber() == elevator.getCurrentFloor()) {
-//				floorQueues.remove(i);
-//			}
-//		}
-//	}
-
-//	public void addPassengers() {
-//		for (int i = 0; i < floorQueues.size(); i++) {
-//			Request r = floorQueues.get(i);
-//			if (r.getFloorNumber() == elevator.getCurrentFloor()) {
-//				elevator.addJob(r.getCarButton(), 1);
-//				floorQueues.get(i).setRequest(true);;
-//			}
-//		}
-//	}
-
 	private boolean goUp() {
 
 		int currentFloor = elevator.getCurrentFloor();
@@ -163,14 +109,6 @@ public class ElevatorSubsystem implements Runnable {
 		if (currentFloor == MAX_FLOOR) {
 			return false;
 		}
-
-//		HashMap<Integer, Integer> destinationQueue = elevator.getDestinationQueue();
-//
-//		for (int i = currentFloor + 1; i <= MAX_FLOOR; i++) {
-//			if (destinationQueue.containsKey(i)) {
-//				return true;
-//			}
-//		}
 
 		for (int i = currentFloor + 1; i <= MAX_FLOOR; i++) {
 			if (getPeopleWaiting(i) > 0) {
@@ -189,14 +127,6 @@ public class ElevatorSubsystem implements Runnable {
 			return false;
 		}
 
-//		HashMap<Integer, Integer> destinationQueue = elevator.getDestinationQueue();
-//
-//		for (int i = currentFloor - 1; i >= MIN_FLOOR; i--) {
-//			if (destinationQueue.containsKey(i)) {
-//				return true;
-//			}
-//		}
-
 		for (int i = currentFloor + 1; i <= MAX_FLOOR; i++) {
 			if (getPeopleWaiting(i) > 0) {
 				return true;
@@ -206,28 +136,30 @@ public class ElevatorSubsystem implements Runnable {
 		return false;
 	}
 
-	//public boolean allCompleted() {
-		//for (int i = 0; i < floorQueues.size(); i++) {
-			//if (floorQueues.get(i).getRequestStatus() == false) {
-				//return false;
-			//}
-		//}
+	public boolean allCompleted() {
+		for (int i = 0; i < floorQueues.size(); i++) {
+			if (floorQueues.get(i).getRequestStatus() == false) {
+				return false;
+			}
+		}
 
-		//return true;
-	//}
+		return true;
+	}
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
+
 		try {
-			Thread.sleep(100);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		while (scheduler.getElevatorNeeded()) {
+		
+		while (true) {
 			move();
 		}
+		
+//		System.out.println("Elevator subsystem is done");
 
 	}
 }
