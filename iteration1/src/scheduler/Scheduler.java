@@ -67,13 +67,18 @@ public class Scheduler {
 	public synchronized void elevatorNeeded() {
 		// this will need to be updated when there are multiple elevator threads to
 		// ensure that they don't all attempt to fulfill the request.
-		while (!elevatorNeeded) {
+		while (!elevatorNeeded && !done) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
 				System.out.println("Scheduler ran into an error: ");
 				e.printStackTrace();
 			}
+		}
+		
+		if (done) {
+			notifyAll();
+			return;
 		}
 		// Tells the elevator to service the oldest job. This will be updated in later
 		// iterations to prioritize
@@ -123,14 +128,15 @@ public class Scheduler {
 		return elevatorNeeded;
 	}
 
-	public boolean isDone() {
+	public synchronized boolean isDone() {
 		return done;
 	}
 
-	public void toggleDone() {
+	public synchronized void toggleDone() {
 		System.out.println("schduler.done = " + done);
 		this.done = !done;
 		System.out.println("schduler.done = " + done);
+		notifyAll();
 	}
 
 }
