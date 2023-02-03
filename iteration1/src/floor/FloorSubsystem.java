@@ -127,17 +127,9 @@ public class FloorSubsystem implements Runnable {
 	 * from a floor
 	 */
 	private void removeAllPeopleFromFloor(int floorNumber) {
-//		for (Floor oneFloor : allFloors) {
-//			if (floorNumber == oneFloor.getFloorNumber()) {
-//				oneFloor.removePeople(oneFloor.getNumPeople());
-//			}
-//		}
-
-		for (int i = 0; i < allFloors.size(); i++) {
-			Floor f = allFloors.get(i);
-			if (f.getFloorNumber() == floorNumber) {
-				int people = f.getNumPeople();
-				f.removePeople(people);
+		for (Floor oneFloor : allFloors) {
+			if (floorNumber == oneFloor.getFloorNumber()) {
+				oneFloor.removePeople(oneFloor.getNumPeople());
 			}
 		}
 	}
