@@ -68,7 +68,7 @@ public class ElevatorSubsystem implements Runnable {
 	public synchronized void move() {
 		
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -148,18 +148,12 @@ public class ElevatorSubsystem implements Runnable {
 
 	@Override
 	public void run() {
-
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		
-		while (true) {
+		while (!scheduler.isDone()) {
 			move();
 		}
 		
-//		System.out.println("Elevator subsystem is done");
+		System.out.println("Elevator subsystem is done");
 
 	}
 }

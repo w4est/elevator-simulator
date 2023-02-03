@@ -152,7 +152,7 @@ public class FloorSubsystem implements Runnable {
 						elevatorNumber, departureFloorNumber, targetFloorNumber));
 		removeAllPeopleFromFloor(departureFloorNumber);
 	}
-
+	
 	/**
 	 * Communicate with scheduler until there are no more people to move on all
 	 * floors. Steps: 1. Reads request input from file and stores in FloorSubsystem.
@@ -166,42 +166,6 @@ public class FloorSubsystem implements Runnable {
 		updatePeopleWaitingOnAllFloors();
 		// another way could have a condition to check if all requests (from allEntries)
 		// have been completed.
-
-//		for (Map.Entry<LocalTime, Request> timestampRequest : allRequests.entrySet()) {
-//		    //if the request hasn't been complete, send to scheduler (ex. 03:50:5.010 1 Up 3)
-//		    if (timestampRequest.getValue().getRequestStatus() == false) {
-//				scheduler.requestElevator(timestampRequest.getKey(), timestampRequest.getValue());
-//				System.out.println("FloorSubsystem Sending to Scheduler: Time: "+ timestampRequest.getKey().toString() +
-//						" Departure: Floor " + timestampRequest.getValue().getFloorNumber() + " Direction: "+ timestampRequest.getValue().getFloorButton() +
-//						" Destination: Floor " + timestampRequest.getValue().getCarButton());
-//				//FloorSubsystem will receive messages from Scheduler about the elevator using getElevatorInfoFromScheduler()
-//				//Mark request as complete
-//				//timestampRequest.getValue().setRequest(true);
-//				
-//			} else {
-//				//System.out.println("FloorSubsystem: Already completed request with timestamp:" + timestampRequest.getKey().toString());
-//			}
-//		}
-//		
-//		while(peopleWaitingOnAllFloors != 0) {
-//			
-//			try {
-//				Thread.sleep(1000);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			
-//			System.out.println("Floor Subsystem is waiting for all requests to be done");
-//			
-//			for (Map.Entry<LocalTime, Request> timestampRequest : allRequests.entrySet()) {
-//				if (timestampRequest.getValue().getRequestStatus() == true) {
-//					updatePeopleWaitingOnAllFloors();
-//				}
-//			}
-//			
-//			System.out.println("Number of people waiting = " + peopleWaitingOnAllFloors);
-//		}
 
 		while (peopleWaitingOnAllFloors != 0) {
 			// loop through each key value pair in allRequests and send to simulator
@@ -235,6 +199,8 @@ public class FloorSubsystem implements Runnable {
 			// update the count for peopleWaitingOnAllFloors
 			updatePeopleWaitingOnAllFloors();
 		}
-		System.out.println("People on all floors have successfully reached their destination!\n");
+		System.out.println("People on all floors have successfully reached their destination!");
+		System.out.println("Floor subsystem is sending finishing message to scheduler");
+		scheduler.toggleDone();
 	}
 }
