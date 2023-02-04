@@ -9,7 +9,7 @@ public class ElevatorTest {
 	@Test
 	void shouldCreateElevator() {
 
-		Elevator elevator = new Elevator(7, 2);
+		Elevator elevator = new Elevator(2);
 
 		// Assert the standard settings
 		assertEquals(2, elevator.getCarNumber());
