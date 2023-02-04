@@ -31,7 +31,7 @@ loop !scheduler.isDone()
         loop Floor oneFloor : allFloors
             alt floorNumber == oneFloor.getFloorNumber()
                 activate Floor
-                FloorSubsystem -> Floor: oneFloor.removePeople(oneFloor.getNumPeople())
+                FloorSubsystem -> Floor: oneFloor.removePeople(1)
                 alt peopleLeavingFloor < numberOfPeople
                     Floor -> Floor: numberOfPeople -= peopleLeavingFloor
                 end
