@@ -45,7 +45,7 @@ public class Request {
 		this.requestSent = sentRequest;
 	}
 	
-	public boolean getRequestStatus(){
+	public boolean getRequestStatus() {
 		return this.requestSent;
 	}
 

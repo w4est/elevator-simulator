@@ -82,12 +82,6 @@ class ElevatorSubsystem <<Runnable>> {
     + void run() 
 }
 
-enum Direction {
-    UP
-    DOWN
-    IDLE
-}
-
 class Elevator <<Runnable>> {
     - int currentFloor
     - String currentDirection
@@ -115,14 +109,38 @@ class SimulationEntry {
     + int getDestinationFloor()
 }
 
+class Request {
+    - int floorNumber
+    - String floorButton
+    - int carButton
+    - boolean requestSent
+
+    + int getFloorNumber()
+    + String getFloorButton()
+    + int getCarButton()
+    + void setRequest(boolean sentRequest)
+    + boolean getRequestStatus()
+}
+
+class Simulation {
+    - {static} Thread floorSubsystemThread
+    - {static} Thread elevatorSubsystemThread
+
+    + main(String[] args)
+}
+
 Runnable <|.. FloorSubsystem
 Runnable <|.. ElevatorSubsystem
 FloorSubsystem "1" --> "N" Floor
 FloorSubsystem ..> InputFileReader
 FloorSubsystem ..> SimulationEntry
+FloorSubsystem "1" --> "N" Request
 InputFileReader ..> SimulationEntry
 FloorSubsystem "1" ---> "1" Scheduler
 ElevatorSubsystem "1" ---> "1" Scheduler
 ElevatorSubsystem "1" --> "N" Elevator
-Elevator o-- Direction
+ElevatorSubsystem "1" --> "N" Request
+Scheduler "1" --> "N" Request
+Simulation "1" --> "1" ElevatorSubsystem
+Simulation "1" --> "1" FloorSubsystem
 @enduml
