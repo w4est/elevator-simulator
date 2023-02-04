@@ -29,14 +29,29 @@ public class Request {
 		this.requestSent = false;
 	}
 	
+	/**
+	 * Used to get the floor number of the request.
+	 * 
+	 * @return	int, the floor number of the request.
+	 */
 	public int getFloorNumber() {
 		return floorNumber;
 	}
 
+	/**
+	 * Used to get the floor button input of the request (up or down).
+	 * 
+	 * @return	String, the direction of the request; up or down.
+	 */
 	public String getFloorButton() {
 		return floorButton;
 	}
 
+	/**
+	 * Used to get the car button input of the request (target floor)
+	 * 
+	 * @return	int, target floor of the request.
+	 */
 	public int getCarButton() {
 		return carButton;
 	}
@@ -45,6 +60,11 @@ public class Request {
 		this.requestSent = sentRequest;
 	}
 	
+	/**
+	 * Used to get the request status (false if not sent to scheduler, true if sent).
+	 * 
+	 * @return	boolean, the sent status of the request.
+	 */
 	public boolean getRequestStatus() {
 		return this.requestSent;
 	}

@@ -9,9 +9,9 @@ import floor.*;
 /**
  * @author Jacob Hovey
  * 
- *         The Scheduler for the elevator system. Thread synchronization will
- *         occur in this class. Communicates with the floor and elevator
- *         subsystems to schedule the best elevator route.
+ * The Scheduler for the elevator system. Thread synchronization will
+ * occur in this class. Communicates with the floor and elevator
+ * subsystems to schedule the best elevator route.
  *
  */
 public class Scheduler {
@@ -129,16 +129,17 @@ public class Scheduler {
 	}
 
 	/**
-	 * Gets whether the floor subsystem is done
-	 * @return boolean done
+	 * Gets whether the floor subsystem is done.
+	 * 
+	 * @return boolean, represents whether or not the floor is done.
 	 */
 	public synchronized boolean isDone() {
 		return done;
 	}
 
 	/**
-	 * Toggled by the subsystem to notify
-	 * when the floor subsystem is done running
+	 * Toggled by the floor subsystem to notify
+	 * when it is done running.
 	 */
 	public synchronized void toggleDone() {
 		this.done = !done;
