@@ -14,10 +14,11 @@ loop peopleWaitingOnAllFloors != 0
             activate Scheduler
             Scheduler -> Scheduler: requests.put(time, request)
             Scheduler -> Scheduler: elevatorNeeded = true
+            FloorSubsystem -> FloorSubsystem : timestampRequest.getValue().setRequest(true);
         end loop
     deactivate Scheduler
-    FloorSubsystem -> FloorSubsystem : updatePeopleWaitingOnAllFloors()
     end loop
+    FloorSubsystem -> FloorSubsystem : updatePeopleWaitingOnAllFloors()
 end loop
 
 
