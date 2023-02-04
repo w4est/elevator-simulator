@@ -13,14 +13,14 @@ public class Request {
 	private final String floorButton;
 	//the number of the floor that the request wants to go to
 	private final int carButton;
-	
+	// initially false but true when request has been completed
 	private boolean requestComplete;
 
 	/**
 	 * Request Constructor sets up an individual person's request. The request will also be set to false until it has been completed
-	 * @param floorNumber
-	 * @param floorButton
-	 * @param carButton
+	 * @param floorNumber int, the current floor number.
+	 * @param floorButton String, the direction either being "Up" or "Down".
+	 * @param carButton int, the destination floor number.
 	 */
 	public Request(int floorNumber, String floorButton, int carButton) {
 		this.floorNumber = floorNumber;

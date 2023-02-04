@@ -1,5 +1,6 @@
 package elevator;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import scheduler.Request;
 import scheduler.Scheduler;
@@ -54,10 +55,10 @@ public class ElevatorSubsystem implements Runnable {
 		return floorQueues;
 	}
 
-	public synchronized void updateFloorQueue(Request r) {
+	public synchronized void updateFloorQueue(Request r, LocalTime timestamp) {
 		// Called by scheduler to add a job to the queue
 		floorQueues.add(r);
-		scheduler.requestReceived(elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton());
+		scheduler.requestReceived(timestamp, elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton());
 		r.setRequest(true);
 	}
 
