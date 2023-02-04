@@ -2,7 +2,6 @@
 package elevator;
 
 // Import libraries
-import java.time.LocalTime;
 import java.util.ArrayList;
 import scheduler.Request;
 import scheduler.Scheduler;
@@ -110,14 +109,6 @@ public class ElevatorSubsystem implements Runnable {
 	 * gets any new requests from the scheduler
 	 */
 	public synchronized void move() {
-		
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
 		scheduler.elevatorNeeded();
 		
 	}

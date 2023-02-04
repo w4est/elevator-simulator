@@ -9,7 +9,8 @@ import scheduler.Scheduler;
 /**
  * FloorSubsystem Class communicates with Scheduler (Scheduler shared with the Elevator).
  * It first takes requests from a text file to store and send to the Scheduler.
- * It then receives info about the Elevator from the Scheduler and removes people from the floor to signal as completed.
+ * It then receives info about the Elevator from the Scheduler and removes people from the 
+ * floor to signal as completed.
  * 
  * @author Subear Jama
  */
@@ -43,7 +44,7 @@ public class FloorSubsystem implements Runnable {
 	}
 
 	/**
-	 * Private method adds a floor to the FloorSubsystem.
+	 * Private method adds a floor to the FloorSubsystem within the Constructor.
 	 * It uses the floor's number and the number of people on that floor.
 	 * @param floorNumber int, the floor's number.
 	 * @param numPeople   int, the number of people on that floor.
@@ -60,8 +61,9 @@ public class FloorSubsystem implements Runnable {
 	}
 
 	/**
-	 * Private method used in run() to update the total number of people waiting on
-	 * all floors by adding people from every floor.
+	 * Private method used in readInputFromFile() and run() to update the 
+	 * total number of people waiting on all floors. It does this by resetting the 
+	 * count and then adding people from every floor.
 	 */
 	private void updatePeopleWaitingOnAllFloors() {
 		this.peopleWaitingOnAllFloors = 0;
@@ -91,19 +93,20 @@ public class FloorSubsystem implements Runnable {
 		
 		try (InputFileReader iReader = new InputFileReader(this.TEST_FILE)) {
 			Optional<SimulationEntry> entry = iReader.getNextEntry();
-
 			while (entry.isPresent()) {
+				// Get & print the text line entry
 				SimulationEntry currentEntry = entry.get();
 				System.out.println(entry.get());
 
+				// Store line read from text into allRequests TreeMap
 				allRequests.put(currentEntry.getTimestamp(), new Request(currentEntry.getSourceFloor(),
 						currentEntry.isUp() ? "Up" : "Down", currentEntry.getDestinationFloor()));
 
 				// Set up Floor (increase # of people and set direction for every line)
 				for (Floor oneFloor : allFloors) {
 					if (oneFloor.getFloorNumber() == currentEntry.getSourceFloor()) {
-						oneFloor.addNumberOfPeople(1); // anytime there's another floor keep adding (incrementing) # of
-														// people
+						 // anytime there's another floor keep adding (incrementing) # of people
+						oneFloor.addNumberOfPeople(1);						
 						if (currentEntry.isUp()) {
 							oneFloor.setUpButton(true);
 						} else {
@@ -116,6 +119,8 @@ public class FloorSubsystem implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		// Finally set up a count for all the people waiting on all floors (peopleWaitingOnAllFloors) from allRequests
+		updatePeopleWaitingOnAllFloors();
 	}
 	
 	/**
@@ -123,6 +128,7 @@ public class FloorSubsystem implements Runnable {
 	 * @param floorNumber int, the floor number to remove 1 person from.
 	 */
 	private void removePersonFromFloor(int floorNumber) {
+		this.peopleWaitingOnAllFloors -=1;
 		for (Floor oneFloor : allFloors) {
 			if (floorNumber == oneFloor.getFloorNumber()) {
 				oneFloor.removePeople(1);
@@ -152,14 +158,12 @@ public class FloorSubsystem implements Runnable {
 	 * so that they are not waiting.
 	 * Steps: 1. Reads request input from file and stores in FloorSubsystem.
 	 * 		  2. Sends data to Scheduler to request an elevator. 
-	 *		  3. Receives data from scheduler to print that the elevator will arrive.
+	 *		  3. Receives elevator data from scheduler to print that the elevator will arrive.
 	 */
 	@Override
 	public void run() {
 		// read and set up allRequests (to send requests) and allFloors (used to check while loop)
 		readInputFromFile();
-		// set up a count for all the people waiting on all floors (peopleWaitingOnAllFloors) from allRequests
-		updatePeopleWaitingOnAllFloors();
 		// condition is true when all the requests have received a message which removes people from the floor
 		while (peopleWaitingOnAllFloors != 0) {
 			// loop through each key value pair in allRequests and send each request to scheduler
