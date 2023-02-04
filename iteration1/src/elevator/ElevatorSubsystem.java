@@ -55,11 +55,10 @@ public class ElevatorSubsystem implements Runnable {
 		return floorQueues;
 	}
 
-	public synchronized void updateFloorQueue(Request r, LocalTime timestamp) {
+	public synchronized void updateFloorQueue(Request r) {
 		// Called by scheduler to add a job to the queue
 		floorQueues.add(r);
-		scheduler.requestReceived(timestamp, elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton());
-		r.setRequest(true);
+		scheduler.requestReceived(elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton());
 	}
 
 	public void addJob(int destination, int people) {

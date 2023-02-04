@@ -68,7 +68,6 @@ public class FloorSubsystem implements Runnable {
 		for (Floor oneFloor : allFloors) {
 			this.peopleWaitingOnAllFloors += oneFloor.getNumPeople();
 		}
-		System.out.println("Number of people waiting = " + this.peopleWaitingOnAllFloors);
 	}
 
 	/**
@@ -133,26 +132,19 @@ public class FloorSubsystem implements Runnable {
 	
 	/**
 	 * Method is used by Scheduler for the FloorSubsystem to receive the Elevator info.
-	 * It prints out a message to signal its been received and then removes that person from the floor 
-	 * and marks request as complete.
+	 * It prints out a message to signal its been received and then removes that person from the floor
 	 * 
 	 * Note: Also used to test if data is being passed back and forth.
 	 * @param elevatorNumber       int, the elevator's number.
 	 * @param departureFloorNumber int, the request's current floor.
 	 * @param targetFloorNumber    int, the request's destination floor
 	 */
-	public void getElevatorInfoFromScheduler(LocalTime timestamp, int elevatorNumber, int departureFloorNumber, int targetFloorNumber) {
+	public void getElevatorInfoFromScheduler(int elevatorNumber, int departureFloorNumber, int targetFloorNumber) {
 		System.out.println(
 				String.format("FloorSubsystem Received from Scheduler: "
 						+ "Elevator# %s recieved the request will go from Floor# %s to %s",
 						elevatorNumber, departureFloorNumber, targetFloorNumber));
 		removePersonFromFloor(departureFloorNumber); //remove that 1 person from the floor
-		// Using timestamp, find and mark request as complete
-		for (Map.Entry<LocalTime, Request> timestampRequest : allRequests.entrySet()) {
-			if (timestampRequest.getKey().equals(timestamp)) {
-				timestampRequest.getValue().setRequest(true);
-			}
-		}
 	}
 	
 	/**
@@ -181,12 +173,8 @@ public class FloorSubsystem implements Runnable {
 									+ ", Direction: " + timestampRequest.getValue().getFloorButton()
 									+ ", Destination: Floor " + timestampRequest.getValue().getCarButton());
 					// FloorSubsystem will receive elevator messages from Scheduler (using getElevatorInfoFromScheduler()) 
-					// and removes that 1 person from that floor while marking request as complete (true)
-				}
-				try {
-					Thread.sleep(500); // sleep used for correct order of print statements
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+					// and removes that 1 person from that floor while marking request as sent (true)
+					timestampRequest.getValue().setRequest(true);
 				}
 			}
 			// update the count for peopleWaitingOnAllFloors to recheck loop
