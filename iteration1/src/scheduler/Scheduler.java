@@ -92,7 +92,7 @@ public class Scheduler {
 			}
 		}
 		// send the request information to the elevator.
-		elevatorSubsys.updateFloorQueue(requests.get(priorityRequest));
+		elevatorSubsys.updateFloorQueue(requests.get(priorityRequest), priorityRequest);
 		// remove the sent request from the queue.
 		requests.remove(priorityRequest);
 		// stops calling elevators if there are no more requests in the queue.
@@ -114,8 +114,8 @@ public class Scheduler {
 	 * @param targetFloorNumber    int, the number of the floor the elevator is
 	 *                             going towards.
 	 */
-	public synchronized void requestReceived(int elevatorNumber, int departureFloorNumber, int targetFloorNumber) {
-		floorSubsystem.getElevatorInfoFromScheduler(elevatorNumber, departureFloorNumber, targetFloorNumber);
+	public synchronized void requestReceived(LocalTime timestamp, int elevatorNumber, int departureFloorNumber, int targetFloorNumber) {
+		floorSubsystem.getElevatorInfoFromScheduler(timestamp, elevatorNumber, departureFloorNumber, targetFloorNumber);
 		notifyAll();
 	}
 

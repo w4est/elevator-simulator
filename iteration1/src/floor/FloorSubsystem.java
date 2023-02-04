@@ -7,29 +7,32 @@ import scheduler.Request;
 import scheduler.Scheduler;
 
 /**
- * FloorSubsystem Class communicates with Scheduler (Scheduler shared with the
- * Elevator) Gets call from person, sends info to Scheduler. Receives elevator
- * status from Scheduler, shows person (light indicator, #)
+ * FloorSubsystem Class communicates with Scheduler (Scheduler shared with the Elevator).
+ * It first takes requests from a text file to store and send to the Scheduler.
+ * It then receives info about the Elevator from the Scheduler and removes people from the floor to signal as completed.
  * 
  * @author Subear Jama
  */
 public class FloorSubsystem implements Runnable {
 
 	private ArrayList<Floor> allFloors;
-	private Scheduler scheduler;
 	private int peopleWaitingOnAllFloors;
 	private final int MAX_FLOOR;
-	private TreeMap<LocalTime, Request> allRequests; // data structure holds timestamp key and
-														// (currentFloor,direction,destination) value
-
+	private Scheduler scheduler;
+	private final String TEST_FILE;
+	//TreeMap data structure (key = time stamp, value = currentFloor,direction,destination)
+	private TreeMap<LocalTime, Request> allRequests;
+	
 	/**
-	 * FloorSybsystem Constructor shares a scheduler and sets up floors
-	 * 
-	 * @param schedule Scheduler, the scheduler shared with the ElevatorSubsystem
+	 * FloorSubsystem Constructor takes in a text file, shares a scheduler, and sets up the number of floors.
+	 * @param directory String, the directory of the request data (ex: "test/resources/request_test.txt").
+	 * @param schedule Scheduler, the scheduler shared with the ElevatorSubsystem.
+	 * @param maxFloor int, represents the number of floors the FloorSubsystem should create.
 	 */
-	public FloorSubsystem(Scheduler schedule, int maxFloor) {
+	public FloorSubsystem(String directory, Scheduler schedule, int maxFloor) {
 		this.scheduler = schedule;
 		this.MAX_FLOOR = maxFloor;
+		this.TEST_FILE = directory;
 		this.allFloors = new ArrayList<Floor>(MAX_FLOOR);
 		this.peopleWaitingOnAllFloors = 0;
 		this.allRequests = new TreeMap<LocalTime, Request>();
@@ -40,11 +43,10 @@ public class FloorSubsystem implements Runnable {
 	}
 
 	/**
-	 * private method adds a floor to the FloorSubsystem. It uses the floor's number
-	 * & the number of people on that floor
-	 * 
-	 * @param floorNumber int, the floor's number
-	 * @param numPeople   int, the number of people on that floor
+	 * Private method adds a floor to the FloorSubsystem.
+	 * It uses the floor's number and the number of people on that floor.
+	 * @param floorNumber int, the floor's number.
+	 * @param numPeople   int, the number of people on that floor.
 	 */
 	private void addFloor(int floorNumber, int numPeople) {
 		if (allFloors.size() != MAX_FLOOR) {
@@ -52,48 +54,43 @@ public class FloorSubsystem implements Runnable {
 			newFloor.addNumberOfPeople(numPeople);
 			allFloors.add(newFloor);
 		} else {
-			System.out.println("Error: FloorSubsystem building has max amount of floors (" + MAX_FLOOR
-					+ ") and cannot add another floor");
+			System.out.println("Error: FloorSubsystem building has max amount of floors "
+					+ "(" + MAX_FLOOR + ") and cannot add another floor");
 		}
 	}
 
 	/**
 	 * Private method used in run() to update the total number of people waiting on
-	 * floors by checking the while loop condition until there are no more people
-	 * waiting. Package level for testing
+	 * all floors by adding people from every floor.
 	 */
-	void updatePeopleWaitingOnAllFloors() {
+	private void updatePeopleWaitingOnAllFloors() {
 		this.peopleWaitingOnAllFloors = 0;
 		for (Floor oneFloor : allFloors) {
 			this.peopleWaitingOnAllFloors += oneFloor.getNumPeople();
 		}
-		
 		System.out.println("Number of people waiting = " + this.peopleWaitingOnAllFloors);
 	}
 
 	/**
-	 * Returns the current people waiting on all floors. To be used with performance
-	 * tests.
+	 * This method returns the current total amount of people waiting on all floors. 
 	 * 
-	 * Package level for testing
-	 * 
+	 * Note: Used to test if data is being passed back and forth + performance tests.
 	 * @return The number of people waiting on all floors
 	 */
-	int getPeopleWaitingOnAllFloors() {
+	public int getPeopleWaitingOnAllFloors() {
 		return peopleWaitingOnAllFloors;
 	}
 
 	/**
-	 * Private method used in run() to Read file inputs & store data in allEntries
-	 * list and allFloors list. FloorSubsystem reads an input file format where each
-	 * row represents 1 person. request format: "timestamp floornumber "up"
-	 * floorPersonWantsToGoTo" timestamp format: LocalTime(hh:mm:ss.mmm)
+	 * This method is used in run() to read a text file of requests where each row represents 1 person.
+	 * It then stores data in allEntries and allFloors lists. 
+	 * request format: "timestamp floornumber "up" floorPersonWantsToGoTo" 
 	 * 
-	 * Package level function to allow testing
+	 * Note: Set to public instead of private for test case showing this can read input files & pass the data back and forth.
 	 */
-	void readInputFromFile() {
-		String TEST_FILE = "src/input/request_test.txt";
-		try (InputFileReader iReader = new InputFileReader(TEST_FILE)) {
+	public void readInputFromFile() {
+		
+		try (InputFileReader iReader = new InputFileReader(this.TEST_FILE)) {
 			Optional<SimulationEntry> entry = iReader.getNextEntry();
 
 			while (entry.isPresent()) {
@@ -121,78 +118,83 @@ public class FloorSubsystem implements Runnable {
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
-	 * Private method used in getElevatorInfoFromScheduler() to remove all people
-	 * from a floor
+	 * Private method is used in getElevatorInfoFromScheduler() to remove 1 person from a floor.
+	 * @param floorNumber int, the floor number to remove 1 person from.
 	 */
-	private void removeAllPeopleFromFloor(int floorNumber) {
+	private void removePersonFromFloor(int floorNumber) {
 		for (Floor oneFloor : allFloors) {
 			if (floorNumber == oneFloor.getFloorNumber()) {
-				oneFloor.removePeople(oneFloor.getNumPeople());
+				oneFloor.removePeople(1);
 			}
 		}
-	}
-
-	/**
-	 * Method used by Scheduler to share with the FloorSubsystem the Elevator info
-	 * which will be printed to the console.
-	 */
-	public void getElevatorInfoFromScheduler(int elevatorNumber, int departureFloorNumber, int targetFloorNumber) {
-		System.out.println(
-				String.format("FloorSubsystem: Elevator# %s recieved the request and will go from Floor# %s to %s",
-						elevatorNumber, departureFloorNumber, targetFloorNumber));
-		removeAllPeopleFromFloor(departureFloorNumber);
 	}
 	
 	/**
-	 * Communicate with scheduler until there are no more people to move on all
-	 * floors. Steps: 1. Reads request input from file and stores in FloorSubsystem.
-	 * 2. Sends data to Scheduler to request an elevator. 3. Receives data from
-	 * scheduler to print that the elevator will arrive.
+	 * Method is used by Scheduler for the FloorSubsystem to receive the Elevator info.
+	 * It prints out a message to signal its been received and then removes that person from the floor 
+	 * and marks request as complete.
+	 * 
+	 * Note: Also used to test if data is being passed back and forth.
+	 * @param elevatorNumber       int, the elevator's number.
+	 * @param departureFloorNumber int, the request's current floor.
+	 * @param targetFloorNumber    int, the request's destination floor
+	 */
+	public void getElevatorInfoFromScheduler(LocalTime timestamp, int elevatorNumber, int departureFloorNumber, int targetFloorNumber) {
+		System.out.println(
+				String.format("FloorSubsystem Received from Scheduler: "
+						+ "Elevator# %s recieved the request will go from Floor# %s to %s",
+						elevatorNumber, departureFloorNumber, targetFloorNumber));
+		removePersonFromFloor(departureFloorNumber); //remove that 1 person from the floor
+		// Using timestamp, find and mark request as complete
+		for (Map.Entry<LocalTime, Request> timestampRequest : allRequests.entrySet()) {
+			if (timestampRequest.getKey().equals(timestamp)) {
+				timestampRequest.getValue().setRequest(true);
+			}
+		}
+	}
+	
+	/**
+	 * When the thread starts this communicates with scheduler until all people on all floors have gotten a response
+	 * so that they are not waiting.
+	 * Steps: 1. Reads request input from file and stores in FloorSubsystem.
+	 * 		  2. Sends data to Scheduler to request an elevator. 
+	 *		  3. Receives data from scheduler to print that the elevator will arrive.
 	 */
 	@Override
 	public void run() {
-		// read and set up allEntries and allFloors
+		// read and set up allRequests (to send requests) and allFloors (used to check while loop)
 		readInputFromFile();
+		// set up a count for all the people waiting on all floors (peopleWaitingOnAllFloors) from allRequests
 		updatePeopleWaitingOnAllFloors();
-		// another way could have a condition to check if all requests (from allEntries)
-		// have been completed.
-
+		// condition is true when all the requests have received a message which removes people from the floor
 		while (peopleWaitingOnAllFloors != 0) {
-			// loop through each key value pair in allRequests and send to simulator
+			// loop through each key value pair in allRequests and send each request to scheduler
 			for (Map.Entry<LocalTime, Request> timestampRequest : allRequests.entrySet()) {
-				// if the request hasn't been complete, send to scheduler (ex. 03:50:5.010 1 Up
-				// 3)
-				
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				// if the request hasn't been complete, send to scheduler (ex. 03:50:5.010 1 Up 3)
 				if (timestampRequest.getValue().getRequestStatus() == false) {
 					scheduler.requestElevator(timestampRequest.getKey(), timestampRequest.getValue());
 					System.out.println(
-							"FloorSubsystem Sending to Scheduler: Time: " + timestampRequest.getKey().toString()
-									+ " Departure: Floor " + timestampRequest.getValue().getFloorNumber()
-									+ " Direction: " + timestampRequest.getValue().getFloorButton()
-									+ " Destination: Floor " + timestampRequest.getValue().getCarButton());
-					// FloorSubsystem will receive messages from Scheduler about the elevator using
-					// getElevatorInfoFromScheduler()
-					// Mark request as complete
-					//timestampRequest.getValue().setRequest(true);
-
-				} else {
-					// System.out.println("FloorSubsystem: Already completed request with
-					// timestamp:" + timestampRequest.getKey().toString());
+							"FloorSubsystem Sending to Scheduler:    Time: " + timestampRequest.getKey().toString()
+									+ ", Departure: Floor " + timestampRequest.getValue().getFloorNumber()
+									+ ", Direction: " + timestampRequest.getValue().getFloorButton()
+									+ ", Destination: Floor " + timestampRequest.getValue().getCarButton());
+					// FloorSubsystem will receive elevator messages from Scheduler (using getElevatorInfoFromScheduler()) 
+					// and removes that 1 person from that floor while marking request as complete (true)
+				}
+				try {
+					Thread.sleep(500); // sleep used for correct order of print statements
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 			}
-			// update the count for peopleWaitingOnAllFloors
+			// update the count for peopleWaitingOnAllFloors to recheck loop
 			updatePeopleWaitingOnAllFloors();
 		}
-		System.out.println("People on all floors have successfully reached their destination!");
-		System.out.println("Floor subsystem is sending finishing message to scheduler");
+		System.out.println("FloorSubsystem Finished:                "
+				+ "People on all floors have successfully reached their destination!");
+		// Signal the Scheduler that this Thread has been completed to then end the ElevatorSubsystem Thread
 		scheduler.toggleDone();
 	}
 }
