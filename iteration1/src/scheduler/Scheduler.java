@@ -128,14 +128,20 @@ public class Scheduler {
 		return elevatorNeeded;
 	}
 
+	/**
+	 * Gets whether the floor subsystem is done
+	 * @return boolean done
+	 */
 	public synchronized boolean isDone() {
 		return done;
 	}
 
+	/**
+	 * Toggled by the subsystem to notify
+	 * when the floor subsystem is done running
+	 */
 	public synchronized void toggleDone() {
-		System.out.println("schduler.done = " + done);
 		this.done = !done;
-		System.out.println("schduler.done = " + done);
 		notifyAll();
 	}
 

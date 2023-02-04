@@ -2,6 +2,7 @@
 package elevator;
 
 // Import libraries
+import java.time.LocalTime;
 import java.util.ArrayList;
 import scheduler.Request;
 import scheduler.Scheduler;
@@ -98,6 +99,10 @@ public class ElevatorSubsystem implements Runnable {
 	public synchronized void updateFloorQueue(Request r) {
 		floorQueues.add(r);
 		scheduler.requestReceived(elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton());
+	}
+
+	public void addJob(int destination, int people) {
+		System.out.println("Elevator got the request");
 	}
 
 	/**

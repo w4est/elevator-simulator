@@ -51,8 +51,8 @@ public class SimulationEntry {
 	@Override
 	public String toString() {
 		String direction = up ? "going up" : "going down";
-		return "[" + String.join(",", timestamp.toString(), Integer.valueOf(destinationFloor).toString(), direction,
-				Integer.valueOf(destinationFloor).toString()) + "]";
+		return "Entry read: [" + String.join(",", timestamp.toString(), Integer.valueOf(sourceFloor).toString(),
+				direction, Integer.valueOf(destinationFloor).toString()) + "]";
 	}
 
 	public LocalTime getTimestamp() {
