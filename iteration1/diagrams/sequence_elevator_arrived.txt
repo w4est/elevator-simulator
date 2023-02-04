@@ -27,7 +27,7 @@ loop !scheduler.isDone()
         activate FloorSubsystem
         Scheduler -> FloorSubsystem: floorSubsystem.getElevatorInfoFromScheduler(elevatorNumber, departureFloorNumber, targetFloorNumber);
         deactivate Scheduler
-        FloorSubsystem -> FloorSubsystem: removeAllPeopleFromFloor(departureFloorNumber);
+        FloorSubsystem -> FloorSubsystem: removePersonFromFloor(departureFloorNumber);
         loop Floor oneFloor : allFloors
             alt floorNumber == oneFloor.getFloorNumber()
                 activate Floor
