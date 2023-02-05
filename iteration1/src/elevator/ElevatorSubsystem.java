@@ -7,9 +7,10 @@ import scheduler.Request;
 import scheduler.Scheduler;
 
 /**
- * This is a class used to simulate an elevator subsystem.
- * This class is used to communicate to the scheduler and 
- * receive messages to manage the elevator associated with the subsystem.
+ * This is a class used to simulate an elevator subsystem. This class is used to
+ * communicate to the scheduler and receive messages to manage the elevator
+ * associated with the subsystem.
+ * 
  * @author Farhan Mahamud
  *
  */
@@ -25,8 +26,9 @@ public class ElevatorSubsystem implements Runnable {
 
 	/**
 	 * The default constructor if no minimum and maximum floors are not given
-	 * @param s				// The scheduler
-	 * @param carNumber		// The unique car number for the elevator
+	 * 
+	 * @param s         // The scheduler
+	 * @param carNumber // The unique car number for the elevator
 	 */
 	public ElevatorSubsystem(Scheduler s, int carNumber) {
 		this.MIN_FLOOR = DEFAULT_MIN_FLOOR;
@@ -37,12 +39,13 @@ public class ElevatorSubsystem implements Runnable {
 	}
 
 	/**
-	 * This is another constructor for the user for passing in
-	 * custom maximum and minimum floor levels
-	 * @param s				// The scheduler
-	 * @param carNumber		// The unique car number for the elevator
-	 * @param max			// The maximum floor level
-	 * @param min			// The minimum floor level
+	 * This is another constructor for the user for passing in custom maximum and
+	 * minimum floor levels
+	 * 
+	 * @param s         // The scheduler
+	 * @param carNumber // The unique car number for the elevator
+	 * @param max       // The maximum floor level
+	 * @param min       // The minimum floor level
 	 */
 	public ElevatorSubsystem(Scheduler s, int carNumber, int max, int min) {
 		this.scheduler = s;
@@ -61,6 +64,7 @@ public class ElevatorSubsystem implements Runnable {
 
 	/**
 	 * Gets the elevator associated with the subsystem
+	 * 
 	 * @return Elevator elevator
 	 */
 	public Elevator getElevator() {
@@ -69,6 +73,7 @@ public class ElevatorSubsystem implements Runnable {
 
 	/**
 	 * Gets the minimum floor of the subsystem
+	 * 
 	 * @return int MIN_FLOOR
 	 */
 	public int getMinFloor() {
@@ -77,6 +82,7 @@ public class ElevatorSubsystem implements Runnable {
 
 	/**
 	 * Gets the maximum floor of the subsystem
+	 * 
 	 * @return int MAX_FLOOR
 	 */
 	public int getMaxFloor() {
@@ -85,6 +91,7 @@ public class ElevatorSubsystem implements Runnable {
 
 	/**
 	 * Gets the list of requests sent by the scheduler
+	 * 
 	 * @return ArrayList<Request> floorQueues
 	 */
 	public ArrayList<Request> getFloorQueues() {
@@ -93,10 +100,13 @@ public class ElevatorSubsystem implements Runnable {
 
 	/**
 	 * Updates the list of the requests assigned by the scheduler
+	 * 
 	 * @param r
 	 */
 	public synchronized void updateFloorQueue(Request r) {
 		floorQueues.add(r);
+		System.out.println(String.format("Elevator subsystem has received the following request from the scheduler:"
+				+ " Elevator %d, Requested from floor %d, Destination Floor: %d", elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton()));
 		scheduler.requestReceived(elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton());
 	}
 
@@ -105,24 +115,32 @@ public class ElevatorSubsystem implements Runnable {
 	}
 
 	/**
-	 * Moves the elevator along the floor and 
-	 * gets any new requests from the scheduler
+	 * Moves the elevator along the floor and gets any new requests from the
+	 * scheduler
 	 */
 	public synchronized void move() {
+
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 		scheduler.elevatorNeeded();
-		
+
 	}
-	
+
 	/**
 	 * The run function when you start the thread
 	 */
 	@Override
 	public void run() {
-		
+
 		while (!scheduler.isDone()) {
 			move();
 		}
-		
+
 		System.out.println("Elevator subsystem is done");
 
 	}
