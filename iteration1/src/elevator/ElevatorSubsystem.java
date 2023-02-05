@@ -120,13 +120,6 @@ public class ElevatorSubsystem implements Runnable {
 	 */
 	public synchronized void move() {
 
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
 		scheduler.elevatorNeeded();
 
 	}
