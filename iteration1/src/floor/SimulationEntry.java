@@ -48,6 +48,9 @@ public class SimulationEntry {
 		return new SimulationEntry(time, sourceFloor, directionIsUp, destinationFloor);
 	}
 	
+	/**
+	 * Overrides the default, and provides a nicer print statement
+	 */
 	@Override
 	public String toString() {
 		String direction = up ? "going up" : "going down";
