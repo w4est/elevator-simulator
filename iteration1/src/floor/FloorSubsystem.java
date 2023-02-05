@@ -90,9 +90,11 @@ public class FloorSubsystem implements Runnable {
 	 * Note: Set to public instead of private for test case showing this can read input files & pass the data back and forth.
 	 */
 	public void readInputFromFile() {
-		
 		try (InputFileReader iReader = new InputFileReader(this.TEST_FILE)) {
 			Optional<SimulationEntry> entry = iReader.getNextEntry();
+			
+			// before reading anything set peopleWaitingOnAllFloors to 0
+			this.peopleWaitingOnAllFloors = 0;
 			while (entry.isPresent()) {
 				// Get & print the text line entry
 				SimulationEntry currentEntry = entry.get();
@@ -106,7 +108,8 @@ public class FloorSubsystem implements Runnable {
 				for (Floor oneFloor : allFloors) {
 					if (oneFloor.getFloorNumber() == currentEntry.getSourceFloor()) {
 						 // anytime there's another floor keep adding (incrementing) # of people
-						oneFloor.addNumberOfPeople(1);						
+						oneFloor.addNumberOfPeople(1);
+						this.peopleWaitingOnAllFloors +=1;
 						if (currentEntry.isUp()) {
 							oneFloor.setUpButton(true);
 						} else {
@@ -119,8 +122,6 @@ public class FloorSubsystem implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		// Finally set up a count for all the people waiting on all floors (peopleWaitingOnAllFloors) from allRequests
-		updatePeopleWaitingOnAllFloors();
 	}
 	
 	/**
