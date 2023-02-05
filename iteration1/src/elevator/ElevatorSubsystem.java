@@ -2,7 +2,6 @@
 package elevator;
 
 // Import libraries
-import java.time.LocalTime;
 import java.util.ArrayList;
 import scheduler.Request;
 import scheduler.Scheduler;

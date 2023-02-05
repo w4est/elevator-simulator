@@ -8,7 +8,8 @@ import java.io.IOException;
 import java.util.Optional;
 
 /**
- * This class loads the simulation's file and creates an object
+ * This class loads the simulation's file and creates an {@link SimulationEntry}
+ * for each row read.
  * 
  * 
  * @author William Forrest and Subear Jama
@@ -25,6 +26,12 @@ public class InputFileReader implements AutoCloseable {
 			bufferedReader = new BufferedReader(fs);
 		}
 
+	/**
+	 * Reads a single line from the file, and returns a {@link SimulationEntry}
+	 * 
+	 * @return the next SimulationEntry, or an empty Optional if we have reached end of file
+	 * @throws IOException
+	 */
 	public Optional<SimulationEntry> getNextEntry() throws IOException {
 		String line = bufferedReader.readLine();
 		if (line == null) {
@@ -33,6 +40,9 @@ public class InputFileReader implements AutoCloseable {
 		return Optional.of(SimulationEntry.fromString(line));
 	}
 
+	/**
+	 * Closes the underlying buffered reader, used in try-with-resources statements
+	 */
 	@Override
 	public void close() throws Exception {
 		this.bufferedReader.close();
