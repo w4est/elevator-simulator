@@ -28,10 +28,10 @@ class FloorSubsystem <<Runnable>> {
 
     - void addFloor(int floorNumber, int numPeople)
     - void updatePeopleWaitingOnAllFloors()
-    - int getPeopleWaitingOnAllFloors()
-    - void readInputFromFile()
-    - void removeAllPeopleFromFloor(int floorNumber)
-    - void getElevatorInfoFromScheduler(int elevatorNumber, int departureFloorNumber, int targetFloorNumber)
+    + int getPeopleWaitingOnAllFloors()
+    + void readInputFromFile()
+    - void removePersonFromFloor(int floorNumber)
+    + void getElevatorInfoFromScheduler(int elevatorNumber, int departureFloorNumber, int targetFloorNumber)
     + void run()
 }
 class InputFileReader {
