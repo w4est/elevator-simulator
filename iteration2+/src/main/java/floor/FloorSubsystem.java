@@ -1,5 +1,6 @@
 package floor;
 
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -119,7 +120,7 @@ public class FloorSubsystem implements Runnable {
 				}
 				entry = iReader.getNextEntry(); // next line
 			}
-		} catch (Exception e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

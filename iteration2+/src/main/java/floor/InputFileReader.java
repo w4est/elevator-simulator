@@ -44,7 +44,7 @@ public class InputFileReader implements AutoCloseable {
 	 * Closes the underlying buffered reader, used in try-with-resources statements
 	 */
 	@Override
-	public void close() throws Exception {
+	public void close() throws IOException {
 		this.bufferedReader.close();
 	}
 
