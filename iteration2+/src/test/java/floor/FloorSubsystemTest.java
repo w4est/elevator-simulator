@@ -18,7 +18,7 @@ public class FloorSubsystemTest {
 	 */
 	@Test
 	void shouldReadInputFileAndHavePeopleWaitingTest() {
-		String testFile = "test/resources/request_test.txt";
+		String testFile = "src/test/resources/request_test.txt";
 		Scheduler schedulerMock = Mockito.mock(Scheduler.class);
 		// create FloorSubsystem with 7 floors
 		FloorSubsystem floorSubsystem = new FloorSubsystem(testFile, schedulerMock, 7);
@@ -33,7 +33,7 @@ public class FloorSubsystemTest {
 	 */
 	@Test
 	void readBigInputFileAndHavePeopleWaitingTest() {
-		String testFile = "test/resources/reader_test2.txt";
+		String testFile = "src/test/resources/reader_test2.txt";
 		Scheduler schedulerMock = Mockito.mock(Scheduler.class);
 		// create FloorSubsystem with 7 floors
 		FloorSubsystem floorSubsystem = new FloorSubsystem(testFile, schedulerMock, 6);
@@ -49,7 +49,7 @@ public class FloorSubsystemTest {
 	 */
 	@Test
 	void removePeopleWaitingPeopleFromFloorTest() {
-		String testFile = "test/resources/request_test.txt";
+		String testFile = "src/test/resources/request_test.txt";
 		Scheduler schedulerMock = Mockito.mock(Scheduler.class);
 		// create FloorSubsystem with 7 floors
 		FloorSubsystem floorSubsystem = new FloorSubsystem(testFile,schedulerMock, 7);
