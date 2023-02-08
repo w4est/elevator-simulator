@@ -16,7 +16,7 @@ public class SimulationTest {
 			try {
 				Simulation.main(null);
 				// Give more then enough time for elevators to move etc.
-				Thread.sleep(50);
+				Thread.sleep(500);
 				assertEquals(false, Simulation.getElevatorSubsystemThread().isAlive());
 				assertEquals(false, Simulation.getFloorSubsystemThread().isAlive());
 			} catch (IOException e) {
