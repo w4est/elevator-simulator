@@ -60,6 +60,18 @@ public class FloorSubsystem implements Runnable {
 					+ "(" + MAX_FLOOR + ") and cannot add another floor");
 		}
 	}
+	
+	// For next Iteration
+	//public void updateFloorLight(int floorNum, boolean onOrOff, String upOrDown) {
+	//	for (Floor f: allFloors) {
+	//		if (f.getFloorNumber() == floorNum && upOrDown.equals("Up")) {
+	//			f.setUpButton(onOrOff);
+	//		}
+	//		else if (f.getFloorNumber() == floorNum && upOrDown.equals("Down")) {
+	//			f.setDownButton(onOrOff);
+	//		}
+	//	}
+	//}
 
 	/**
 	 * Private method used in readInputFromFile() and run() to update the 

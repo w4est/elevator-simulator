@@ -17,8 +17,6 @@ public class Floor{
 	public Floor (int floorNum) {
 		this.floorNumber = floorNum;
 		this.numberOfPeople = 0;
-		this.upButton = false;
-		this.downButton = false;
 	}
 	
 	/**

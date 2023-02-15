@@ -8,11 +8,14 @@ package elevator;
  * @author Farhan Mahamud
  *
  */
+
+
 public class Elevator implements Runnable {
 
 	private int currentFloor; // The current floor of the elevator
 	private String currentDirection; // The current direction of the elevator
 	private int carNumber; // The unique car number
+	private ElevatorState elevatorState; // The current state of the elevator
 
 	/**
 	 * The default constructor
@@ -22,6 +25,19 @@ public class Elevator implements Runnable {
 		currentFloor = 1; // Sets current floor
 		currentDirection = "Idle"; // Sets current direction
 		carNumber = carNum; // Sets car number
+		this.elevatorState = ElevatorState.STOP_OPENED; // Initial state is opened to wait for requests
+	}
+	
+	public ElevatorState getCurrentElevatorState() {
+		return this.elevatorState;
+	}
+	
+	public void nextElevatorState() {
+		this.elevatorState = elevatorState.nextState();
+	}
+	
+	public void setElevatorStateManually(ElevatorState newState) {
+		this.elevatorState = newState;
 	}
 
 	/**
