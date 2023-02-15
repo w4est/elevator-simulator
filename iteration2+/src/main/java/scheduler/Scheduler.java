@@ -83,6 +83,7 @@ public class Scheduler implements Runnable {
 	 *                request.
 	 */
 	public synchronized void requestElevator(LocalTime time, Request request) {
+		elevatorNeeded = true;
 		requests.put(time, request);
 		notifyAll();
 	}
