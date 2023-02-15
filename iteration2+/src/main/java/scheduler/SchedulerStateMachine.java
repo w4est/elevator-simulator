@@ -4,7 +4,7 @@ package scheduler;
  * @author Jacob Hovey
  *
  */
-public enum SchedulerStateMachine {
+public enum SchedulerStates {
 	NoRequests {
 		public SchedulerStateMachine nextState() {
 			return CheckForRequests;
