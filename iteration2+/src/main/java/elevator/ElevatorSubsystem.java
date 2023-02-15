@@ -4,7 +4,6 @@ package elevator;
 // Import libraries
 import java.util.ArrayList;
 
-import elevator.Elevator.ElevatorState;
 import scheduler.Request;
 import scheduler.Scheduler;
 
