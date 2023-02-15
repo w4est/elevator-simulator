@@ -3,6 +3,7 @@ package elevator;
 
 // Import libraries
 import java.util.ArrayList;
+
 import scheduler.Request;
 import scheduler.Scheduler;
 
@@ -22,7 +23,7 @@ public class ElevatorSubsystem implements Runnable {
 	public final static int DEFAULT_MIN_FLOOR = 1; // The default min floor
 	private final int MAX_FLOOR; // The variable max floor set by the constructor
 	private final int MIN_FLOOR; // The variable min floor set by the constructor
-	private ArrayList<Request> floorQueues; // THe list of requests given by the scheduler
+	private ArrayList<Request> floorQueues; // The list of requests given by the scheduler
 
 	/**
 	 * The default constructor if no minimum and maximum floors are not given
@@ -101,28 +102,69 @@ public class ElevatorSubsystem implements Runnable {
 	/**
 	 * Updates the list of the requests assigned by the scheduler
 	 * 
-	 * @param r
+	 * @param r Request, the highest priority request from the Scheduler
 	 */
 	public synchronized void updateFloorQueue(Request r) {
 		floorQueues.add(r);
 		System.out.println(String.format("Elevator subsystem has received the following request from the scheduler:"
 				+ " Elevator %d, Requested from floor %d, Destination Floor: %d", elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton()));
 		scheduler.requestReceived(elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton());
+		
+		// If the elevator is already moving...check if there are requests along the way
+		// else move the elevator to that floor
+		if (this.elevator.getCurrentElevatorState().equals(ElevatorState.MOVING_DOWN) || this.elevator.getCurrentElevatorState().equals(ElevatorState.MOVING_UP)) {
+			//Depending on direction, if the new request floor is on the same path as the elevator , move there first
+			if (r.getCarButton() > elevator.getCurrentFloor() && elevator.getCurrentDirection().equals(ElevatorState.MOVING_UP)) {
+				this.moveElevator(elevator.getCarNumber(), r.getCarButton(), r.getFloorButton(), r);
+			} else if (r.getCarButton() > elevator.getCurrentFloor() && elevator.getCurrentDirection().equals(ElevatorState.MOVING_DOWN)) {
+				this.moveElevator(elevator.getCarNumber(), r.getCarButton(), r.getFloorButton(), r);
+			}
+			
+		} else {
+			elevator.nextElevatorState(); // Request added, Change Elevator State to close doors (STOP_CLOSED).
+			this.moveElevator(elevator.getCarNumber(), r.getCarButton(), r.getFloorButton(), r); // Move elevator in the request's direction
+		}
+		// Note: 1 request received will close doors and move, but what if there are more people on that floor? (ex. need delay to collect request data?)
+	}
+	
+	/**
+	 * Private method used when the scheduler updates the floor queue to go to the floor requested.
+	 * 
+	 * Note: future iteration change this to handle multiple elevators. 
+	 * @param elevatorNumber int, The elevator's number
+	 * @param destinationFloor int,The target floor
+	 * @param direction String, the direction the elevator should move based on the request
+	 * @param requestToRemove Request, the request to remove after completing it
+	 */
+	private void moveElevator(int elevatorNumber, int destinationFloor, String direction, Request requestToRemove) {
+		// Set Elevator state to its respective direction
+		if (direction.equals("Up")) {
+			this.elevator.setElevatorStateManually(ElevatorState.MOVING_UP);
+		} else if (direction.equals("Down")) {
+			this.elevator.setElevatorStateManually(ElevatorState.MOVING_DOWN);
+		}
+		
+		// Move elevator to floor (could add time delay here)
+		this.elevator.setCurrentFloor(destinationFloor);
+		this.elevator.setCurrentDirection(direction);
+		this.elevator.nextElevatorState(); // moving to STOP_CLOSED
+		
+		// request completed, remove request
+		this.elevator.setElevatorStateManually(ElevatorState.STOP_OPENED);
+		this.floorQueues.remove(requestToRemove);
 	}
 
-	public void addJob(int destination, int people) {
-		System.out.println("Elevator got the request");
-	}
+	//public void addJob(int destination, int people) {
+	//	System.out.println("Elevator got the request");
+	//}
 
 	/**
 	 * Moves the elevator along the floor and gets any new requests from the
 	 * scheduler
 	 */
-	public synchronized void move() {
-
-		scheduler.elevatorNeeded();
-
-	}
+	//public synchronized void move() {
+	//	scheduler.elevatorNeeded();
+	//}
 
 	/**
 	 * The run function when you start the thread
@@ -131,7 +173,8 @@ public class ElevatorSubsystem implements Runnable {
 	public void run() {
 
 		while (!scheduler.isDone()) {
-			move();
+			//move();
+			this.scheduler.elevatorNeeded();
 		}
 
 		System.out.println("Elevator subsystem is done");
