@@ -14,7 +14,7 @@ import floor.*;
  * subsystems to schedule the best elevator route.
  *
  */
-public class Scheduler {
+public class Scheduler implements Runnable {
 	// this will be set to true when there are people in the queue who have not been
 	// serviced
 	private boolean elevatorNeeded = false;
@@ -23,14 +23,16 @@ public class Scheduler {
 	private ElevatorSubsystem elevatorSubsys;
 	private FloorSubsystem floorSubsystem;
 	private boolean done;
+	private SchedulerStates state;
 
 	public Scheduler() {
 		requests = new TreeMap<LocalTime, Request>();
 		done = false;
+		state = SchedulerStates.NoRequests;
 	};
 
 	/**
-	 * For iteration 1, we need to have references to the elevator subsystem, this
+	 * For iteration 2, we need to have references to the elevator subsystem, this
 	 * will be replaced by network communication in the future.
 	 **/
 	public void addElevatorSubsys(ElevatorSubsystem e) {
@@ -38,11 +40,35 @@ public class Scheduler {
 	}
 
 	/**
-	 * For iteration 1, we need to have references to the floor subsystem, this will
+	 * For iteration 2, we need to have references to the floor subsystem, this will
 	 * be replaced by network communication in the future.
 	 **/
 	public void addFloorSubsys(FloorSubsystem f) {
 		floorSubsystem = f;
+	}
+	
+	/**
+	 * Stub method for now; in future iterations this will be used to
+	 * check for network packets from the floor.
+	 */
+	public void checkForRequests() {
+		if(!requests.isEmpty()) {
+			elevatorNeeded = true;
+			this.state = state.nextState();
+			//add state print statement
+		}
+		else {
+			checkForRequests();
+		}
+	}
+	
+	/**
+	 * Stub method for now; in future iterations this will be used to
+	 * check for network packets from the elevator.
+	 */
+	public void checkForResponses() {
+		this.state = state.nextState();
+		//add state print statement
 	}
 
 	/**
@@ -50,13 +76,15 @@ public class Scheduler {
 	 * specific floor. It adds the request information to the requests queue, and
 	 * then notifies the elevator threads to check for a job.
 	 * 
+	 * This will be removed when network packets are added.
+	 * 
 	 * @param time    LocalTime, the specific time that the request was made.
 	 * @param request Request, contains all necessary information about the elevator
 	 *                request.
 	 */
 	public synchronized void requestElevator(LocalTime time, Request request) {
-		requests.put(time, request);
 		elevatorNeeded = true;
+		requests.put(time, request);
 		notifyAll();
 	}
 
@@ -98,7 +126,11 @@ public class Scheduler {
 		// stops calling elevators if there are no more requests in the queue.
 		if (requests.isEmpty()) {
 			elevatorNeeded = false;
+			this.state = state.nextState();
+			//add state print statement
 		}
+		this.state = state.nextState();
+		//add state print statement
 		notifyAll();
 	}
 
@@ -144,6 +176,14 @@ public class Scheduler {
 	public synchronized void toggleDone() {
 		this.done = !done;
 		notifyAll();
+	}
+
+	/**
+	 * 
+	 */
+	public void run() {
+		// TODO run method.
+		
 	}
 
 }
