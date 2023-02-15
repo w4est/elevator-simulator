@@ -6,30 +6,30 @@ package scheduler;
  */
 public enum SchedulerStates {
 	NoRequests {
-		public SchedulerStateMachine nextState() {
+		public SchedulerStates nextState() {
 			return CheckForRequests;
 		}
 	},
 	CheckForRequests {
-		public SchedulerStateMachine nextState() {
+		public SchedulerStates nextState() {
 			return IncompleteRequests;
 		}
 	},
 	IncompleteRequests {
-		public SchedulerStateMachine nextState() {
+		public SchedulerStates nextState() {
 			return CheckForResponses;
 		}
 	},
 	CheckForResponses {
-		public SchedulerStateMachine nextState() {
+		public SchedulerStates nextState() {
 			return AllRequestsComplete;
 		}
 	},
 	AllRequestsComplete {
-		public SchedulerStateMachine nextState() {
+		public SchedulerStates nextState() {
 			return this;
 		}
 	};
 	
-	public abstract SchedulerStateMachine nextState();
+	public abstract SchedulerStates nextState();
 }

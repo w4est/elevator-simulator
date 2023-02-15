@@ -23,12 +23,12 @@ public class Scheduler implements Runnable {
 	private ElevatorSubsystem elevatorSubsys;
 	private FloorSubsystem floorSubsystem;
 	private boolean done;
-	private SchedulerStateMachine state;
+	private SchedulerStates state;
 
 	public Scheduler() {
 		requests = new TreeMap<LocalTime, Request>();
 		done = false;
-		state = SchedulerStateMachine.NoRequests;
+		state = SchedulerStates.NoRequests;
 	};
 
 	/**
