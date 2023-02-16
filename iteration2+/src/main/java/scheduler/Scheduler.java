@@ -9,9 +9,9 @@ import floor.*;
 /**
  * @author Jacob Hovey
  * 
- * The Scheduler for the elevator system. Thread synchronization will
- * occur in this class. Communicates with the floor and elevator
- * subsystems to schedule the best elevator route.
+ *         The Scheduler for the elevator system. Thread synchronization will
+ *         occur in this class. Communicates with the floor and elevator
+ *         subsystems to schedule the best elevator route.
  *
  */
 public class Scheduler implements Runnable {
@@ -28,7 +28,7 @@ public class Scheduler implements Runnable {
 	public Scheduler() {
 		requests = new TreeMap<LocalTime, Request>();
 		done = false;
-		state = SchedulerStates.NoRequests;
+		state = SchedulerStates.CheckForRequests;
 	};
 
 	/**
@@ -46,29 +46,31 @@ public class Scheduler implements Runnable {
 	public void addFloorSubsys(FloorSubsystem f) {
 		floorSubsystem = f;
 	}
-	
+
 	/**
-	 * Stub method for now; in future iterations this will be used to
-	 * check for network packets from the floor.
+	 * For now, this only transitions to the next state; in future iterations this
+	 * will be used to check for network packets from the floor, and the
+	 * requestElevator function that is called by the Floor Subsystem will be
+	 * removed. This is only a placeholder that has been added as the purpose of
+	 * this iteration is to flesh out the state machines.
 	 */
 	public void checkForRequests() {
-		if(!requests.isEmpty()) {
-			elevatorNeeded = true;
+		if (state == SchedulerStates.CheckForRequests) {
 			this.state = state.nextState();
-			//add state print statement
-		}
-		else {
-			checkForRequests();
 		}
 	}
-	
+
 	/**
-	 * Stub method for now; in future iterations this will be used to
-	 * check for network packets from the elevator.
+	 * For now, this only transitions to the next state; in future iterations this
+	 * will be used to check for network packets from the elevator, and the
+	 * requestReceived function that is called by the Elevator Subsystem will be
+	 * removed. This is only a placeholder that has been added as the purpose of
+	 * this iteration is to flesh out the state machines.
 	 */
 	public void checkForResponses() {
-		this.state = state.nextState();
-		//add state print statement
+		if (state == SchedulerStates.CheckForResponses) {
+			this.state = state.nextState();
+		}
 	}
 
 	/**
@@ -90,12 +92,14 @@ public class Scheduler implements Runnable {
 
 	/**
 	 * This is constantly called by waiting elevator threads to see if there is a
-	 * new job for them.
+	 * new job for them. In iteration 3, this function will be modified to instead
+	 * be only an internal function used to sort the requests; it will then convert
+	 * them to packets and send them to available elevator threads.
 	 */
 	public synchronized void elevatorNeeded() {
 		// this will need to be updated when there are multiple elevator threads to
 		// ensure that they don't all attempt to fulfill the request.
-		while (!elevatorNeeded && !done) {
+		while (!elevatorNeeded && !done && (state == SchedulerStates.IncompleteRequests)) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
@@ -103,7 +107,7 @@ public class Scheduler implements Runnable {
 				e.printStackTrace();
 			}
 		}
-		
+
 		if (done) {
 			notifyAll();
 			return;
@@ -126,11 +130,11 @@ public class Scheduler implements Runnable {
 		// stops calling elevators if there are no more requests in the queue.
 		if (requests.isEmpty()) {
 			elevatorNeeded = false;
-			this.state = state.nextState();
-			//add state print statement
+			this.state = SchedulerStates.AllRequestsComplete;
 		}
-		this.state = state.nextState();
-		//add state print statement
+		else {
+			this.state = state.nextState();
+		}
 		notifyAll();
 	}
 
@@ -170,8 +174,7 @@ public class Scheduler implements Runnable {
 	}
 
 	/**
-	 * Toggled by the floor subsystem to notify
-	 * when it is done running.
+	 * Toggled by the floor subsystem to notify when it is done running.
 	 */
 	public synchronized void toggleDone() {
 		this.done = !done;
@@ -182,8 +185,10 @@ public class Scheduler implements Runnable {
 	 * 
 	 */
 	public void run() {
-		// TODO run method.
-		
+		while (!done) {
+			checkForRequests();
+			checkForResponses();
+		}
 	}
 
 }
