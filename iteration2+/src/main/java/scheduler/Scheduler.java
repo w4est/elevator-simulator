@@ -62,6 +62,19 @@ public class Scheduler implements Runnable {
 
 	/**
 	 * For now, this only transitions to the next state; in future iterations this
+	 * will be used to prioritize the requests and create them into packets to send
+	 * to the elevator, and the elevatorNeeded function that is called by the
+	 * Elevator Subsystem will be removed. This is only a placeholder that has been
+	 * added as the purpose of this iteration is to flesh out the state machines.
+	 */
+	public void incompleteRequests() {
+		if (state == SchedulerStates.IncompleteRequests) {
+			this.state = state.nextState();
+		}
+	}
+
+	/**
+	 * For now, this only transitions to the next state; in future iterations this
 	 * will be used to check for network packets from the elevator, and the
 	 * requestReceived function that is called by the Elevator Subsystem will be
 	 * removed. This is only a placeholder that has been added as the purpose of
@@ -69,6 +82,9 @@ public class Scheduler implements Runnable {
 	 */
 	public void checkForResponses() {
 		if (state == SchedulerStates.CheckForResponses) {
+			if (requests.isEmpty() && done) {
+				this.state = SchedulerStates.AllRequestsComplete;
+			}
 			this.state = state.nextState();
 		}
 	}
@@ -99,7 +115,7 @@ public class Scheduler implements Runnable {
 	public synchronized void elevatorNeeded() {
 		// this will need to be updated when there are multiple elevator threads to
 		// ensure that they don't all attempt to fulfill the request.
-		while (!elevatorNeeded && !done && (state == SchedulerStates.IncompleteRequests)) {
+		while (!elevatorNeeded && !done) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
@@ -130,10 +146,6 @@ public class Scheduler implements Runnable {
 		// stops calling elevators if there are no more requests in the queue.
 		if (requests.isEmpty()) {
 			elevatorNeeded = false;
-			this.state = SchedulerStates.AllRequestsComplete;
-		}
-		else {
-			this.state = state.nextState();
 		}
 		notifyAll();
 	}
@@ -187,6 +199,7 @@ public class Scheduler implements Runnable {
 	public void run() {
 		while (!done) {
 			checkForRequests();
+			incompleteRequests();
 			checkForResponses();
 		}
 	}
