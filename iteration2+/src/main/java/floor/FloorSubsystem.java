@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalTime;
 import java.util.*;
 
+import elevator.Direction;
 import scheduler.Request;
 import scheduler.Scheduler;
 
@@ -115,7 +116,7 @@ public class FloorSubsystem implements Runnable {
 
 				// Store line read from text into allRequests TreeMap
 				allRequests.put(currentEntry.getTimestamp(), new Request(currentEntry.getSourceFloor(),
-						currentEntry.isUp() ? "Up" : "Down", currentEntry.getDestinationFloor()));
+						currentEntry.isUp() ? Direction.UP : Direction.DOWN, currentEntry.getDestinationFloor()));
 
 				// Set up Floor (increase # of people and set direction for every line)
 				for (Floor oneFloor : allFloors) {
