@@ -1,5 +1,7 @@
 package scheduler;
 
+import elevator.Direction;
+
 /**
  * @author Jacob Hovey
  *
@@ -10,7 +12,7 @@ public class Request {
 	//the number of the floor that the request is sent from
 	private final int floorNumber;
 	// the direction the request wants to go; Up or Down
-	private final String floorButton;
+	private final Direction floorButton;
 	//the number of the floor that the request wants to go to
 	private final int carButton;
 	// initially false but true when request has been sent
@@ -22,7 +24,7 @@ public class Request {
 	 * @param floorButton String, the direction either being "Up" or "Down".
 	 * @param carButton int, the destination floor number.
 	 */
-	public Request(int floorNumber, String floorButton, int carButton) {
+	public Request(int floorNumber, Direction floorButton, int carButton) {
 		this.floorNumber = floorNumber;
 		this.floorButton = floorButton;
 		this.carButton = carButton;
@@ -43,7 +45,7 @@ public class Request {
 	 * 
 	 * @return	String, the direction of the request; up or down.
 	 */
-	public String getFloorButton() {
+	public Direction getFloorButton() {
 		return floorButton;
 	}
 

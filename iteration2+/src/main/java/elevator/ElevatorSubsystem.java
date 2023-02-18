@@ -3,6 +3,8 @@ package elevator;
 
 // Import libraries
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import scheduler.Request;
 import scheduler.Scheduler;
@@ -106,65 +108,181 @@ public class ElevatorSubsystem implements Runnable {
 	 */
 	public synchronized void updateFloorQueue(Request r) {
 		floorQueues.add(r);
-		System.out.println(String.format("Elevator subsystem has received the following request from the scheduler:"
-				+ " Elevator %d, Requested from floor %d, Destination Floor: %d", elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton()));
+//		int floor = r.getFloorNumber();
+//		int people = floorQueues2.get(floor) + 1;
+//		floorQueues2.put(floor, people);
+
+		System.out.println(String.format(
+				"Elevator subsystem has received the following request from the scheduler:"
+						+ " Elevator %d, Requested from floor %d, Destination Floor: %d",
+				elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton()));
 		scheduler.requestReceived(elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton());
-		
-		// If the elevator is already moving...check if there are requests along the way
-		// else move the elevator to that floor
-		if (this.elevator.getCurrentElevatorState().equals(ElevatorState.MOVING_DOWN) || this.elevator.getCurrentElevatorState().equals(ElevatorState.MOVING_UP)) {
-			//Depending on direction, if the new request floor is on the same path as the elevator , move there first
-			if (r.getCarButton() > elevator.getCurrentFloor() && elevator.getCurrentDirection().equals(ElevatorState.MOVING_UP)) {
-				this.moveElevator(elevator.getCarNumber(), r.getCarButton(), r.getFloorButton(), r);
-			} else if (r.getCarButton() > elevator.getCurrentFloor() && elevator.getCurrentDirection().equals(ElevatorState.MOVING_DOWN)) {
-				this.moveElevator(elevator.getCarNumber(), r.getCarButton(), r.getFloorButton(), r);
-			}
-			
-		} else {
-			elevator.nextElevatorState(); // Request added, Change Elevator State to close doors (STOP_CLOSED).
-			this.moveElevator(elevator.getCarNumber(), r.getCarButton(), r.getFloorButton(), r); // Move elevator in the request's direction
-		}
-		// Note: 1 request received will close doors and move, but what if there are more people on that floor? (ex. need delay to collect request data?)
 	}
-	
+
 	/**
-	 * Private method used when the scheduler updates the floor queue to go to the floor requested.
+	 * Private method used when the scheduler updates the floor queue to go to the
+	 * floor requested.
 	 * 
-	 * Note: future iteration change this to handle multiple elevators. 
-	 * @param elevatorNumber int, The elevator's number
+	 * Note: future iteration change this to handle multiple elevators.
+	 * 
+	 * @param elevatorNumber   int, The elevator's number
 	 * @param destinationFloor int,The target floor
-	 * @param direction String, the direction the elevator should move based on the request
-	 * @param requestToRemove Request, the request to remove after completing it
+	 * @param direction        String, the direction the elevator should move based
+	 *                         on the request
+	 * @param requestToRemove  Request, the request to remove after completing it
 	 */
-	private void moveElevator(int elevatorNumber, int destinationFloor, String direction, Request requestToRemove) {
+	private void operate() {
 		// Set Elevator state to its respective direction
-		if (direction.equals("Up")) {
+
+		this.scheduler.elevatorNeeded();
+
+		changeDirection();
+		this.elevator.setElevatorStateManually(ElevatorState.STOP_CLOSED);
+
+		if (elevator.getCurrentDirection().equals(Direction.UP)) {
 			this.elevator.setElevatorStateManually(ElevatorState.MOVING_UP);
-		} else if (direction.equals("Down")) {
+		} else if (elevator.getCurrentDirection().equals(Direction.DOWN)) {
 			this.elevator.setElevatorStateManually(ElevatorState.MOVING_DOWN);
 		}
-		
+
 		// Move elevator to floor (could add time delay here)
-		this.elevator.setCurrentFloor(destinationFloor);
-		this.elevator.setCurrentDirection(direction);
+		while (true) {
+
+			if (stopElevator()) {
+				break;
+			} else if (elevator.getCurrentDirection().equals(Direction.IDLE)) {
+				break;
+			}
+
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+
 		this.elevator.nextElevatorState(); // moving to STOP_CLOSED
-		
 		// request completed, remove request
+		this.elevator.setElevatorStateManually(ElevatorState.STOP_CLOSED);
 		this.elevator.setElevatorStateManually(ElevatorState.STOP_OPENED);
-		this.floorQueues.remove(requestToRemove);
+
+		int currentFloor = elevator.getCurrentFloor();
+
+		if (elevator.stop()) {
+			int people = elevator.clearFloor();
+			System.out.println(
+					String.format("%d people have gotten off of the elevator on floor %d", people, currentFloor));
+		}
+
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if (peopleOnFloor(currentFloor)) {
+			movePeopleOnElevator(currentFloor);
+		}
+
+//		this.floorQueues.remove(requestToRemove);
 	}
 
-	//public void addJob(int destination, int people) {
-	//	System.out.println("Elevator got the request");
-	//}
+	private void movePeopleOnElevator(int currentFloor) {
+		int people = 0;
+		
+		for (int i = 0; i < floorQueues.size(); i++) {
+			if (floorQueues.get(i).getCarButton() == currentFloor) {
+				people++;
+				Request r = floorQueues.get(i);
+				floorQueues.remove(r);
+				elevator.addPeople(r);
+			}
+		} 
+		
+		System.out.println(String.format("%d people from floor %d got on the elevator", people, currentFloor));
 
-	/**
-	 * Moves the elevator along the floor and gets any new requests from the
-	 * scheduler
-	 */
-	//public synchronized void move() {
-	//	scheduler.elevatorNeeded();
-	//}
+	}
+
+	private boolean peopleOnFloor(int currentFloor) {
+		
+		for (int i = 0; i < floorQueues.size(); i++) {
+			if (floorQueues.get(i).getCarButton() == currentFloor) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void changeDirection() {
+		if (floorQueues.isEmpty()) {
+			elevator.setCurrentDirection(Direction.IDLE);
+			return;
+		}
+
+		if (elevator.getCurrentDirection().equals(Direction.UP)) {
+			if (goUp()) {
+				return;
+			} else if (goDown()) {
+				elevator.setCurrentDirection(Direction.DOWN);
+			}
+
+		} else if (elevator.getCurrentDirection().equals(Direction.DOWN)) {
+			if (goDown()) {
+				return;
+			} else if (goUp()) {
+				elevator.setCurrentDirection(Direction.UP);
+			}
+		} else {
+			elevator.setCurrentDirection(Direction.IDLE);
+		}
+		
+	}
+
+	private boolean goUp() {
+
+		ArrayList<Request> elevatorQueue = elevator.getElevatorQueue();
+
+		for (int i = 0; i < elevatorQueue.size(); i++) {
+			if (elevatorQueue.get(i).getCarButton() > elevator.getCurrentFloor()
+					|| floorQueues.get(i).getCarButton() > elevator.getCurrentFloor()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private boolean goDown() {
+
+		ArrayList<Request> elevatorQueue = elevator.getElevatorQueue();
+
+		for (int i = 0; i < elevatorQueue.size(); i++) {
+			if (elevatorQueue.get(i).getCarButton() < elevator.getCurrentFloor()
+					|| floorQueues.get(i).getCarButton() < elevator.getCurrentFloor()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private boolean stopElevator() {
+
+		if (elevator.stop()) {
+			return true;
+		}
+		
+		for (int i = 0; i < floorQueues.size(); i++) {
+			if (floorQueues.get(i).getFloorNumber() == elevator.getCurrentFloor()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	/**
 	 * The run function when you start the thread
@@ -173,8 +291,7 @@ public class ElevatorSubsystem implements Runnable {
 	public void run() {
 
 		while (!scheduler.isDone()) {
-			//move();
-			this.scheduler.elevatorNeeded();
+			operate();
 		}
 
 		System.out.println("Elevator subsystem is done");
