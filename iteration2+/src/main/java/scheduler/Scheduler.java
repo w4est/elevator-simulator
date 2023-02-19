@@ -14,7 +14,7 @@ import floor.*;
  *         subsystems to schedule the best elevator route.
  *
  */
-public class Scheduler implements Runnable {
+public class Scheduler {
 	// this will be set to true when there are people in the queue who have not been
 	// serviced
 	private boolean elevatorNeeded = false;
@@ -48,48 +48,6 @@ public class Scheduler implements Runnable {
 	}
 
 	/**
-	 * For now, this only transitions to the next state; in future iterations this
-	 * will be used to check for network packets from the floor, and the
-	 * requestElevator function that is called by the Floor Subsystem will be
-	 * removed. This is only a placeholder that has been added as the purpose of
-	 * this iteration is to flesh out the state machines.
-	 */
-	public void checkForRequests() {
-		if (state == SchedulerStates.CheckForRequests) {
-			this.state = state.nextState();
-		}
-	}
-
-	/**
-	 * For now, this only transitions to the next state; in future iterations this
-	 * will be used to prioritize the requests and create them into packets to send
-	 * to the elevator, and the elevatorNeeded function that is called by the
-	 * Elevator Subsystem will be removed. This is only a placeholder that has been
-	 * added as the purpose of this iteration is to flesh out the state machines.
-	 */
-	public void incompleteRequests() {
-		if (state == SchedulerStates.IncompleteRequests) {
-			this.state = state.nextState();
-		}
-	}
-
-	/**
-	 * For now, this only transitions to the next state; in future iterations this
-	 * will be used to check for network packets from the elevator, and the
-	 * requestReceived function that is called by the Elevator Subsystem will be
-	 * removed. This is only a placeholder that has been added as the purpose of
-	 * this iteration is to flesh out the state machines.
-	 */
-	public void checkForResponses() {
-		if (state == SchedulerStates.CheckForResponses) {
-			if (requests.isEmpty() && done) {
-				this.state = SchedulerStates.AllRequestsComplete;
-			}
-			this.state = state.nextState();
-		}
-	}
-
-	/**
 	 * This is the command that runs when a user presses a call elevator button on a
 	 * specific floor. It adds the request information to the requests queue, and
 	 * then notifies the elevator threads to check for a job.
@@ -103,6 +61,14 @@ public class Scheduler implements Runnable {
 	public synchronized void requestElevator(LocalTime time, Request request) {
 		elevatorNeeded = true;
 		requests.put(time, request);
+		
+		//updates the state as the scheduler finishes checking for requests
+		//and moves to send them.
+		//note: these states will be more fleshed out and useful next iteration
+		//when network communication is introduced.
+		if (state == SchedulerStates.CheckForRequests) {
+			this.state = state.nextState();
+		}
 		notifyAll();
 	}
 
@@ -143,6 +109,15 @@ public class Scheduler implements Runnable {
 		elevatorSubsys.updateFloorQueue(requests.get(priorityRequest));
 		// remove the sent request from the queue.
 		requests.remove(priorityRequest);
+		
+		//updates the state as the scheduler finishes sending incomplete requests
+		//and moves to check for responses.
+		//note: these states will be more fleshed out and useful next iteration
+		//when network communication is introduced.
+		if (state == SchedulerStates.IncompleteRequests) {
+			this.state = state.nextState();
+		}
+		
 		// stops calling elevators if there are no more requests in the queue.
 		if (requests.isEmpty()) {
 			elevatorNeeded = false;
@@ -164,6 +139,14 @@ public class Scheduler implements Runnable {
 	 */
 	public synchronized void requestReceived(int elevatorNumber, int departureFloorNumber, int targetFloorNumber) {
 		floorSubsystem.getElevatorInfoFromScheduler(elevatorNumber, departureFloorNumber, targetFloorNumber);
+		
+		//updates the state as the scheduler finishes checking for responses
+		//and moves to check for requests.
+		//note: these states will be more fleshed out and useful next iteration
+		//when network communication is introduced.
+		if (state == SchedulerStates.CheckForResponses) {
+			this.state = state.nextState();
+		}
 		notifyAll();
 	}
 
@@ -182,6 +165,8 @@ public class Scheduler implements Runnable {
 	 * @return boolean, represents whether or not the floor is done.
 	 */
 	public synchronized boolean isDone() {
+		//moves to final state when all requests are done.
+		this.state = SchedulerStates.AllRequestsComplete;
 		return done;
 	}
 
@@ -192,16 +177,4 @@ public class Scheduler implements Runnable {
 		this.done = !done;
 		notifyAll();
 	}
-
-	/**
-	 * 
-	 */
-	public void run() {
-		while (!done) {
-			checkForRequests();
-			incompleteRequests();
-			checkForResponses();
-		}
-	}
-
 }

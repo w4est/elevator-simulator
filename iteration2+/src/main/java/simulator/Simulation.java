@@ -13,7 +13,6 @@ public class Simulation {
 	
 	private static Thread floorSubsystemThread;
 	private static Thread elevatorSubsystemThread;
-	private static Thread schedulerThread;
 	
 	public static Thread getFloorSubsystemThread() {
 		return floorSubsystemThread;
@@ -21,10 +20,6 @@ public class Simulation {
 
 	public static Thread getElevatorSubsystemThread() {
 		return elevatorSubsystemThread;
-	}
-
-	public static Thread getSchedulerThread() {
-		return schedulerThread;
 	}
 	
 	public static void main(String[] args) throws IOException {
@@ -43,11 +38,9 @@ public class Simulation {
 		// Create threads passing them their respective objects 
 		floorSubsystemThread = new Thread(floorSubsystem);
 		elevatorSubsystemThread = new Thread(elevatorSubsystem);
-		schedulerThread = new Thread(scheduler);
 		
 		// Start to activate all run() methods for each thread
 		floorSubsystemThread.start();
 		elevatorSubsystemThread.start();
-		schedulerThread.start();
 	}
 }
