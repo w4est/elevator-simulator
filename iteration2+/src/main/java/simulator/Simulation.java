@@ -64,6 +64,10 @@ public class Simulation {
 
 		Map<String, String> commandMap = new HashMap<>();
 
+		if (args == null) {
+			return commandMap;
+		}
+		
 		String command = null;
 		for (String s : args) {
 			if (s.startsWith("-")) {
