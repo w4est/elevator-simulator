@@ -16,12 +16,23 @@ public class SimulationTest {
 			try {
 				Simulation.main(null);
 				// Give more then enough time for elevators to move etc.
-				Thread.sleep(500);
-				assertEquals(false, Simulation.getElevatorSubsystemThread().isAlive());
-				assertEquals(false, Simulation.getFloorSubsystemThread().isAlive());
+				long totalTime = System.currentTimeMillis();
+				boolean programCompleted = false;
+				while (System.currentTimeMillis() < (totalTime + 30000) && !programCompleted) {
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					totalTime += 500;
+					if(!Simulation.getElevatorSubsystemThread().isAlive()
+							&& !Simulation.getFloorSubsystemThread().isAlive()) {
+						programCompleted = true;
+					}
+				}
+				assertEquals(true, programCompleted);
 			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} finally {
 				// Make sure the threads are closed

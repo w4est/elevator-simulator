@@ -14,7 +14,7 @@ public class ElevatorTest {
 		// Assert the standard settings
 		assertEquals(2, elevator.getCarNumber());
 		assertEquals(1, elevator.getCurrentFloor());
-		assertEquals("Idle", elevator.getCurrentDirection());
+		assertEquals(Direction.IDLE, elevator.getCurrentDirection());
 	}
 
 }
