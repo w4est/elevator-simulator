@@ -61,11 +61,11 @@ public class Scheduler {
 	public synchronized void requestElevator(LocalTime time, Request request) {
 		elevatorNeeded = true;
 		requests.put(time, request);
-		
-		//updates the state as the scheduler finishes checking for requests
-		//and moves to send them.
-		//note: these states will be more fleshed out and useful next iteration
-		//when network communication is introduced.
+
+		// updates the state as the scheduler finishes checking for requests
+		// and moves to send them.
+		// note: these states will be more fleshed out and useful next iteration
+		// when network communication is introduced.
 		if (state == SchedulerStates.CheckForRequests) {
 			this.state = state.nextState();
 		}
@@ -109,15 +109,15 @@ public class Scheduler {
 		elevatorSubsys.updateFloorQueue(requests.get(priorityRequest));
 		// remove the sent request from the queue.
 		requests.remove(priorityRequest);
-		
-		//updates the state as the scheduler finishes sending incomplete requests
-		//and moves to check for responses.
-		//note: these states will be more fleshed out and useful next iteration
-		//when network communication is introduced.
+
+		// updates the state as the scheduler finishes sending incomplete requests
+		// and moves to check for responses.
+		// note: these states will be more fleshed out and useful next iteration
+		// when network communication is introduced.
 		if (state == SchedulerStates.IncompleteRequests) {
 			this.state = state.nextState();
 		}
-		
+
 		// stops calling elevators if there are no more requests in the queue.
 		if (requests.isEmpty()) {
 			elevatorNeeded = false;
@@ -139,11 +139,11 @@ public class Scheduler {
 	 */
 	public synchronized void requestReceived(int elevatorNumber, int departureFloorNumber, int targetFloorNumber) {
 		floorSubsystem.getElevatorInfoFromScheduler(elevatorNumber, departureFloorNumber, targetFloorNumber);
-		
-		//updates the state as the scheduler finishes checking for responses
-		//and moves to check for requests.
-		//note: these states will be more fleshed out and useful next iteration
-		//when network communication is introduced.
+
+		// updates the state as the scheduler finishes checking for responses
+		// and moves to check for requests.
+		// note: these states will be more fleshed out and useful next iteration
+		// when network communication is introduced.
 		if (state == SchedulerStates.CheckForResponses) {
 			this.state = state.nextState();
 		}
@@ -165,7 +165,7 @@ public class Scheduler {
 	 * @return boolean, represents whether or not the floor is done.
 	 */
 	public synchronized boolean isDone() {
-		//moves to final state when all requests are done.
+		// moves to final state when all requests are done.
 		this.state = SchedulerStates.AllRequestsComplete;
 		return done;
 	}
@@ -176,5 +176,15 @@ public class Scheduler {
 	public synchronized void toggleDone() {
 		this.done = !done;
 		notifyAll();
+	}
+
+	/**
+	 * Protected method to get the current state of the scheduler; used for testing
+	 * purposes.
+	 * 
+	 * @return SchedulerStates, the current state of the scheduler.
+	 */
+	protected SchedulerStates getSchedulerState() {
+		return state;
 	}
 }
