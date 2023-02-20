@@ -21,7 +21,7 @@ public class Simulation {
 	public static Thread getElevatorSubsystemThread() {
 		return elevatorSubsystemThread;
 	}
-
+	
 	public static void main(String[] args) throws IOException {
 		// TODO Iteration 2 should read elevator number, floor number, and file input from command line
 		
