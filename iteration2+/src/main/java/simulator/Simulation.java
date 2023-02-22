@@ -26,7 +26,7 @@ public class Simulation {
 	public static Thread getElevatorSubsystemThread() {
 		return elevatorSubsystemThread;
 	}
-
+	
 	public static void main(String[] args) throws IOException {
 
 		String defaultTestFile = "src/test/resources/request_test.txt"; // directory of test file for FloorSubsystem

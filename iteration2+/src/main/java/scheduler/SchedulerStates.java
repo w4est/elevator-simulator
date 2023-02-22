@@ -5,11 +5,6 @@ package scheduler;
  *
  */
 public enum SchedulerStates {
-	NoRequests {
-		public SchedulerStates nextState() {
-			return CheckForRequests;
-		}
-	},
 	CheckForRequests {
 		public SchedulerStates nextState() {
 			return IncompleteRequests;
@@ -22,7 +17,7 @@ public enum SchedulerStates {
 	},
 	CheckForResponses {
 		public SchedulerStates nextState() {
-			return AllRequestsComplete;
+			return CheckForRequests;
 		}
 	},
 	AllRequestsComplete {
