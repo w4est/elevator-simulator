@@ -155,7 +155,7 @@ public class Scheduler {
 	 * 
 	 * @return boolean, value of elevatorNeeded.
 	 */
-	public boolean getElevatorNeeded() {
+	public boolean isElevatorNeeded() {
 		return elevatorNeeded;
 	}
 
@@ -165,8 +165,6 @@ public class Scheduler {
 	 * @return boolean, represents whether or not the floor is done.
 	 */
 	public synchronized boolean isDone() {
-		// moves to final state when all requests are done.
-		this.state = SchedulerStates.AllRequestsComplete;
 		return done;
 	}
 
@@ -175,6 +173,8 @@ public class Scheduler {
 	 */
 	public synchronized void toggleDone() {
 		this.done = !done;
+		// moves to final state when all requests are done.
+		this.state = SchedulerStates.AllRequestsComplete;
 		notifyAll();
 	}
 
