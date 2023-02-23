@@ -173,8 +173,6 @@ public class Scheduler {
 	 */
 	public synchronized void toggleDone() {
 		this.done = !done;
-		// moves to final state when all requests are done.
-		this.state = SchedulerStates.AllRequestsComplete;
 		notifyAll();
 	}
 

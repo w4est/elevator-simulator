@@ -26,7 +26,6 @@ public class SchedulerTest {
 		assertEquals(false, scheduler.isDone());
 		scheduler.toggleDone();
 		assertEquals(true, scheduler.isDone());
-		assertEquals(SchedulerStates.AllRequestsComplete, scheduler.getSchedulerState());
 	}
 
 	@Test
