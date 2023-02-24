@@ -19,11 +19,6 @@ public enum SchedulerStates {
 		public SchedulerStates nextState() {
 			return CheckForRequests;
 		}
-	},
-	AllRequestsComplete {
-		public SchedulerStates nextState() {
-			return this;
-		}
 	};
 	
 	public abstract SchedulerStates nextState();
