@@ -123,7 +123,7 @@ public class ElevatorSubsystem implements Runnable {
 	 * Private method repeatedly called in run until the scheduler is done.
 	 * Used to setup elevator movement and handle requests.
 	 * 
-	 * Note: future iteration change this to handle multiple elevators.
+	 * future iteration: change method to handle multiple elevators.
 	 * @author Subear Jama and Farhan Mahamud
 	 */
 	private void operate() {
@@ -177,40 +177,10 @@ public class ElevatorSubsystem implements Runnable {
 				moveElevator();
 				System.out.println("	Moving: Elevator Current Floor & State: " + 
 						"Floor "+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // Floor move
-				/*
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}*/
 
 			}
 
-			// 4: if the elevator current floor has reached a request destination (stopped), 
-			// remove all requests from that floor.
-			/*
-			int currentFloor = elevator.getCurrentFloor();
-			if (elevator.stop()) {
-				int people = elevator.clearFloor();
-				System.out.println(
-						String.format("%d people have gotten off of the elevator on floor %d", people, currentFloor));
-			}
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}*/
-			
-			// 5: if a request's destination floor matches the elevator's current floor,
-			// remove from elevatorSubsystem request queue and add to elevator's request queue
-			// NOTE: peopleOnFloor and stopElevator are similar
-			//if (peopleOnFloor(currentFloor)) {
-			//	movePeopleOnElevator(currentFloor);
-			//}
-
-			// check operateComplete condition (have all requests been picked up)
+			// check operateComplete condition (have all requests been picked up?)
 			if (this.elevator.allPeoplePickedUp()) {
 				this.operateComplete = true;
 			}
@@ -220,7 +190,7 @@ public class ElevatorSubsystem implements Runnable {
 	
 	/**
 	 * Private method used in operate to actually move the elevator
-	 * up or down 1 floor depending on the elevator's current state
+	 * up or down 1 floor depending on the elevator's current state.
 	 * 
 	 * @author Subear Jama
 	 */
@@ -239,7 +209,9 @@ public class ElevatorSubsystem implements Runnable {
 	 * Private method used in operate that checks if a request starting floor from 
 	 * ElevatorSubsystem floorQueues matches the elevator's current floor. 
 	 * it then removes that request from ElevatorSubsystem.
+	 * 
 	 * @param currentFloor int, the elevator's current floor
+	 * @author Farhan Mahamud
 	 */
 	private void movePeopleOnElevator(int currentFloor) {
 		int people = 0;
@@ -254,29 +226,10 @@ public class ElevatorSubsystem implements Runnable {
 		System.out.println(String.format("	ElevatorSubsystem: %d request from Floor %d got on the Elevator", people, currentFloor));
 	}
 
-	
-	/**
-	 * Private method used in operate that checks through all requests
-	 * to see if a request's destination floor matches the elevator's current floor.
-	 * @param currentFloor int, the elevator's current floor
-	 * @return boolean, true = a request destination matches current floor, otherwise false.
-	 */
-	/*
-	private boolean peopleOnFloor(int currentFloor) {
-		
-		for (int i = 0; i < floorQueues.size(); i++) {
-			if (floorQueues.get(i).getCarButton() == currentFloor) {
-				return true;
-			}
-		}
-		return false;
-	}*/
-
 	/**
 	 * Private method used in operate method to verify and
 	 * set the elevator's current direction.
 	 * 
-	 * NOTE: direction is also used in ElevatorState
 	 * future iteration: sort through elevators and check their request lists
 	 * @author Subear Jama and Farhan Mahamud
 	 */
@@ -299,18 +252,7 @@ public class ElevatorSubsystem implements Runnable {
 				break;
 			}
 		}
-		
-		/*
-		// elevator needs requests and a way to switch current direction
-		// use the first requests direction
-		for (int i = 0; i < floorQueues.size(); i++) {
-			if (floorQueues.get(i).getReachedStartFloor() == false) {
-				Direction directionFirstRequest = floorQueues.get(0).getFloorButton();
-				elevator.setCurrentDirection(directionFirstRequest);
-				break;
-			}
-		}*/
-		
+
 		// Set elevator state based off of elevator direction
 		if (elevator.getCurrentDirection().equals(Direction.UP)) {
 			this.elevator.setElevatorStateManually(ElevatorState.MOVING_UP);
@@ -320,82 +262,21 @@ public class ElevatorSubsystem implements Runnable {
 			elevator.setCurrentDirection(Direction.IDLE);
 		}
 		
-		/*
-		if (elevator.getCurrentDirection().equals(Direction.UP)) {
-			if (goUp()) {
-				return;
-			} else if (goDown()) {
-				elevator.setCurrentDirection(Direction.DOWN);
-			}
-
-		} else if (elevator.getCurrentDirection().equals(Direction.DOWN)) {
-			if (goDown()) {
-				return;
-			} else if (goUp()) {
-				elevator.setCurrentDirection(Direction.UP);
-			}
-		} else {
-			elevator.setCurrentDirection(Direction.IDLE);
-		}*/
-		
 	}
-
-	/**
-	 * Private method used in changeDirection that checks all elevator requests to see 
-	 * if one of the requests destnation floor is > than the elevator's current floor.
-	 * @return boolean, true = elevator should go up,  otherwise false.
-	 * 
-	 * NOTE: elevator's queue only gets set at the end when movePeopleOnElevator is called?
-	 */
-	/*private boolean goUp() {
-
-		ArrayList<Request> elevatorQueue = elevator.getElevatorQueue();
-
-		for (int i = 0; i < elevatorQueue.size(); i++) {
-			if (elevatorQueue.get(i).getCarButton() > elevator.getCurrentFloor()
-					|| floorQueues.get(i).getCarButton() > elevator.getCurrentFloor()) {
-				return true;
-			}
-		}
-
-		return false;
-	}*/
-	/*
-	private boolean goDown() {
-
-		ArrayList<Request> elevatorQueue = elevator.getElevatorQueue();
-
-		for (int i = 0; i < elevatorQueue.size(); i++) {
-			if (elevatorQueue.get(i).getCarButton() < elevator.getCurrentFloor()
-					|| floorQueues.get(i).getCarButton() < elevator.getCurrentFloor()) {
-				return true;
-			}
-		}
-
-		return false;
-	}*/
 
 	/**
 	 * Private method used in operate method to stop when the elevator has
 	 * reached its destination. 
 	 * 
+	 * future iteration: stopElevator method will handle multiple elevator stops
 	 * @return boolean, true = stop elevator, otherwise false.
 	 * @author Subear Jama & Farhan Mahamud
 	 */
 	private boolean stopElevator() {
 		
-		// In a future iteration, stopElevator method will handle multiple elevator stops
 		if (elevator.stop()) {
 			return true;
 		}
-		
-		/*
-		// check elevatorSubsystem's request queue
-		for (int i = 0; i < floorQueues.size(); i++) {
-			if (floorQueues.get(i).getCarButton() == elevator.getCurrentFloor()) {
-				return true;
-			}
-		}*/
 		return false;
 	}
 
