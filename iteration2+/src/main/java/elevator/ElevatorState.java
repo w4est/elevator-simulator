@@ -14,7 +14,7 @@ public enum ElevatorState {
 	STOP_CLOSED {
 		public ElevatorState nextState() {
 			//fix this for determining direction OR going back to open
-			return MOVING_UP;
+			return STOP_OPENED;
 		}
 	},
 	MOVING_UP {

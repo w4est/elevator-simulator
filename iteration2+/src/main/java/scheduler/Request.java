@@ -15,8 +15,10 @@ public class Request {
 	private final Direction floorButton;
 	//the number of the floor that the request wants to go to
 	private final int carButton;
-	// initially false but true when request has been sent
+	// initially false but true when request has been sent by the FloorSubsystem
 	private boolean requestSent;
+	// check if the request starting floor has been completed from the Elevator
+	private boolean reachedStartFloor;
 
 	/**
 	 * Request Constructor sets up an individual person's request. The request will also be set to false until it has been sent
@@ -29,6 +31,7 @@ public class Request {
 		this.floorButton = floorButton;
 		this.carButton = carButton;
 		this.requestSent = false;
+		this.reachedStartFloor = false;
 	}
 	
 	/**
@@ -69,6 +72,14 @@ public class Request {
 	 */
 	public boolean getRequestStatus() {
 		return this.requestSent;
+	}
+	
+	public boolean getReachedStartFloor() {
+		return this.reachedStartFloor;
+	}
+	
+	public void setReachedStartFloor(boolean arrived) {
+		this.reachedStartFloor = arrived;
 	}
 
 }

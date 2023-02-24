@@ -2,9 +2,6 @@
 package elevator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import scheduler.Request;
 
 /**
@@ -14,8 +11,6 @@ import scheduler.Request;
  * @author Farhan Mahamud
  *
  */
-
-
 public class Elevator implements Runnable {
 
 	private int currentFloor; // The current floor of the elevator
@@ -36,14 +31,27 @@ public class Elevator implements Runnable {
 		elevatorQueue = new ArrayList<>();
 	}
 	
+	/**
+	 * Method used to get the elevator's current state.
+	 * @return ElevatorState, the state of the elevator
+	 */
 	public ElevatorState getCurrentElevatorState() {
 		return this.elevatorState;
 	}
 	
+	/**
+	 * Method used to transition to the next state.
+	 * STOP_OPENED becomes STOP_CLOSED and vice versa
+	 * MOVING_UP or MOVING_DOWN becomes STOP_CLOSED
+	 */
 	public void nextElevatorState() {
 		this.elevatorState = elevatorState.nextState();
 	}
 	
+	/**
+	 * Setter method used to manually set the elevator's state.
+	 * @param newState ElevatorState, the new state of the elevator
+	 */
 	public void setElevatorStateManually(ElevatorState newState) {
 		this.elevatorState = newState;
 	}
@@ -82,16 +90,24 @@ public class Elevator implements Runnable {
 
 	/**
 	 * Sets the current direction of the elevator
-	 * @param currentDirection
+	 * @param currentDirection Direction, the new direction of the elevator
 	 */
 	public void setCurrentDirection(Direction currentDirection) {
 		this.currentDirection = currentDirection;
 	}
 	
+	/**
+	 * Getter method used to get the elevators list of requests
+	 * @return ArrayList<Request>, the list of requests in the elevator
+	 */
 	public ArrayList<Request> getElevatorQueue(){
-		return elevatorQueue;
+		return this.elevatorQueue;
 	}
 	
+	/**
+	 * Method used to add requests to the elevator's request queue
+	 * @param r Request, the request to add
+	 */
 	public void addPeople(Request r) {
 		elevatorQueue.add(r);
 	}
@@ -104,24 +120,66 @@ public class Elevator implements Runnable {
 		// TODO Auto-generated method stub
 		
 	}
-
-	public boolean stop() {
-
-		for (int i = 0; i < elevatorQueue.size(); i++) {
-			if (elevatorQueue.get(i).getCarButton() == currentFloor) {
-				return true;
+	
+	/**
+	 * This method checks through requests to verify if the elevator picked up all requests
+	 * @return boolean, true = all requests have been picked up, false otherwise
+	 * @author Subear Jama
+	 */
+	public boolean allPeoplePickedUp() {
+		int verifyCount = 0;
+		for (Request r: this.elevatorQueue) {
+			if (r.getReachedStartFloor() == true) {
+				verifyCount++;
 			}
+		}
+		if (verifyCount == this.elevatorQueue.size()) {
+			return true;
+		} else {
+			return false;
+		}
+		
+	}
+
+	/**
+	 * Method used to stop if an elevator is at a request's starting floor
+	 * 
+	 * NOTE: future iteration will stop at request's destination floor (that has already been to its starting floor)
+	 * @return boolean, true = elevator stop, false otherwise.
+	 * @author Subear Jama
+	 */
+	public boolean stop() {
+		// case to consider:
+		//	if your are at a request's destination floor but haven't reached the starting floor first, dont stop
+		//   .: stop for all starting floors AND 
+		//      stop for destination floors that have already been to its starting floor
+		for (Request r: this.elevatorQueue) {
+			//if the elevator currentFloor reached a request starting floor, STOP and set request (reachedStartFloor)
+			if (r.getFloorNumber() == currentFloor && r.getReachedStartFloor() == false) {
+				System.out.println("	***Elevator Stopped for request on Floor " + currentFloor);
+				r.setReachedStartFloor(true);
+				return true;
+			} 
+			/* future iteration will stop at destinations
+			else if (r.getCarButton() == currentFloor && r.getReachedStartFloor() == true ) {
+				return true;
+			}*/
 		}
 		return false;
 	}
 
+	/**
+	 *  Method used to remove requests from the elevator
+	 *  only if the destination floor matches the current floor.
+	 * @return int, the people (requests) removed
+	 */
 	public int clearFloor() {
 		int people = 0;
-		for (int i = 0; i < elevatorQueue.size(); i++) {
-			if (elevatorQueue.get(i).getCarButton() == currentFloor) {
+		// have to increment down since elevatorQueue will be shrinking
+		for (int i = elevatorQueue.size() - 1; i >= 0; i--) {
+			if (elevatorQueue.get(i).getCarButton() == currentFloor && elevatorQueue.get(i).getReachedStartFloor() == true ) {
 				people++;
-				Request r = elevatorQueue.get(i);
-				elevatorQueue.remove(r);
+				elevatorQueue.remove(i);
 			}
 		}
 		return people;

@@ -200,7 +200,7 @@ public class FloorSubsystem implements Runnable {
 			updatePeopleWaitingOnAllFloors();
 		}
 		System.out.println("FloorSubsystem Finished:                "
-				+ "People on all floors have successfully reached their destination!");
+				+ "People on all floors have successfully sent their requests!");
 		// Signal the Scheduler that this Thread has been completed to then end the ElevatorSubsystem Thread
 		scheduler.toggleDone();
 	}
