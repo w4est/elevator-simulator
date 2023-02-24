@@ -23,7 +23,7 @@ public class Simulation {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		// TODO Iteration 2 should read elevator number, floor number, and file input from command line
+		// TODO Iteration 3 should read elevator number, floor number, and file input from command line
 		
 		String testFile = "src/test/resources/request_test.txt"; // directory of test file for FloorSubsystem
 		int maxFloors = 7; // the maximum amount of floors in the FloorSubsystem and ElevatorSubsystem
