@@ -20,14 +20,27 @@ An important thing to note is that we have used Mockito in some of our tests. It
 helped us to write clean and simple tests. This should not present any issue when running our program or tests, but
  we believe it is important to note that this library has been used in case there are any discrepancies.
 
-All of the tests are included in the floor and elevator test packages, in FloorSubsystemTest.java, 
-InputFileReaderTest.java, and ElevatorSubsystemTest.java. Each of these suites can be run from their respective files.
+All of the tests are included in the same java packages as the source, but under the test folder:
+1. elevator (package)
+   * ElevatorSubsystemTest.java
+   * ElevatorTest.java
+2. floor (package)
+   * FloorSubsystemTest.java
+   * InputFileReaderTest.java
+3. scheduler (package)
+   * SchedulerTest.java
+4. simulator (package)
+   * SimulationTest.java
+
+Each of these suites can be run from their respective files.
 
 ## Main Filenames (Explained)
 Below are the files within src that make up the Elevator Control System.
 All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in the "diagrams" folder.
 
 1. elevator (package)
+   * Direction.java : enum used to indicate direction of the elevator
+   * ElevatorState.java : enum used to indicate the elevator state
    * ElevatorSubsystem.java : used to communicate with the Scheduler to manage the elevator. Implements runnable to be a thread.
    * Elevator.java : used within ElevatorSubsystem to represent the state of the elevator. Implements runnable to be a thread.
 2. floor (package)
@@ -38,6 +51,7 @@ All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in th
 3. scheduler (package)
    * Scheduler.java : responsible for communication between FloorSubsystem and ElevatorSubsystem. keeps everything thread-safe (Mutual Exclusion and Condition Synchronization)
    * Request.java : used to save all relevant request information to use for optimizing scheduling.
+   * SchedulerStates.java : A enumeration of states that the scheduler can be in
 4. simulator (package) 
    * Simulation.java : responsible for program initialization & running the simulation from the console
 
@@ -82,6 +96,3 @@ Below are the set up instructions. For more information, see "L2G2_Test_Instruct
 
 ## Breakdown Of Responsibilities
 For more information on how everything was split equally, see "L2G2_Teamwork_Breakdown.pdf".
-
-### Iteration 2
-- TODO
