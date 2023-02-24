@@ -6,6 +6,7 @@ import scheduler.Request;
 
 /**
  * ElevatorTest uses Junit to test the Elevator Class.
+ * It also includes testing the states of an Elevator.
  * @author Subear Jama
  */
 public class ElevatorTest {

@@ -17,7 +17,7 @@ public class Elevator implements Runnable {
 	private Direction currentDirection; // The current direction of the elevator
 	private int carNumber; // The unique car number
 	private ElevatorState elevatorState; // The current state of the elevator
-	private ArrayList<Request> elevatorQueue;
+	private ArrayList<Request> elevatorQueue; // The requests stored in an elevator
 
 	/**
 	 * The default constructor
@@ -144,7 +144,7 @@ public class Elevator implements Runnable {
 	/**
 	 * Method used to stop if an elevator is at a request's starting floor
 	 * 
-	 * NOTE: future iteration will stop at request's destination floor (that has already been to its starting floor)
+	 * future iteration: stop at request's destination floor (that has already been to its starting floor)
 	 * @return boolean, true = elevator stop, false otherwise.
 	 * @author Subear Jama
 	 */
