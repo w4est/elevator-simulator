@@ -50,6 +50,8 @@ public class ElevatorSubsystemTest {
 	 * This test case goes through the states of an elevator from the
 	 * perspective of the ElevatorSubsystem.
 	 * 
+	 * It tests how the ElevatorSubsystem handles multiple requests at the same time 
+	 * 
 	 * NOTE: another way to test states is to run simulation and look at the console
 	 * @author Subear Jama
 	 */

@@ -6,7 +6,7 @@ import scheduler.Request;
 
 /**
  * ElevatorTest uses Junit to test the Elevator Class.
- * It also includes testing the states of an Elevator.
+ * It also includes testing all states of an Elevator.
  * @author Subear Jama
  */
 public class ElevatorTest {
@@ -26,6 +26,7 @@ public class ElevatorTest {
 	 * This test case goes through all states of an Elevator.
 	 * Methods Used: getCurrentElevatorState(), nextElevatorState(), setElevatorStateManually()
 	 * An Elevator has 4 states: STOP_OPENED, STOP_CLOSED, MOVING_UP, MOVING_DOWN
+	 * @author Subear Jama
 	 */
 	@Test
 	void testingElevatorStates() {
@@ -59,6 +60,7 @@ public class ElevatorTest {
 	/**
 	 * This test case goes through the process of adding and removing requests from an Elevator
 	 * Methods Used: clearFloor(), stop(), addPeople(), getElevatorQueue()
+	 * @author Subear Jama
 	 */
 	@Test
 	void removeRequestsFromElevator() {
@@ -69,7 +71,8 @@ public class ElevatorTest {
 		assertEquals(true, elevator.getElevatorQueue().isEmpty());
 		
 		// stop() and clearFloor() can't do anything with empty request list
-		assertEquals(false, elevator.stop());
+		assertEquals(false, elevator.stopStartFloorCheck());
+		assertEquals(false, elevator.stopDestinationCheck());
 		assertEquals(0, elevator.clearFloor());
 		
 		// Make requests and store inside elevator
@@ -82,40 +85,49 @@ public class ElevatorTest {
 		assertEquals(false, elevator.getElevatorQueue().isEmpty());
 		
 		// stop() and clearFloor() still can't do anything since elevator isn't at destination
-		assertEquals(false, elevator.stop());
+		assertEquals(false, elevator.stopStartFloorCheck());
 		assertEquals(0, elevator.clearFloor());
 		
 		// setting current floor to 5, elevator CANNOT STOP at request destination without the starting floor
 		elevator.setCurrentFloor(5);
-		assertEquals(false, elevator.stop());
+		assertEquals(false, elevator.stopStartFloorCheck());
+		assertEquals(false, elevator.stopDestinationCheck());
 		
-		// pick up r1
+		// pick up r1 (start floor)
 		elevator.setCurrentFloor(2);
-		assertEquals(true, elevator.stop());
+		assertEquals(true, elevator.stopStartFloorCheck());
+		assertEquals(false, elevator.stopDestinationCheck());
 		
-		// pick up r2
+		// pick up r2 (start floor)
 		elevator.setCurrentFloor(4);
-		assertEquals(true, elevator.stop());
+		assertEquals(true, elevator.stopStartFloorCheck());
+		assertEquals(false, elevator.stopDestinationCheck());
 		
 		
-		// future iteration: elevator can stop since elevator is at r1 and r2's request destination floor
+		// elevator can stop at destination since elevator is at r1 and r2's request destination floor
 		elevator.setCurrentFloor(5);
-		//assertEquals(true, elevator.stop());
+		assertEquals(false, elevator.stopStartFloorCheck());
+		assertEquals(true, elevator.stopDestinationCheck());
+	
 		
-		// at current floor 5, can now remove 2 people from elevator (r1 and r2)
+		// at current floor 5, can now remove 2 people from elevator (r1 and r2) using clearFloor()
 		System.out.println(elevator.getElevatorQueue().size()); // 3
 		assertEquals(2, elevator.clearFloor());
 		System.out.println(elevator.getElevatorQueue().size()); // 1
 		
 		//finally remove last request (r3) when the current floor is 7
 		elevator.setCurrentFloor(6);
-		assertEquals(false, elevator.stop());
+		assertEquals(false, elevator.stopStartFloorCheck());
+		assertEquals(false, elevator.stopDestinationCheck());
 		assertEquals(0, elevator.clearFloor());
 		
 		elevator.setCurrentFloor(3);
-		assertEquals(true, elevator.stop());
+		assertEquals(true, elevator.stopStartFloorCheck());
+		assertEquals(false, elevator.stopDestinationCheck());
+		
 		elevator.setCurrentFloor(7);
-		//assertEquals(true, elevator.stop());
+		assertEquals(false, elevator.stopStartFloorCheck());
+		assertEquals(true, elevator.stopDestinationCheck());
 		assertEquals(1, elevator.clearFloor());
 		
 	}
