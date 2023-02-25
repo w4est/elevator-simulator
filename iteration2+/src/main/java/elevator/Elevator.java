@@ -122,14 +122,18 @@ public class Elevator implements Runnable {
 	}
 	
 	/**
-	 * This method checks through requests to verify if the elevator picked up all requests
+	 * This method checks through requests to verify if the elevator completed all requests
 	 * @return boolean, true = all requests have been picked up, false otherwise
 	 * @author Subear Jama
 	 */
 	public boolean allPeoplePickedUp() {
+		if (this.elevatorQueue.isEmpty()) {
+			return true;
+		}
+		
 		int verifyCount = 0;
 		for (Request r: this.elevatorQueue) {
-			if (r.getReachedStartFloor() == true) {
+			if (r.getRequestComplete() == true) {
 				verifyCount++;
 			}
 		}
@@ -142,35 +146,45 @@ public class Elevator implements Runnable {
 	}
 
 	/**
-	 * Method used to stop if an elevator is at a request's starting floor
+	 * Method used to stop if an elevator is at a request's starting floor.
+	 * If true, the request's "reachedStartFloor" is marked as true
 	 * 
-	 * future iteration: stop at request's destination floor (that has already been to its starting floor)
-	 * @return boolean, true = elevator stop, false otherwise.
+	 * @return boolean, true = elevator stop at starting floor, false otherwise.
 	 * @author Subear Jama
 	 */
-	public boolean stop() {
-		// case to consider:
-		//	if your are at a request's destination floor but haven't reached the starting floor first, dont stop
-		//   .: stop for all starting floors AND 
-		//      stop for destination floors that have already been to its starting floor
+	public boolean stopStartFloorCheck() {
 		for (Request r: this.elevatorQueue) {
 			//if the elevator currentFloor reached a request starting floor, STOP and set request (reachedStartFloor)
 			if (r.getFloorNumber() == currentFloor && r.getReachedStartFloor() == false) {
-				System.out.println("	***Elevator Stopped for request on Floor " + currentFloor);
 				r.setReachedStartFloor(true);
 				return true;
 			} 
-			/* future iteration will stop at destinations
-			else if (r.getCarButton() == currentFloor && r.getReachedStartFloor() == true ) {
+		}
+		return false;
+	}
+	
+	/**
+	 * Method used to stop if an elevator is at a request's destination floor
+	 * if true, the request's "requestComplete" is marked as true
+	 * 
+	 * @return boolean, true = elevator stop at destination, false otherwise.
+	 * @author Subear Jama
+	 */
+	public boolean stopDestinationCheck() {
+		//stop for destination floors that have already been to the request's starting floor
+		for (Request r: this.elevatorQueue) {
+			//if the elevator currentFloor reached a request starting floor, STOP and set request (reachedStartFloor)
+			if (r.getCarButton() == currentFloor && r.getReachedStartFloor() == true) {
+				r.setRequestComplete(true);
 				return true;
-			}*/
+			}
 		}
 		return false;
 	}
 
 	/**
-	 *  Method used to remove requests from the elevator
-	 *  only if the destination floor matches the current floor.
+	 *  Method used to remove requests at their destination from the elevator
+	 *  only if that request has been to its start floor.
 	 * @return int, the people (requests) removed
 	 */
 	public int clearFloor() {
