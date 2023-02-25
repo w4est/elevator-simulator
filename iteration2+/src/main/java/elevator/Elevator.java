@@ -186,6 +186,7 @@ public class Elevator implements Runnable {
 	 *  Method used to remove requests at their destination from the elevator
 	 *  only if that request has been to its start floor.
 	 * @return int, the people (requests) removed
+	 * @author Farhan Mahamud
 	 */
 	public int clearFloor() {
 		int people = 0;
