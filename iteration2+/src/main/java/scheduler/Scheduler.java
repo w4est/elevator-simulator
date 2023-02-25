@@ -149,6 +149,16 @@ public class Scheduler {
 		}
 		notifyAll();
 	}
+	
+	/**
+	 * Method used by the ElevatorSubsystem to notify the scheduler
+	 * that a moving elevator has reached a floor
+	 * @param elevatorNumber int, the elevator number
+	 * @param currentFloor int, the elevator's current floor
+	 */
+	public synchronized void notifyElevatorArrival(int elevatorNumber, int currentFloor) {
+		System.out.println(String.format("Scheduler: Elevator %d moved to Floor %d", elevatorNumber, currentFloor));
+	}
 
 	/**
 	 * Method to get the boolean value of elevatorNeeded.
