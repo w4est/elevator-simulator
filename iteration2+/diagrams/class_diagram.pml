@@ -55,6 +55,7 @@ class Scheduler {
     + void requestElevator(LocalTime time, Request request)
     + void elevatorNeeded()
     + void requestReceived(int elevatorNumber, int departureFloorNumber, int targetFloorNumber)
+    + void notifyElevatorArrival(int elevatorNumber, int currentFloor)
     + boolean getElevatorNeeded()
     + boolean isDone()
     + void toggleDone()
@@ -87,7 +88,7 @@ class ElevatorSubsystem <<Runnable>> {
     - void moveElevator()
     - void movePeopleOnElevator(int currentFloor)
     - void changeDirection()
-    - void stopElevator()
+    - int stopElevator()
     + void run() 
 }
 
@@ -109,7 +110,8 @@ class Elevator <<Runnable>> {
     + ArrayList<Request> getElevatorQueue()
     + void addPeople(Request r)
     + boolean allPeoplePickedUp()
-    + boolean stop()
+    + boolean stopStartFloorCheck()
+    + boolean stopDestinationCheck()
     + int clearFloor()
     + void run()
 }
@@ -143,6 +145,7 @@ class Request {
     - int carButton
     - boolean requestSent
     - boolean reachedStartFloor
+    - boolean requestComplete
 
     + int getFloorNumber()
     + Direction getFloorButton()
@@ -151,6 +154,8 @@ class Request {
     + boolean getRequestStatus()
     + boolean getReachStartingFloor()
     + setReachedStartFloor(boolean arrived)
+    + boolean getRequestComplete()
+    + void setRequestComplete(boolean destination)
 }
 
 enum Direction {
