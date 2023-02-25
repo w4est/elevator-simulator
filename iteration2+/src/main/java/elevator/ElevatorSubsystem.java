@@ -245,7 +245,7 @@ public class ElevatorSubsystem implements Runnable {
 	 * set the elevator's current direction to go up/down/unchanged.
 	 * 
 	 * future iteration: sort through elevators and check their request lists
-	 * @author Subear Jama
+	 * @author Subear Jama and Farhan Mahamud
 	 */
 	private void changeDirection() {
 		// to set elevator direction, compare elevator floor with subsystem request start floors 
