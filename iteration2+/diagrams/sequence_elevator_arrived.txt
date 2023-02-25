@@ -1,0 +1,45 @@
+@startuml
+
+participant Floor
+participant FloorSubsystem
+participant Scheduler
+participant ElevatorSubsystem
+
+loop !scheduler.isDone()
+    activate ElevatorSubsystem
+    activate Scheduler
+    loop !elevatorNeeded && !done
+        ElevatorSubsystem -> ElevatorSubsystem: move()
+        ElevatorSubsystem -> Scheduler: elevatorNeeded()
+        alt done
+            Scheduler --> ElevatorSubsystem:
+            end
+        Scheduler -> Scheduler: LocalTime priorityRequest = null
+        loop LocalTime t : requests.keySet()
+            alt priorityRequest == null || t.isBefore(priorityRequest)
+                Scheduler -> Scheduler: priorityRequest = t
+                end
+            end loop
+        activate ElevatorSubsystem
+        Scheduler -> ElevatorSubsystem: elevatorSubsys.updateFloorQueue(requests.get(priorityRequest))
+        ElevatorSubsystem -> ElevatorSubsystem: floorQueues.add(r)
+        ElevatorSubsystem -> Scheduler: scheduler.requestReceived(elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton())
+        activate FloorSubsystem
+        Scheduler -> FloorSubsystem: floorSubsystem.getElevatorInfoFromScheduler(elevatorNumber, departureFloorNumber, targetFloorNumber);
+        deactivate Scheduler
+        FloorSubsystem -> FloorSubsystem: removePersonFromFloor(departureFloorNumber);
+        loop Floor oneFloor : allFloors
+            alt floorNumber == oneFloor.getFloorNumber()
+                activate Floor
+                FloorSubsystem -> Floor: oneFloor.removePeople(1)
+                alt peopleLeavingFloor < numberOfPeople
+                    Floor -> Floor: numberOfPeople -= peopleLeavingFloor
+                end
+            deactivate Floor
+            end loop
+        end loop
+    end loop
+deactivate ElevatorSubsystem
+
+
+@enduml

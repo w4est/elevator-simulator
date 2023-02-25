@@ -10,6 +10,8 @@ Our program is composed of four major components; the floor subsystem and the el
 the scheduler is the lock for the threads. Our fourth component, what we have called the simulator, is the 
 entry point to run the program. For this iteration, all the simulator does is contain our main function. 
 
+![Class Diagram](./diagrams/class_diagram.png)
+
 To run the program, you must run Simulation.java in the simulator package. This should then automatically 
 input an example text file that we have created with elevator request data, and will print the results 
 showing that the data was passed back and forth between the subsystems, through the scheduler.
