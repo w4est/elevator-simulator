@@ -5,26 +5,32 @@
 	<version>2.0.0</version>
 	<name>elevator-simulator</name>
 	<description>An elevator simulator that simulates elevators</description>
+	<packaging>pom</packaging>
 
 	<properties>
 		<maven.compiler.release>17</maven.compiler.release>
 	</properties>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<version>5.1.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<version>5.9.2</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>5.1.1</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-api</artifactId>
+				<version>5.9.2</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>carleton</groupId>
+				<artifactId>common-classes</artifactId>
+				<version>2.0.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<build>
 		<plugins>
 			<plugin>
@@ -53,4 +59,11 @@
 			</plugin>
 		</plugins>
 	</build>
+	<modules>
+		<module>common-classes</module>
+		<module>elevator-module</module>
+		<module>scheduler-module</module>
+		<module>floor-module</module>
+		<module>simulation-module</module>
+	</modules>
 </project>
