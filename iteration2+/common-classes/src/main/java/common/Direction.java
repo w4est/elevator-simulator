@@ -6,5 +6,13 @@ package common;
  *
  */
 public enum Direction {
-	UP, DOWN, IDLE
+	UP, DOWN, IDLE;
+	
+	public short toShort() {
+		return (short) this.ordinal();
+	}
+
+	public static Direction fromShort(short value) {
+		return Direction.values()[value];
+	}
 }

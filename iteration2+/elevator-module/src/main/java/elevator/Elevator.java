@@ -4,6 +4,7 @@ package elevator;
 import java.util.ArrayList;
 
 import common.Direction;
+import common.ElevatorState;
 import common.Request;
 
 /**

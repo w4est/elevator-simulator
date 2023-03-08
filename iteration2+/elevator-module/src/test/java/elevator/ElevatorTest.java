@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import common.Direction;
+import common.ElevatorState;
 import common.Request;
 
 /**
