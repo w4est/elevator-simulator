@@ -8,7 +8,8 @@ public class PacketUtils {
 
 	public static final int BUFFER_SIZE = 128;
 	public static final int ELEVATOR_PORT = 5002;
-	public static final int SCHEDULER_PORT = 5000;
+	public static final int SCHEDULER_FLOOR_PORT = 5003;
+	public static final int SCHEDULER_ELEVATOR_PORT = 5004;
 	public static final int FLOOR_PORT = 5001;
 	public static final int SYNC_PORT = 5055;
 
