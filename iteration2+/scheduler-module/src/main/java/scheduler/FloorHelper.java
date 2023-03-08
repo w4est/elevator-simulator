@@ -4,16 +4,27 @@ import java.io.IOException;
 import java.net.*;
 import java.util.Arrays;
 
+import common.PacketUtils;
+
 /**
  * @author Jacob Hovey
  *
+ *         The FloorHelper is a thread of the Scheduler module that helps with
+ *         receiving Request packets from the Floor subsystem and organizing
+ *         them in the scheduler.
  */
 public class FloorHelper implements Runnable {
 	private DatagramSocket receiveSocket, sendSocket;
 	private DatagramPacket receivePacket, sendPacket;
 	private Scheduler scheduler;
 
-	public FloorHelper() {
+	/**
+	 * The constructor for the FloorHelper.
+	 * 
+	 * @param scheduler Scheduler, the main scheduler class that this thread
+	 *                  references.
+	 */
+	public FloorHelper(Scheduler scheduler) {
 		try {
 			receiveSocket = new DatagramSocket(5003);
 		} catch (SocketException e) {
@@ -26,10 +37,17 @@ public class FloorHelper implements Runnable {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		this.scheduler = scheduler;
 	}
 
+	/**
+	 * The receivePacket method checks for packets from the Floor Subsystem that
+	 * include Request information. When a packet is received, the Request
+	 * information is sent to the main Scheduler class and organized into the list
+	 * of requests that need to be sent to the elevators.
+	 */
 	public void receivePacket() {
-		byte[] receiveData = new byte[128]; //how many bytes?
+		byte[] receiveData = new byte[PacketUtils.BUFFER_SIZE];
 		receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
 		try {
@@ -39,11 +57,11 @@ public class FloorHelper implements Runnable {
 			System.exit(1);
 		}
 
-		System.out.println("Scheduler received packet from Floor:\nBytes: " + Arrays.toString(receivePacket.getData()));
-		
-		//TODO convert data to request information
+		//System.out.println("Scheduler received packet from Floor:\nBytes: " + Arrays.toString(receivePacket.getData()));
 
-		scheduler.organizeRequest(null, null);
+		// TODO convert data to request information
+
+		//scheduler.organizeRequest(, );
 	}
 
 	public void sendPacket(byte[] sendData) {
@@ -61,7 +79,13 @@ public class FloorHelper implements Runnable {
 		}
 	}
 
+	/**
+	 * The run method of the FloorHelper thread. This consistently loops through the
+	 * receivePacket method.
+	 */
 	public void run() {
-		receivePacket();
+		while (true) {
+			receivePacket();
+		}
 	}
 }

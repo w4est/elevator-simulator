@@ -17,11 +17,9 @@ import common.Request;
 public class Scheduler {
 	// List of requests received from the Floor Subsystem
 	private TreeMap<LocalTime, Request> requests;
-	private SchedulerStates state;
 
 	public Scheduler() {
 		requests = new TreeMap<LocalTime, Request>();
-		state = SchedulerStates.CheckForRequests; //TODO how to implement states?
 	};
 
 	/**
@@ -74,5 +72,17 @@ public class Scheduler {
 
 		notifyAll();
 		return requests.get(priorityRequest);
+	}
+	
+	public static void main(String args[]) {
+		Scheduler sched = new Scheduler();
+		FloorHelper fh = new FloorHelper(sched);
+		ElevatorHelper eh = new ElevatorHelper(sched, fh);
+		
+		Thread fhThread = new Thread(fh);
+		Thread ehThread = new Thread(eh);
+		
+		fhThread.run();
+		ehThread.run();
 	}
 }

@@ -16,7 +16,7 @@ public class ElevatorHelper implements Runnable {
 	private Scheduler scheduler;
 	private FloorHelper floorHelper;
 
-	public ElevatorHelper() {
+	public ElevatorHelper(Scheduler scheduler, FloorHelper floorHelper) {
 		try {
 			receiveSocket = new DatagramSocket(5004);
 		} catch (SocketException e) {
@@ -29,6 +29,8 @@ public class ElevatorHelper implements Runnable {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		this.scheduler = scheduler;
+		this.floorHelper = floorHelper;
 	}
 
 	public void receiveSendPacket() {
@@ -45,33 +47,21 @@ public class ElevatorHelper implements Runnable {
 		System.out.println(
 				"Scheduler received packet from Elevator:\nBytes: " + Arrays.toString(receivePacket.getData()));
 
-		if (receivePacket.getData() == null) {
-			scheduler.sendPriorityRequest(Direction.IDLE, 0);
-			// TODO convert priority request to datagram sendPacket
-			try {
-				sendSocket.send(sendPacket);
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-		} else if (receivePacket.getData().length == 2) {
-			// TODO this statement should determine somehow if its data for the floor, maybe
-			// length?
-			floorHelper.sendPacket(receiveData);
-		} else {
-			// TODO convert receivePacket to direction and floor
-			// scheduler.sendPriorityRequest(direction, floor);
-			// TODO convert priority request to datagram sendPacket
-			try {
-				sendSocket.send(sendPacket);
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
+		// TODO convert receivePacket to direction and floor
+		// scheduler.sendPriorityRequest(direction, floor);
+		// TODO convert priority request to datagram sendPacket
+		// TODO logic to send floor relevant info 
+		try {
+			sendSocket.send(sendPacket);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
 	public void run() {
-		receiveSendPacket();
+		while (true) {
+			receiveSendPacket();
+		}
 	}
 }
