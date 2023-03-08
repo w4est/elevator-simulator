@@ -9,11 +9,11 @@ package common;
 public enum Direction {
 	UP, DOWN, IDLE;
 
-	public short toShort() {
-		return (short) this.ordinal();
+	public int toInt() {
+		return this.ordinal();
 	}
 
-	public static Direction fromShort(short value) {
+	public static Direction fromInt(int value) {
 		return Direction.values()[value];
 	}
 }

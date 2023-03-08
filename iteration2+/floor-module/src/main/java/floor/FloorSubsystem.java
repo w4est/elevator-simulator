@@ -193,7 +193,7 @@ public class FloorSubsystem implements Runnable {
 			// loop through each key value pair in allRequests and send each request to scheduler
 			for (Map.Entry<LocalTime, Request> timestampRequest : allRequests.entrySet()) {
 				// if the request hasn't been complete, send to scheduler (ex. 03:50:5.010 1 Up 3)
-				if (timestampRequest.getValue().getRequestStatus() == false) {
+				if (true /*timestampRequest.getValue() == false*/) {
 					// FIXME
 					//scheduler.requestElevator(timestampRequest.getKey(), timestampRequest.getValue());
 					System.out.println(
@@ -203,7 +203,7 @@ public class FloorSubsystem implements Runnable {
 									+ ", Destination: Floor " + timestampRequest.getValue().getCarButton());
 					// FloorSubsystem will receive elevator messages from Scheduler (using getElevatorInfoFromScheduler()) 
 					// and removes that 1 person from that floor while marking request as sent (true)
-					timestampRequest.getValue().setRequest(true);
+					// timestampRequest.getValue().setRequest(true);
 				}
 			}
 			// update the count for peopleWaitingOnAllFloors to recheck loop
