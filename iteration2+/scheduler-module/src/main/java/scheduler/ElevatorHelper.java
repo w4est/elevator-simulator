@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.net.*;
 import java.util.Arrays;
 
-import common.Direction;
-
 /**
  * @author jacob
  *
@@ -47,7 +45,7 @@ public class ElevatorHelper implements Runnable {
 		System.out.println(
 				"Scheduler received packet from Elevator:\nBytes: " + Arrays.toString(receivePacket.getData()));
 
-		// TODO convert receivePacket to direction and floor
+		// TODO convert receivePacket to direction and floor (format: byte of current floor, byte of direction (to byte method), byte of state)
 		// scheduler.sendPriorityRequest(direction, floor);
 		// TODO convert priority request to datagram sendPacket
 		// TODO logic to send floor relevant info 
