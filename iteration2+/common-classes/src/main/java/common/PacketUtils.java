@@ -13,7 +13,6 @@ public class PacketUtils {
 	public static final int FLOOR_PORT = 5001;
 	public static final int SYNC_PORT = 5055;
 
-	
 	/**
 	 * Converts UTF-8 strings into byte[] for transport, and places them into the
 	 * provided buffer at the offset provided. Returns the position of the next
@@ -38,16 +37,16 @@ public class PacketUtils {
 
 		return position;
 	}
-	
-	public static boolean packetContainsString(byte[] buffer, String message) {	
+
+	public static boolean packetContainsString(byte[] buffer, String message) {
 		CharBuffer charBuffer = Charset.forName("UTF-8").decode(ByteBuffer.wrap(buffer));
 
 		char[] packetCharacters = charBuffer.array();
-		
+
 		if (packetCharacters.length != message.length()) {
 			return false;
 		}
-		
+
 		for (int i = 0; i < packetCharacters.length; i++) {
 			if (packetCharacters[i] != message.charAt(i)) {
 				return false;
@@ -56,18 +55,35 @@ public class PacketUtils {
 
 		return true;
 	}
-	
+
 	/**
 	 * Checks if a buffer is empty, and empty buffer will have all 0 bytes.
 	 * 
 	 * @return whether a buffer is empty
 	 */
 	public static boolean isEmptyBuffer(byte[] buffer) {
-		for (byte bite: buffer) {
+		for (byte bite : buffer) {
 			if (bite != 0) {
 				return false;
 			}
 		}
 		return true;
+	}
+
+	public static int addShortToByteArray(int offset, short value, byte[] buffer) {
+		ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
+		byteBuffer.putShort(offset, value);
+		return offset + 2;
+	}
+
+	public static byte[] convertShortToByteArray(short value) {
+		ByteBuffer buffer = ByteBuffer.allocate(2);
+		buffer.putShort(value);
+		return buffer.array();
+	}
+
+	public static short convertByteArrayToShort(byte[] value) {
+		ByteBuffer buffer = ByteBuffer.wrap(value);
+		return buffer.getShort(0);
 	}
 }
