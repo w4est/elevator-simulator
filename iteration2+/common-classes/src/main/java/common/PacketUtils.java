@@ -3,6 +3,7 @@ package common;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.time.LocalTime;
 
 public class PacketUtils {
 
@@ -69,21 +70,39 @@ public class PacketUtils {
 		}
 		return true;
 	}
-
-	public static int addShortToByteArray(int offset, short value, byte[] buffer) {
-		ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-		byteBuffer.putShort(offset, value);
-		return offset + 2;
+	
+	/**
+	 * Converts a localTime to byte[].
+	 * 
+	 * The byte[] will be 16 bytes long,
+	 * in the format of hour, minute, seconds, nanoseconds
+	 * @param localTime
+	 * @return the byte array representation
+	 */
+	public static byte[] localTimeToByteArray(LocalTime localTime) {
+		ByteBuffer byteBuffer = ByteBuffer.allocate(16);
+		byteBuffer.putInt(localTime.getHour());
+		byteBuffer.putInt(localTime.getMinute());
+		byteBuffer.putInt(localTime.getSecond());
+		byteBuffer.putInt(localTime.getNano());
+		return byteBuffer.array();
 	}
-
-	public static byte[] convertShortToByteArray(short value) {
-		ByteBuffer buffer = ByteBuffer.allocate(2);
-		buffer.putShort(value);
-		return buffer.array();
-	}
-
-	public static short convertByteArrayToShort(byte[] value) {
-		ByteBuffer buffer = ByteBuffer.wrap(value);
-		return buffer.getShort(0);
+	
+	/**
+	 * Converts a byte[] to LocalTime.
+	 * 
+	 * The byte[] should be 16 bytes long,
+	 * in the format of hour, minute, seconds, nanoseconds
+	 * 
+	 * @param localTime
+	 * @return the byte array representation
+	 */
+	public static LocalTime byteArrayToLocalTime(byte[] message) {
+		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
+		int hour = byteBuffer.getInt();
+		int minute = byteBuffer.getInt();
+		int second = byteBuffer.getInt();
+		int nano = byteBuffer.getInt();
+		return LocalTime.of(hour, minute, second, nano);
 	}
 }
