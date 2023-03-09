@@ -39,7 +39,7 @@ public class ElevatorListener {
 			byte[] send;
 			// Initialize new packet to send to client
 			
-			String message = String.format("", null)
+			String message = String.format("", null);
 			
 			send = elevatorSubsys.getElevator().getCurrentElevatorState().toString().getBytes();
 
