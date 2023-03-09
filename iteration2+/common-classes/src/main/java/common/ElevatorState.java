@@ -1,4 +1,4 @@
-package elevator;
+package common;
 
 /**
  * Used by the Elevator and ElevatorSubsystem to handle all elevator states.
@@ -29,4 +29,12 @@ public enum ElevatorState {
 	};
 	
 	public abstract ElevatorState nextState();
+	
+	public short toShort() {
+		return (short) this.ordinal();
+	}
+
+	public static ElevatorState fromShort(short value) {
+		return ElevatorState.values()[value];
+	}
 }

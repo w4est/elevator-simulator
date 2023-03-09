@@ -1,10 +1,17 @@
 // Import packages
 package elevator;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 // Import libraries
 import java.util.ArrayList;
 
 import common.Direction;
+import common.ElevatorState;
 import common.Request;
 // FIXME
 //import scheduler.Scheduler;
@@ -20,6 +27,8 @@ import common.Request;
 public class ElevatorSubsystem implements Runnable {
 
 	private Elevator elevator; // The elevator associated with the subsystem
+	private DatagramPacket sendPacket, receivePacket;
+	protected DatagramSocket socket;
 	// FIXME
 	// private Scheduler scheduler; // The scheduler associated with the subsystem
 	public final static int DEFAULT_MAX_FLOOR = 7; // The default max floor
@@ -35,7 +44,7 @@ public class ElevatorSubsystem implements Runnable {
 	 * @param s         // The scheduler
 	 * @param carNumber // The unique car number for the elevator
 	 */
-	public ElevatorSubsystem(/*Scheduler s,*/ int carNumber) {
+	public ElevatorSubsystem(int carNumber) {
 		this.MIN_FLOOR = DEFAULT_MIN_FLOOR;
 		this.MAX_FLOOR = DEFAULT_MAX_FLOOR;
 		// FIXME
@@ -43,6 +52,8 @@ public class ElevatorSubsystem implements Runnable {
 		this.elevator = new Elevator(carNumber);
 		floorQueues = new ArrayList<>();
 		this.operateComplete = false;
+		this.elevator.setCurrentFloor(MIN_FLOOR);
+		this.setupSocket();
 	}
 
 	/**
@@ -68,7 +79,81 @@ public class ElevatorSubsystem implements Runnable {
 		this.elevator = new Elevator(carNumber);
 		floorQueues = new ArrayList<>();
 		this.operateComplete = false;
+		this.elevator.setCurrentFloor(MIN_FLOOR);
+		this.setupSocket();
 
+	}
+	
+	private void setupSocket() {
+		try {
+			socket = new DatagramSocket();
+		} catch (SocketException se) {
+			se.printStackTrace();
+			System.exit(1);
+		}
+	}
+	
+	private byte[] sendElevatorRequestPacket(byte[] data) {
+		
+		byte[] receiveData = null;
+		
+		try {
+			sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), 5001); // Initialize packet
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+		System.out.println("Server: Sending packet");
+		printInfo(data);
+
+		try {
+			this.socket.send(sendPacket); // Sends packet to host
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		receivePacket = new DatagramPacket(receiveData, receiveData.length); // Initialize receive packet
+
+		try {
+			// Block until a datagram is received via sendReceiveSocket.
+			System.out.println("Server: Waiting to receive message from IntermediateHost");
+			socket.receive(receivePacket); // Waiting to receive packet from host
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+		// Process the received datagram.
+		System.out.println("Server: Received data");
+		printInfo(receiveData);
+		
+		return receiveData;
+	}
+
+	/**
+	 * Prints a given array 'message' for a certain amount of length as bytes
+	 * 
+	 * @param message
+	 * @param length
+	 */
+	public static void printByteArray(byte[] message, int length) {
+		System.out.print("Message as bytes: ");
+		for (int i = 0; i < length; i++) {
+			System.out.print(message[i] + " ");
+		}
+		System.out.println("");
+	}
+
+	private void printInfo(byte[] data) {
+		System.out.println(new String(data, 0, data.length)); // or could print "s"
+		
+		System.out.print("Message as bytes: ");
+		for (int i = 0; i < data.length; i++) {
+			System.out.print(data[i] + " ");
+		}
+		System.out.println("");
 	}
 
 	/**
@@ -113,17 +198,24 @@ public class ElevatorSubsystem implements Runnable {
 	 * 
 	 * @param r Request, the highest priority request from the Scheduler
 	 */
-	public synchronized void updateFloorQueue(Request r) {
-		floorQueues.add(r);
+	public synchronized void updateFloorQueue() {
+		
+		byte[] data = "REQ".getBytes();
+		byte[] receive = this.sendElevatorRequestPacket(data);
+		
+		/*
+		 * put code to convert byte array to a Request object here
+		 */
+		
 		// for now all requests in ElevatorSubsystem get added to the 1 elevator.
 		// in a future iteration, ElevatorSubsystem will add requests to different elevators.
-		this.elevator.addPeople(r); 
-		System.out.println(String.format(
-				"ElevatorSubsystem Received from Scheduler:		"
-						+ " Elevator %d, Requested from Floor %d, Destination Floor: %d",
-				elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton()));
+//		System.out.println(String.format(
+//				"ElevatorSubsystem Received from Scheduler:		"
+//						+ " Elevator %d, Requested from Floor %d, Destination Floor: %d",
+//				elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton()));
 		// FIXME
 		// scheduler.requestReceived(elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton());
+		// 
 	}
 
 	/**
@@ -214,6 +306,7 @@ public class ElevatorSubsystem implements Runnable {
 		} else if (this.elevator.getCurrentElevatorState() == ElevatorState.MOVING_DOWN && elevator.getCurrentFloor() >= this.MIN_FLOOR) {
 			this.elevator.setCurrentFloor(nextFloorDown);
 		}
+		
 		System.out.println("	Moving: Elevator Current Floor & State: " + 
 				"Floor "+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // Floor move
 		

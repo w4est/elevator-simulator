@@ -8,6 +8,12 @@ package common;
  */
 public enum Direction {
 	UP, DOWN, IDLE;
+	
+	public short toShort() {
+		return (short) this.ordinal();
+	}
+
+	public static Direction fromShort(short value) {
 
 	public int toInt() {
 		return this.ordinal();

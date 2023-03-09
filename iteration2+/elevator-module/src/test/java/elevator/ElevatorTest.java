@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import org.junit.jupiter.api.Test;
 
 import common.Direction;
+import common.ElevatorState;
 import common.Request;
 
 /**
