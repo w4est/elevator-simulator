@@ -1,32 +1,31 @@
 package common;
 
 import java.nio.ByteBuffer;
-import java.time.LocalTime;
 
-public class FloorButtonRequest {
+public class ElevatorInfoRequest {
 
 	private short floorNumber;
 	private Direction direction;
-	private LocalTime localTime;
+	private ElevatorState state;
 
-	public FloorButtonRequest(short floorNumber, Direction direction, LocalTime localTime) {
+	public ElevatorInfoRequest(short floorNumber, Direction direction, ElevatorState state) {
 		this.floorNumber = floorNumber;
 		this.direction = direction;
-		this.localTime = localTime;
+		this.state = state;
 	}
 
 	public byte[] toByteArray() {
 		byte[] message = new byte[22];
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
 		byteBuffer.put((byte) 0);
-		byteBuffer.put((byte) 2);
+		byteBuffer.put((byte) 1);
 		byteBuffer.putShort(floorNumber);
 		byteBuffer.putShort(direction.toShort());
-		byteBuffer.put(PacketUtils.localTimeToByteArray(localTime));
+//		byteBuffer.put(PacketUtils.localTimeToByteArray(localTime));
 		return message;
 	}
 
-	public static FloorButtonRequest fromByteArray(byte[] message) {
+	public static ElevatorInfoRequest fromByteArray(byte[] message) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
 		byte[] header = new byte[2];
 		byteBuffer.get(header, 0, 2);
@@ -37,10 +36,12 @@ public class FloorButtonRequest {
 
 		short floorNumber = byteBuffer.getShort();
 		Direction direction = Direction.fromShort(byteBuffer.getShort());
-		byte[] localTimeBytes = new byte[16];
-		byteBuffer.get(localTimeBytes, 0, 16);
-		LocalTime localTime = PacketUtils.byteArrayToLocalTime(localTimeBytes);
-		return new FloorButtonRequest(floorNumber, direction, localTime);
+
+		byte[] stateBytes = new byte[16];
+		byteBuffer.get(stateBytes, 0, 16);
+//		ElevatorState localTime = PacketUtils.byteArrayToElevatorState(stateBytes);
+		ElevatorState state = ElevatorState.MOVING_UP;
+		return new ElevatorInfoRequest(floorNumber, direction, state);
 	}
 
 	public short getFloorNumber() {
@@ -57,14 +58,6 @@ public class FloorButtonRequest {
 
 	public void setDirection(Direction direction) {
 		this.direction = direction;
-	}
-
-	public LocalTime getLocalTime() {
-		return localTime;
-	}
-
-	public void setLocalTime(LocalTime localTime) {
-		this.localTime = localTime;
 	}
 
 }

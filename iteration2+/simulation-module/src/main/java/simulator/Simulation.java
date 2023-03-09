@@ -16,7 +16,7 @@ import java.util.Optional;
 // import scheduler.Scheduler;
 
 import common.Direction;
-import common.FloorButtonRequest;
+import common.Request;
 
 /**
  * Simulation class is responsible for program initialization & runs the simulation from the console
@@ -61,24 +61,7 @@ public class Simulation {
 						floorUsers.get(currentEntry.getSourceFloor()).add(newUser.get());
 						entry = iReader.getNextEntry();
 					}
-				}
-				
-				for (int i = 0; i < numElevators; i++) {
-					
-					// TODO the boarding / departure logic, this requires some more calls to elevators for state
-					/*if (elevator doors open) {
-						
-						for (elevatorUsers.get(i)) {
-						   // Depart elevator
-						}
-						
-						for (floorUsers.get(elevator.getCurrentFloor)) {
-						   // Board elevator
-						}
-						
-					}*/
-					
-				}			
+				}		
 			}
 		}
 	}
@@ -133,8 +116,9 @@ public class Simulation {
 			socket.setSoTimeout(20);
 			
 			Direction direction = entry.isUp() ? Direction.UP : Direction.DOWN;
-			FloorButtonRequest request = new FloorButtonRequest((short) entry.getSourceFloor(), direction, entry.getTimestamp());
-			
+			Request request = new Request(entry.getTimestamp(), entry.getSourceFloor(), direction,
+					entry.getDestinationFloor());
+
 			byte[] buffer = request.toByteArray();
 			DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 			socket.send(packet);
