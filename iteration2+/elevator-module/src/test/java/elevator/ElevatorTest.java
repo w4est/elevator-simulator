@@ -1,6 +1,9 @@
 package elevator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.time.LocalTime;
+
 import org.junit.jupiter.api.Test;
 
 import common.Direction;
@@ -79,9 +82,9 @@ public class ElevatorTest {
 		assertEquals(0, elevator.clearFloor());
 		
 		// Make requests and store inside elevator
-		Request r1 = new Request(2, Direction.UP, 5);
-		Request r2 = new Request(4, Direction.UP, 5);
-		Request r3 = new Request(3, Direction.UP, 7);
+		Request r1 = new Request(LocalTime.of(1, 1), 2, Direction.UP, 5);
+		Request r2 = new Request(LocalTime.of(1, 2), 4, Direction.UP, 5);
+		Request r3 = new Request(LocalTime.of(1, 3), 3, Direction.UP, 7);
 		elevator.addPeople(r1);
 		elevator.addPeople(r2);
 		elevator.addPeople(r3);
