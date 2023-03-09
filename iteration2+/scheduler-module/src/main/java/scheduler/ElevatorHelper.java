@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.net.*;
 import java.util.Arrays;
 
+import common.ElevatorInfoRequest;
+import common.PacketUtils;
+import common.Request;
+
 /**
  * @author jacob
  *
@@ -42,13 +46,29 @@ public class ElevatorHelper implements Runnable {
 			System.exit(1);
 		}
 
-		System.out.println(
-				"Scheduler received packet from Elevator:\nBytes: " + Arrays.toString(receivePacket.getData()));
+		System.out.println("Scheduler received packet from Elevator:\nBytes: "
+				+ Arrays.toString(receivePacket.getData()) + "\nString: " + new String(receivePacket.getData()));
 
-		// TODO convert receivePacket to direction and floor (format: byte of current floor, byte of direction (to byte method), byte of state)
-		// scheduler.sendPriorityRequest(direction, floor);
-		// TODO convert priority request to datagram sendPacket
-		// TODO logic to send floor relevant info 
+		ElevatorInfoRequest elevatorStatus = ElevatorInfoRequest.fromByteArray(receiveData);
+
+		Request priorityRequest = scheduler.sendPriorityRequest(elevatorStatus.getDirection(),
+				elevatorStatus.getFloorNumber());
+		
+		byte[] sendData = new byte[PacketUtils.BUFFER_SIZE];
+		
+		if (priorityRequest == null) {
+			sendData = new byte[2];
+			sendData[0] = (byte) 0;
+			sendData[1] = (byte) 0;
+		}
+		else {
+			sendData = priorityRequest.toByteArray();
+		}
+		
+		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, receivePacket.getAddress(), receivePacket.getPort());
+
+		// TODO logic to send floor relevant info
+		
 		try {
 			sendSocket.send(sendPacket);
 		} catch (IOException e) {

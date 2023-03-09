@@ -2,8 +2,10 @@ package scheduler;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.Arrays;
 
 import common.PacketUtils;
+import common.Request;
 
 /**
  * @author Jacob Hovey
@@ -56,11 +58,14 @@ public class FloorHelper implements Runnable {
 			System.exit(1);
 		}
 
-		//System.out.println("Scheduler received packet from Floor:\nBytes: " + Arrays.toString(receivePacket.getData()));
+		System.out.println("Scheduler received packet from Floor:\nBytes: " + Arrays.toString(receivePacket.getData())
+				+ "\nString: " + new String(receivePacket.getData()));
 
-		// TODO convert data to request information
+		Request newRequest = Request.fromByteArray(receiveData);
 
-		//scheduler.organizeRequest(, );
+		scheduler.organizeRequest(newRequest.getLocalTime(), newRequest);
+
+		System.out.println("Scheduler added request to the queue.");
 	}
 
 	public void sendPacket(byte[] sendData) {
