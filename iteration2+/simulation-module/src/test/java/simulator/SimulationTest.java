@@ -55,7 +55,6 @@ public class SimulationTest {
 
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Test // Disable on github because of ports
 	void shouldSendRequest() {
 		
@@ -64,9 +63,9 @@ public class SimulationTest {
 		final List<Request> sentRequests = new ArrayList<>();
 		
 		try {
-			doAnswer(new Answer() {
+			doAnswer(new Answer<Void>() {
 				@Override
-				public Object answer(InvocationOnMock invocation) throws Throwable {
+				public Void answer(InvocationOnMock invocation) throws Throwable {
 					byte[] data = ((DatagramPacket) invocation.getArgument(0)).getData();
 					sentRequests.add(Request.fromByteArray(data));
 					return null;
