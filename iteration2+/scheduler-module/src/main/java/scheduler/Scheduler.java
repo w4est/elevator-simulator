@@ -51,7 +51,6 @@ public class Scheduler {
 					priorityRequest = t;
 				}
 			}
-			requests.remove(priorityRequest);
 			break;
 		case UP:
 			for (LocalTime t : requests.keySet()) {
@@ -73,8 +72,14 @@ public class Scheduler {
 			break;
 		}
 
+		Request returnRequest = null;
+		
+		if (priorityRequest != null) {
+			returnRequest = requests.get(priorityRequest);
+			requests.remove(priorityRequest);
+		}
 		notifyAll();
-		return requests.get(priorityRequest);
+		return returnRequest;
 	}
 	
 	public static void main(String args[]) {
