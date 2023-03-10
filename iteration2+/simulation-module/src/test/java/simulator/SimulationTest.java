@@ -60,7 +60,6 @@ public class SimulationTest {
 			sim.runSimulation(new String[] { "--realtime", "--file", "src/test/resources/reader_test1.txt" });
 		} catch (IOException e) {
 			e.printStackTrace();
-		    thread.stop();
 			fail();
 		}
 
