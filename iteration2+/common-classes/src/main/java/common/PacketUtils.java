@@ -105,4 +105,10 @@ public class PacketUtils {
 		int nano = byteBuffer.getInt();
 		return LocalTime.of(hour, minute, second, nano);
 	}
+	
+	public static byte[] stateToByteArray(ElevatorState state) {
+		ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+		byteBuffer.putInt(state.toInt());
+		return byteBuffer.array();
+	}
 }
