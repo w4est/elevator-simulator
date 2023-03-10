@@ -42,13 +42,6 @@ public class ElevatorListener {
 			byte[] send = new ElevatorInfoRequest((short)elevatorSubsys.getElevator().getCurrentFloor(), 
 					elevatorSubsys.getElevator().getCurrentDirection(), elevatorSubsys.getElevator().getCurrentElevatorState()).toByteArray();
 			
-<<<<<<< HEAD
-=======
-			String message = String.format("", null);
-			
-			send = elevatorSubsys.getElevator().getCurrentElevatorState().toString().getBytes();
-
->>>>>>> main
 			DatagramPacket sendPacket = new DatagramPacket(send, send.length, receivePacket.getAddress(),
 					receivePacket.getPort());
 

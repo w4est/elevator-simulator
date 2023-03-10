@@ -19,15 +19,9 @@ public class ElevatorInfoRequest {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
 		byteBuffer.put((byte) 0);
 		byteBuffer.put((byte) 1);
-<<<<<<< HEAD
-		byteBuffer.putShort(floorNumber);
-		byteBuffer.putShort(direction.toShort());
-		byteBuffer.put(PacketUtils.stateToByteArray(state));
-=======
 		byteBuffer.putInt(floorNumber);
 		byteBuffer.putInt(direction.toInt());
 		byteBuffer.putInt(state.toInt());
->>>>>>> main
 		return message;
 	}
 

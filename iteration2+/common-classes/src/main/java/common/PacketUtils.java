@@ -107,8 +107,8 @@ public class PacketUtils {
 	}
 	
 	public static byte[] stateToByteArray(ElevatorState state) {
-		ByteBuffer byteBuffer = ByteBuffer.allocate(16);
-		byteBuffer.putShort(state.toShort());
+		ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+		byteBuffer.putInt(state.toInt());
 		return byteBuffer.array();
 	}
 }
