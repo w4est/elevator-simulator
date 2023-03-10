@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
+import common.ElevatorInfoRequest;
+
 public class ElevatorListener {
 	
 	private ElevatorSubsystem elevatorSubsys;
@@ -18,7 +20,7 @@ public class ElevatorListener {
 		while (true) {
 			byte receive[] = new byte[150];
 			DatagramPacket receivePacket = new DatagramPacket(receive, receive.length);
-			System.out.println("Intermediate Host: Waiting for Packet from Client.\n");
+			System.out.println("Elevator Listener: Waiting for Packet from Client.\n");
 
 			// Block until a datagram packet is received from receiveSocket.
 			try {
@@ -34,21 +36,15 @@ public class ElevatorListener {
 			int len = receivePacket.getLength();
 
 			String received = new String(receive, 0, len);
-			System.out.println(received + "\n");
+			System.out.println(received);
 
-			byte[] send;
-			// Initialize new packet to send to client
+			byte[] send = new ElevatorInfoRequest((short)elevatorSubsys.getElevator().getCurrentFloor(), 
+					elevatorSubsys.getElevator().getCurrentDirection(), elevatorSubsys.getElevator().getCurrentElevatorState()).toByteArray();
 			
-			String message = String.format("", null);
-			
-			send = elevatorSubsys.getElevator().getCurrentElevatorState().toString().getBytes();
-
 			DatagramPacket sendPacket = new DatagramPacket(send, send.length, receivePacket.getAddress(),
 					receivePacket.getPort());
 
-			len = sendPacket.getLength();
-			
-			
+//			len = sendPacket.getLength();
 			
 			try {
 				socket.send(sendPacket); // Send packet to client
@@ -56,7 +52,7 @@ public class ElevatorListener {
 				e.printStackTrace();
 				System.exit(1);
 			}
-			System.out.println("Intermediate Host: packet sent to client");
+			System.out.println("Elevator Listener: packet sent to client");
 		}
 	}
 }

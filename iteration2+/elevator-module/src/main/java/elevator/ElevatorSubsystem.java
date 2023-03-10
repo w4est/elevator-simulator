@@ -11,6 +11,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import common.Direction;
+import common.ElevatorInfoRequest;
 import common.ElevatorState;
 import common.Request;
 // FIXME
@@ -104,7 +105,7 @@ public class ElevatorSubsystem implements Runnable {
 			System.exit(1);
 		}
 
-		System.out.println("Server: Sending packet");
+		System.out.println("Elevator: Sending packet");
 		printInfo(data);
 
 		try {
@@ -118,7 +119,7 @@ public class ElevatorSubsystem implements Runnable {
 
 		try {
 			// Block until a datagram is received via sendReceiveSocket.
-			System.out.println("Server: Waiting to receive message from IntermediateHost");
+			System.out.println("Elevator: Waiting to receive message from IntermediateHost");
 			socket.receive(receivePacket); // Waiting to receive packet from host
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -126,7 +127,7 @@ public class ElevatorSubsystem implements Runnable {
 		}
 
 		// Process the received datagram.
-		System.out.println("Server: Received data");
+		System.out.println("Elevator: Received data");
 		printInfo(receiveData);
 		
 		return receiveData;
@@ -200,22 +201,20 @@ public class ElevatorSubsystem implements Runnable {
 	 */
 	public synchronized void updateFloorQueue() {
 		
-		byte[] data = "REQ".getBytes();
+		byte[] data = new ElevatorInfoRequest((short) elevator.getCurrentFloor(), elevator.getCurrentDirection(), elevator.getCurrentElevatorState()).toByteArray();
 		byte[] receive = this.sendElevatorRequestPacket(data);
 		
-		/*
-		 * put code to convert byte array to a Request object here
-		 */
+		if (receive[0] == 0 && receive[1] == 2) {
+			addRequest(receive);
+		} else {
+			// No updates were passed so the elevator can keep moving
+		}
 		
-		// for now all requests in ElevatorSubsystem get added to the 1 elevator.
-		// in a future iteration, ElevatorSubsystem will add requests to different elevators.
-//		System.out.println(String.format(
-//				"ElevatorSubsystem Received from Scheduler:		"
-//						+ " Elevator %d, Requested from Floor %d, Destination Floor: %d",
-//				elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton()));
-		// FIXME
-		// scheduler.requestReceived(elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton());
-		// 
+	}
+	
+	private void addRequest(byte[] requestData) {
+		Request r = Request.fromByteArray(requestData);
+		floorQueues.add(r);
 	}
 
 	/**
@@ -228,8 +227,6 @@ public class ElevatorSubsystem implements Runnable {
 	private void operate() {
 		// 1: check with scheduler to wait for request. 
 		// Scheduler sends request stored in floorQueues using updateFloorQueue method
-		// FIXME
-		//this.scheduler.elevatorNeeded();
 		
 		if (!floorQueues.isEmpty()) {
 			this.operateComplete = false;
@@ -280,6 +277,8 @@ public class ElevatorSubsystem implements Runnable {
 				
 				//move elevator up or down 1 floor based on current elevator state
 				moveElevator();
+				
+				this.updateFloorQueue();
 			}
 			
 
@@ -404,6 +403,8 @@ public class ElevatorSubsystem implements Runnable {
 		/*while (!scheduler.isDone()) {
 			operate();
 		}*/
+		
+		operate();
 
 		System.out.println("ElevatorSubsystem Finished");
 

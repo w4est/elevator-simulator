@@ -14,6 +14,8 @@ public enum Direction {
 	}
 
 	public static Direction fromShort(short value) {
+		return Direction.values()[value];
+	}
 
 	public int toInt() {
 		return this.ordinal();

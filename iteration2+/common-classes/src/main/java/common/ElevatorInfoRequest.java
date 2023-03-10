@@ -21,7 +21,7 @@ public class ElevatorInfoRequest {
 		byteBuffer.put((byte) 1);
 		byteBuffer.putShort(floorNumber);
 		byteBuffer.putShort(direction.toShort());
-//		byteBuffer.put(PacketUtils.localTimeToByteArray(localTime));
+		byteBuffer.put(PacketUtils.stateToByteArray(state));
 		return message;
 	}
 
