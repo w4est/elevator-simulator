@@ -52,6 +52,7 @@ public class Scheduler {
 				}
 			}
 			requests.remove(priorityRequest);
+			break;
 		case UP:
 			for (LocalTime t : requests.keySet()) {
 				if ((requests.get(t).getFloorButton() == Direction.UP)
@@ -60,6 +61,7 @@ public class Scheduler {
 					priorityRequest = t;
 				}
 			}
+			break;
 		case DOWN:
 			for (LocalTime t : requests.keySet()) {
 				if ((requests.get(t).getFloorButton() == Direction.DOWN)
@@ -68,6 +70,7 @@ public class Scheduler {
 					priorityRequest = t;
 				}
 			}
+			break;
 		}
 
 		notifyAll();

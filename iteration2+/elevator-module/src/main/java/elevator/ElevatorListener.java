@@ -1,6 +1,7 @@
 package elevator;
 
 import java.io.IOException;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
@@ -10,8 +11,8 @@ public class ElevatorListener {
 	private DatagramSocket socket;
 	
 	public ElevatorListener(ElevatorSubsystem e) {
-		elevatorSubsys = e;
-		socket = elevatorSubsys.socket;
+		this.elevatorSubsys = e;
+		this.socket = e.socket;
 	}
 
 	public void elevatorCommunication() {
@@ -39,7 +40,7 @@ public class ElevatorListener {
 			byte[] send;
 			// Initialize new packet to send to client
 			
-			String message = String.format("", null)
+			String message = String.format("", null);
 			
 			send = elevatorSubsys.getElevator().getCurrentElevatorState().toString().getBytes();
 
