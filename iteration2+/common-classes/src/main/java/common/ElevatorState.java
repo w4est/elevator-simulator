@@ -30,11 +30,11 @@ public enum ElevatorState {
 	
 	public abstract ElevatorState nextState();
 	
-	public short toShort() {
-		return (short) this.ordinal();
+	public int toInt() {
+		return this.ordinal();
 	}
 
-	public static ElevatorState fromShort(short value) {
+	public static ElevatorState fromInt(int value) {
 		return ElevatorState.values()[value];
 	}
 }

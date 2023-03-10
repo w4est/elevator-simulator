@@ -4,24 +4,30 @@ import java.nio.ByteBuffer;
 
 public class ElevatorInfoRequest {
 
-	private short floorNumber;
+	private int floorNumber;
 	private Direction direction;
 	private ElevatorState state;
 
-	public ElevatorInfoRequest(short floorNumber, Direction direction, ElevatorState state) {
+	public ElevatorInfoRequest(int floorNumber, Direction direction, ElevatorState state) {
 		this.floorNumber = floorNumber;
 		this.direction = direction;
 		this.state = state;
 	}
 
 	public byte[] toByteArray() {
-		byte[] message = new byte[22];
+		byte[] message = new byte[18];
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
 		byteBuffer.put((byte) 0);
 		byteBuffer.put((byte) 1);
+<<<<<<< HEAD
 		byteBuffer.putShort(floorNumber);
 		byteBuffer.putShort(direction.toShort());
 		byteBuffer.put(PacketUtils.stateToByteArray(state));
+=======
+		byteBuffer.putInt(floorNumber);
+		byteBuffer.putInt(direction.toInt());
+		byteBuffer.putInt(state.toInt());
+>>>>>>> main
 		return message;
 	}
 
@@ -34,21 +40,17 @@ public class ElevatorInfoRequest {
 			throw new IllegalArgumentException("Header is invalid, expected { 0, 2 }");
 		}
 
-		short floorNumber = byteBuffer.getShort();
-		Direction direction = Direction.fromShort(byteBuffer.getShort());
-
-		byte[] stateBytes = new byte[16];
-		byteBuffer.get(stateBytes, 0, 16);
-//		ElevatorState localTime = PacketUtils.byteArrayToElevatorState(stateBytes);
-		ElevatorState state = ElevatorState.MOVING_UP;
+		int floorNumber = byteBuffer.getInt();
+		Direction direction = Direction.fromInt(byteBuffer.getInt());
+		ElevatorState state = ElevatorState.fromInt(byteBuffer.getInt());
 		return new ElevatorInfoRequest(floorNumber, direction, state);
 	}
 
-	public short getFloorNumber() {
+	public int getFloorNumber() {
 		return floorNumber;
 	}
 
-	public void setFloorNumber(short floorNumber) {
+	public void setFloorNumber(int floorNumber) {
 		this.floorNumber = floorNumber;
 	}
 
