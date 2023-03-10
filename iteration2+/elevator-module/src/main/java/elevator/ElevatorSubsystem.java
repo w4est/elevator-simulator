@@ -205,14 +205,14 @@ public class ElevatorSubsystem implements Runnable {
 		byte[] receive = this.sendElevatorRequestPacket(data);
 		
 		if (receive[0] == 0 && receive[1] == 2) {
-			addRequest(receive);
+			addRequestFromBytes(receive);
 		} else {
-			// No updates were passed so the elevator can keep moving
+			System.out.println("No new request received");
 		}
 		
 	}
 	
-	private void addRequest(byte[] requestData) {
+	private void addRequestFromBytes(byte[] requestData) {
 		Request r = Request.fromByteArray(requestData);
 		floorQueues.add(r);
 	}
