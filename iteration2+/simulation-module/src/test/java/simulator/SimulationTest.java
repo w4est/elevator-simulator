@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import common.PacketUtils;
 import common.Request;
@@ -50,6 +51,7 @@ public class SimulationTest {
 	}
 
 	@Test
+	@Timeout(15)
 	void shouldSendRequest() {
 		TestThread testThread = new TestThread();
 		Thread thread = new Thread(testThread);
