@@ -13,49 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import common.PacketUtils;
 import common.Request;
 
 public class SimulationTest {
 
-	private class TestThread implements Runnable {
-
-		private List<Request> sentRequests = new ArrayList<>();
-		private boolean runningThread = true;
-
-		// Create a separate thread so we can test socket data transfer
-		@Override
-		public void run() {
-			while (runningThread) {
-				try (DatagramSocket socket = new DatagramSocket(PacketUtils.FLOOR_PORT)) {
-					socket.setSoTimeout(50);
-					byte[] buffer = new byte[PacketUtils.BUFFER_SIZE];
-					DatagramPacket packet = new DatagramPacket(buffer, PacketUtils.BUFFER_SIZE);
-					socket.receive(packet);
-					addToSentRequests(Request.fromByteArray(packet.getData()));
-					runningThread = false;
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-
-		}
-
-		public synchronized List<Request> getSentRequests() {
-			return sentRequests;
-		}
-		
-		public synchronized void addToSentRequests(Request request) {
-			this.sentRequests.add(request);
-		}		
-
-	}
-
-	@Test // Disable on github because of ports
+	@Test
 	void shouldSendRequest() {
 		
 		DatagramSocket mockSocket = mock(DatagramSocket.class);
@@ -76,9 +41,9 @@ public class SimulationTest {
 			fail();
 		}
 
-		Simulation sim = new Simulation();
+		Simulation sim = new Simulation(new String[] { "--realtime", "--file", "src/test/resources/reader_test1.txt" }, mockSocket);
 		try {
-			sim.runSimulation(new String[] { "--realtime", "--file", "src/test/resources/reader_test1.txt" }, mockSocket);
+			sim.runSimulation();
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
