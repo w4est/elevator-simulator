@@ -23,10 +23,12 @@ public class Simulation {
 
 	public static void main(String[] args) throws IOException {
 		Simulation sim = new Simulation();
-		sim.runSimulation(args);
+		try (DatagramSocket socket = new DatagramSocket()) {
+			sim.runSimulation(args, socket);
+		}
 	}
 
-	public void runSimulation(String[] args) throws FileNotFoundException, IOException {
+	public void runSimulation(String[] args, DatagramSocket datagramSocket) throws FileNotFoundException, IOException {
 		// Realtime mode is much slower to test, must be enabled upon request
 		boolean realTimeMode = isRealtimeFlagInStringArgs(args);
 
@@ -44,7 +46,7 @@ public class Simulation {
 				// Only wait for timestamps if it's realtimeMode.
 				if (entry.isPresent() && (!realTimeMode || isItRequestTime(initialTime, startTime, entry.get()))) {
 					SimulationEntry currentEntry = entry.get();
-					sendRequestAtFloor(currentEntry);
+					sendRequestAtFloor(currentEntry, datagramSocket);
 
 					// Success, the new user should be simulated, read next entry
 					entry = iReader.getNextEntry();
@@ -98,9 +100,8 @@ public class Simulation {
 	 * @param entry
 	 * @return true if the message was successfully sent
 	 */
-	private static boolean sendRequestAtFloor(SimulationEntry entry) {
-
-		try (DatagramSocket socket = new DatagramSocket()) {
+	private static boolean sendRequestAtFloor(SimulationEntry entry, DatagramSocket socket) {
+		try {
 			socket.setSoTimeout(20);
 
 			Direction direction = entry.isUp() ? Direction.UP : Direction.DOWN;

@@ -2,6 +2,9 @@ package simulator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -10,7 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import common.PacketUtils;
 import common.Request;
@@ -50,30 +55,37 @@ public class SimulationTest {
 
 	}
 
-	@Test
-	@Timeout(15)
+	@SuppressWarnings("rawtypes")
+	@Test // Disable on github because of ports
 	void shouldSendRequest() {
-		TestThread testThread = new TestThread();
-		Thread thread = new Thread(testThread);
+		
+		DatagramSocket mockSocket = mock(DatagramSocket.class);
+		
+		final List<Request> sentRequests = new ArrayList<>();
+		
+		try {
+			doAnswer(new Answer() {
+				@Override
+				public Object answer(InvocationOnMock invocation) throws Throwable {
+					byte[] data = ((DatagramPacket) invocation.getArgument(0)).getData();
+					sentRequests.add(Request.fromByteArray(data));
+					return null;
+				}
+			}).when(mockSocket).send(any(DatagramPacket.class));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			fail();
+		}
 
-		thread.start();
 		Simulation sim = new Simulation();
 		try {
-			sim.runSimulation(new String[] { "--realtime", "--file", "src/test/resources/reader_test1.txt" });
+			sim.runSimulation(new String[] { "--realtime", "--file", "src/test/resources/reader_test1.txt" }, mockSocket);
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
 		}
 
+		assertEquals(1, sentRequests.size());
 		
-		// Wait a brief moment to make sure the testThread has finished packing it's bytes.
-		try {
-			thread.join();
-			
-			assertEquals(1, testThread.getSentRequests().size());
-			
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 }
