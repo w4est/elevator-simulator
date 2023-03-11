@@ -56,4 +56,12 @@ public class ElevatorInfoRequest {
 		this.direction = direction;
 	}
 
+	public ElevatorState getState() {
+		return state;
+	}
+
+	public void setState(ElevatorState state) {
+		this.state = state;
+	}
+
 }
