@@ -21,14 +21,16 @@ import common.Request;
  */
 public class Simulation {
 
-	public static void main(String[] args) throws IOException {
-		Simulation sim = new Simulation();
-		try (DatagramSocket socket = new DatagramSocket()) {
-			sim.runSimulation(args, socket);
-		}
+	private final String[] args;
+	private final DatagramSocket datagramSocket;
+	
+	public Simulation(String[] args, DatagramSocket datagramSocket) {
+		this.args = args;
+		this.datagramSocket = datagramSocket;
 	}
 
-	public void runSimulation(String[] args, DatagramSocket datagramSocket) throws FileNotFoundException, IOException {
+	
+	public void runSimulation() throws FileNotFoundException, IOException {
 		// Realtime mode is much slower to test, must be enabled upon request
 		boolean realTimeMode = isRealtimeFlagInStringArgs(args);
 

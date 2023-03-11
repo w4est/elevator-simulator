@@ -7,7 +7,7 @@ import java.net.DatagramSocket;
 
 import common.ElevatorInfoRequest;
 
-public class ElevatorListener {
+public class ElevatorListener implements Runnable{
 	
 	private ElevatorSubsystem elevatorSubsys;
 	private DatagramSocket socket;
@@ -44,8 +44,6 @@ public class ElevatorListener {
 			
 			DatagramPacket sendPacket = new DatagramPacket(send, send.length, receivePacket.getAddress(),
 					receivePacket.getPort());
-
-//			len = sendPacket.getLength();
 			
 			try {
 				socket.send(sendPacket); // Send packet to client
@@ -55,5 +53,11 @@ public class ElevatorListener {
 			}
 			System.out.println("Elevator Listener: packet sent to client");
 		}
+	}
+
+	@Override
+	public void run() {
+		this.elevatorCommunication();
+		
 	}
 }
