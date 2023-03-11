@@ -20,11 +20,19 @@ import org.mockito.stubbing.Answer;
 import common.Direction;
 import common.PacketUtils;
 import common.Request;
-// FIXME
-// import scheduler.Scheduler;
 
+/**
+ * Tests the most important functions of the ElevatorSubsystem class
+ * @author Farhan Mahamud
+ *
+ */
 public class ElevatorSubsystemTest {
 
+	/**
+	 * Tests if the ElevatorSubsystem can properly send an update message to 
+	 * receive a new request from the Scheduler and add it to floorQueues
+	 * @author Farhan Mahamud
+	 */
 	/*@Test
 	@SuppressWarnings("rawtypes")
 	void receiveRequest() {
@@ -57,6 +65,15 @@ public class ElevatorSubsystemTest {
 		assertEquals(elevSub.getFloorQueues().size(), 1);
 	}*/
 	
+	/**
+	 * Tests if the ElevatorSubsystem can properly send an update message to 
+	 * receive a new request from the Scheduler and receive no new request 
+	 * and continue on
+	 * @author Farhan Mahamud
+	 */
+	/**
+	 * Tests
+	 */
 	@Test
 	@SuppressWarnings("rawtypes")
 	void receiveConfimation() {
@@ -90,6 +107,11 @@ public class ElevatorSubsystemTest {
 		assertEquals(elevSub.getFloorQueues().size(), 0);
 	}
 	
+	/**
+	 * Test the ability of the elevator to pick up and drop off
+	 * requests and the correct floors
+	 * @author Farhan Mahamud
+	 */
 	@Test
 	void testAddRequest() {
 		ElevatorSubsystem elevSus = new ElevatorSubsystem(1);

@@ -130,6 +130,10 @@ public class Request {
 		this.requestComplete = destination;
 	}
 
+	/**
+	 * Converts request to byte array
+	 * @return
+	 */
 	public byte[] toByteArray() {
 		byte[] message = new byte[36];
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
@@ -144,6 +148,11 @@ public class Request {
 		return message;
 	}
 
+	/**
+	 * Converts byte array to a request
+	 * @param message
+	 * @return
+	 */
 	public static Request fromByteArray(byte[] message) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
 		byte[] header = new byte[2];
