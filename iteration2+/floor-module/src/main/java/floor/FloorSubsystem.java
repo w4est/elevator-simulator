@@ -13,7 +13,7 @@ import common.ElevatorInfoRequest;
 import common.Request;
 
 /**
- * FloorSubsystem Class communicates with Scheduler (Scheduler shared with the Elevator).
+ * FloorSubsystem Class communicates with Scheduler (Scheduler shared with the Elevator) using UDP.
  * It first takes requests from the simulator to store and send to the Scheduler.
  * It then receives info about the Elevator from the Scheduler and updates all the Floors.
  * 
@@ -21,16 +21,15 @@ import common.Request;
  */
 public class FloorSubsystem implements Runnable {
 
-	private ArrayList<Floor> allFloors;
-	private int peopleWaitingOnAllFloors;
+	private ArrayList<Floor> allFloors;		// All the floors in the FloorSubsystem
+	private int peopleWaitingOnAllFloors;	// total people waiting on all the floors
 	private final int MAX_FLOOR;
-	//private final String TEST_FILE;
-	//TreeMap data structure (key = time stamp, value = currentFloor,direction,destination)
-	private ArrayList<Request> allRequests;
-	private boolean firstThreadActive;    //used to differentiate between the 2 threads
-	private DatagramSocket receiveSocket; //receiving requests from simulation & info from Scheduler (port 5001)
-	private DatagramSocket sendSocket;    //sending requests to scheduler (port 5003)
-	private DatagramPacket receivePacket,verifyReceive,sendPacket;
+	private ArrayList<Request> allRequests; // Each requests that represents a person
+	private boolean firstThreadActive;		//used to differentiate between the 2 threads
+	
+	private DatagramSocket receiveSocket;	//receiving requests from simulation & info from Scheduler (port 5001)
+	private DatagramSocket sendSocket;		//sending requests to scheduler (port 5003)
+	private DatagramPacket receivePacket,sendPacket;
 	
 	/**
 	 * FloorSubsystem Constructor sets up the number of floors and DatagramSockets.
@@ -54,6 +53,41 @@ public class FloorSubsystem implements Runnable {
 		      System.exit(1);
 	    } 
 	}
+	
+	/**
+	 * Constructor only used for testing in FLoorSubsystemTest.
+	 * @param maxFloor int, the max amount of floors in the building
+	 * @param s DatagramSocket, the send socket.
+	 * @param r DatagramSocket, the receive socket.
+	 */
+	public FloorSubsystem(int maxFloor, DatagramSocket s, DatagramSocket r) {
+		this(maxFloor);
+		this.closeSocket(); // close the other constructor's ports and use new sockets
+		this.sendSocket = s;
+		this.receiveSocket = r;
+	}
+	
+	/**
+	 * Getter method used for testing and getting all the requests.
+	 */
+	public ArrayList<Request> getFloorRequests(){
+		return this.allRequests;
+	}
+	
+	/**
+	 * Method used in testing to add a requests to the floorsybsystem
+	 */
+	public void addFloorRequests(Request r) {
+		this.allRequests.add(r);
+	}
+	
+	/*
+	 * Method used for testing only since floorsubsystem should be running "forever"
+	 */
+	public void closeSocket() {
+		receiveSocket.close();
+		sendSocket.close();
+	}
 
 	/**
 	 * Private method adds a floor to the FloorSubsystem within the Constructor.
@@ -72,24 +106,6 @@ public class FloorSubsystem implements Runnable {
 		}
 	}
 	
-	/**
-	 * Method used in receiveInfo() to update the lamp.
-	 * @param floorNum int, the floor to update
-	 * @param onOrOff 
-	 * @param upOrDown Direction, the direction 
-	 */
-	/*
-	public void updateFloorLight(int floorNum, boolean onOrOff, Direction upOrDown) {
-		for (Floor f: allFloors) {
-			if (f.getFloorNumber() == floorNum && upOrDown == Direction.UP) {
-				f.setUpButton(onOrOff);
-			}
-			else if (f.getFloorNumber() == floorNum && upOrDown == Direction.DOWN) {
-				f.setDownButton(onOrOff);
-			}
-		}
-	}*/
-
 	/**
 	 * Private method used in operate() to update the 
 	 * total number of people waiting on all floors. It does this by resetting the 
@@ -111,51 +127,6 @@ public class FloorSubsystem implements Runnable {
 	public int getPeopleWaitingOnAllFloors() {
 		return peopleWaitingOnAllFloors;
 	}
-
-	/**
-	 * This method is used in run() to read a text file of requests where each row represents 1 person.
-	 * It then stores data in allEntries and allFloors lists. 
-	 * request format: "timestamp floornumber "up" floorPersonWantsToGoTo" 
-	 * 
-	 * Note: Set to public instead of private for test case showing this can read input files & pass the data back and forth.
-	 */
-	// FIXME technically, we don't need to read anything from a file, the simulator
-	// can do that now, we just need to respond to button pushes
-	/*
-	public void readInputFromFile() {
-		try (InputFileReader iReader = new InputFileReader(this.TEST_FILE)) {
-			Optional<SimulationEntry> entry = iReader.getNextEntry();
-			
-			// before reading anything set peopleWaitingOnAllFloors to 0
-			this.peopleWaitingOnAllFloors = 0;
-			while (entry.isPresent()) {
-				// Get & print the text line entry
-				SimulationEntry currentEntry = entry.get();
-				System.out.println(entry.get());
-
-				// Store line read from text into allRequests TreeMap
-				allRequests.put(currentEntry.getTimestamp(), new Request(currentEntry.getSourceFloor(),
-						currentEntry.isUp() ? Direction.UP : Direction.DOWN, currentEntry.getDestinationFloor()));
-
-				// Set up Floor (increase # of people and set direction for every line)
-				for (Floor oneFloor : allFloors) {
-					if (oneFloor.getFloorNumber() == currentEntry.getSourceFloor()) {
-						 // anytime there's another floor keep adding (incrementing) # of people
-						oneFloor.addNumberOfPeople(1);
-						this.peopleWaitingOnAllFloors +=1;
-						if (currentEntry.isUp()) {
-							oneFloor.setUpButton(true);
-						} else {
-							oneFloor.setDownButton(true); // assume "Down"
-						}
-					}
-				}
-				entry = iReader.getNextEntry(); // next line
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}*/
 	
 	/**
 	 * Private method is used in getElevatorInfoFromScheduler() to remove 1 person from a floor.
@@ -171,31 +142,13 @@ public class FloorSubsystem implements Runnable {
 	}
 	
 	/**
-	 * Method is used by Scheduler for the FloorSubsystem to receive the Elevator info.
-	 * It prints out a message to signal its been received and then removes that person from the floor
-	 * 
-	 * Note: Also used to test if data is being passed back and forth.
-	 * @param elevatorNumber       int, the elevator's number.
-	 * @param departureFloorNumber int, the request's current floor.
-	 * @param targetFloorNumber    int, the request's destination floor
-	 */
-	/*
-	public void getElevatorInfoFromScheduler(int elevatorNumber, int departureFloorNumber, int targetFloorNumber) {
-		System.out.println(
-				String.format("FloorSubsystem Received from Scheduler: "
-						+ "Elevator# %s recieved the request will go from Floor# %s to %s",
-						elevatorNumber, departureFloorNumber, targetFloorNumber));
-		removePersonFromFloor(departureFloorNumber); //remove that 1 person from the floor
-	}*/
-	
-	/**
 	 * When the thread starts this communicates with scheduler until all people on all floors have gotten a response
 	 * so that they are not waiting.
 	 * Steps: 1. Reads request input from file and stores in FloorSubsystem.
 	 * 		  2. Sends data to Scheduler to request an elevator. 
 	 *		  3. Receives elevator data from scheduler to print that the elevator will arrive.
 	 */
-	private void operate() {
+	public void operate() {
 		// if there are requests that haven't been sent yet, send them to scheduler using sendInfoToScheduler
 		// loop through allRequests and send each (new) request to scheduler
 		for (Request r: allRequests) {
@@ -210,12 +163,6 @@ public class FloorSubsystem implements Runnable {
 								+ ", Destination: Floor " + r.getCarButton());
 			}
 		}
-
-		//System.out.println("FloorSubsystem Finished:                "
-		//		+ "People on all floors have successfully sent their requests!");
-		// Signal the Scheduler that this Thread has been completed to then end the ElevatorSubsystem Thread
-		// FIXME
-		// scheduler.toggleDone();
 	}
 	
 	/**
@@ -244,11 +191,11 @@ public class FloorSubsystem implements Runnable {
 	}
 	
 	/*
-	 * Private method receives two things from FloorSubsystem port 5001
+	 * Method receives two things from FloorSubsystem port 5001
 	 * Case 1: Receiving requests from Simulation to store in FloorSubsystem
 	 * Case 2: Receiving message from Scheduler to update FloorSubsystem
 	 */
-	private void receiveInfo() {
+	public void receiveInfo() {
 		byte data[] = new byte[128]; // received client data
 		receivePacket = new DatagramPacket(data, data.length); // for receiving client packet 
 		try {        
@@ -260,23 +207,13 @@ public class FloorSubsystem implements Runnable {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		/*
-		System.out.println("FloorSubsystem received a packet!");
-		printPacketInfo("FloorSubsystem: Received Packet:", "From", receivePacket, data);
-		// Send back to port that the packet has been received 
-		String s = "FloorSubsystem successfully got the packet";
-		byte response[] = s.getBytes(); // convert String into bytes stored in byte array
-		try {
-			verifyReceive = new DatagramPacket(response, response.length, InetAddress.getLocalHost(), receivePacket.getPort());
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}*/
+		
 		
 		//Case 1: if receivePacket is a request from simulation (first 2 bytes "03") then store in FloorSubsystem
-		if(data[0] == (byte)0 && data[1] == (byte)3) {
+		if(receivePacket.getData()[0] == (byte)0 && receivePacket.getData()[1] == (byte)3) {
+			printPacketInfo("FloorSubsystem: Received Packet:", "From Simulation", receivePacket, receivePacket.getData());
 			// Set up request list
-			Request inputRequest = Request.fromByteArray(data);
+			Request inputRequest = Request.fromByteArray(receivePacket.getData());
 			allRequests.add(inputRequest);
 			// Set up Floor for that receive packet (increase # of people and set direction
 			for (Floor oneFloor : allFloors) {
@@ -293,26 +230,18 @@ public class FloorSubsystem implements Runnable {
 			}
 		}
 		
-		//allRequests.put(currentEntry.getTimestamp(), new Request(currentEntry.getSourceFloor(),
-		//currentEntry.isUp() ? Direction.UP : Direction.DOWN, currentEntry.getDestinationFloor()));
-		
-		
 		//**Case 2: if the packet is from the scheduler, update the FloorSubsystem lamp
-		else if(data[0] == (byte)0 && data[1] == (byte)1) {
-			
-			//updatePeopleWaitingOnAllFloors(); //update peopleWaitingOnAllFloors count
-			//remove person from floor
-			//removePersonFromFloor(departureFloorNumber);
-			ElevatorInfoRequest elevatorStatus = ElevatorInfoRequest.fromByteArray(data);
-			System.out.println("FloorSubsystem Received From Scheduler: Elevator current floor is " + elevatorStatus.getFloorNumber() +
+		else if(receivePacket.getData()[0] == (byte)0 && receivePacket.getData()[1] == (byte)1) {
+			printPacketInfo("FloorSubsystem: Received Packet:", "From Simulation", receivePacket, receivePacket.getData());
+			ElevatorInfoRequest elevatorStatus = ElevatorInfoRequest.fromByteArray(receivePacket.getData());
+			System.out.println("FloorSubsystem Received From Scheduler: Elevator #"+ elevatorStatus.getCarNumber() +" current floor is " + elevatorStatus.getFloorNumber() +
 					", Direction is "+elevatorStatus.getDirection() + ", and state is "+ elevatorStatus.getState());
-
 			
 			// check through all Floors and remove people from floor if the elevator is on it
 			for (Floor f: allFloors) {
 				f.setLampCount(elevatorStatus.getFloorNumber()); //update lamp for every floor
 				if (f.getFloorNumber() == elevatorStatus.getFloorNumber()) {
-					this.removePersonFromFloor(elevatorStatus.getFloorNumber());
+					this.removePersonFromFloor(elevatorStatus.getFloorNumber()); //remove person from floor
 					//turn off lamp (can use setUpButton or setDownButton, will turn off both)
 					f.setUpButton(false);
 				}
@@ -323,10 +252,10 @@ public class FloorSubsystem implements Runnable {
 	}
 	
 	/**
-	 * Private method used in run() to send requests to the scheduler via port 5003
+	 * Method used in run() to send requests to the scheduler via port 5003
 	 * @param requestByte byte[],the request to store into a packet and send
 	 */
-	private void sendInfoToScheduler(byte[] requestByte) {
+	public void sendInfoToScheduler(byte[] requestByte) {
 		try {
 			sendPacket = new DatagramPacket(requestByte, requestByte.length,InetAddress.getLocalHost(), 5003); // Step 1
 		} catch (UnknownHostException e) {
@@ -400,13 +329,6 @@ public class FloorSubsystem implements Runnable {
 		Thread floorThread1 = new Thread(fs1, "FloorSubsystem1");  // Create thread passing its respective object
 		Thread floorThread2 = new Thread(fs1, "FloorSubsystem2");  // Another thread with same object
 		floorThread1.start();                                 // Starts run() method for thread
-		/*
-		try {
-			Thread.sleep(1000); // Wait 1 second to ensure threads are different
-		} catch (InterruptedException e ) {
-			e.printStackTrace();
-			System.exit(1);
-		}*/
 		floorThread2.start();
 	}
 	

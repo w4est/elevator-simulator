@@ -2,11 +2,20 @@ package floor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.time.LocalTime;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
-// FIXME
-//import scheduler.Scheduler;
+import common.Direction;
+import common.PacketUtils;
+import common.Request;
+
 
 /**
  * FloorSubsystemTest uses Junit and Mockito to test FloorSubsystem Class on reading input files.
@@ -14,61 +23,114 @@ import org.mockito.Mockito;
  */
 public class FloorSubsystemTest {
 	
-	/**
-	 * This test case shows this FloorSubsystem can read input files.
-	 */
-	// FIXME
 	/*
-	@Test
-	void shouldReadInputFileAndHavePeopleWaitingTest() {
-		String testFile = "src/test/resources/request_test.txt";
-		Scheduler schedulerMock = Mockito.mock(Scheduler.class);
-		// create FloorSubsystem with 7 floors
-		FloorSubsystem floorSubsystem = new FloorSubsystem(testFile, schedulerMock, 7);
-		// read the file & update the number of people waiting on all floors
-		floorSubsystem.readInputFromFile();
-		// there should be 4 people total (4 requests)
-		assertEquals(4, floorSubsystem.getPeopleWaitingOnAllFloors());
-	}*/
-	
-	/**
-	 * This test case shows this FloorSubsystem can read input files with 10 requests.
+	 * This tests method receiveInfo() and should receive and add a request to FLoorSubsystem 
 	 */
-	// FIXME
-	/*
 	@Test
-	void readBigInputFileAndHavePeopleWaitingTest() {
-		String testFile = "src/test/resources/reader_test2.txt";
-		Scheduler schedulerMock = Mockito.mock(Scheduler.class);
-		// create FloorSubsystem with 7 floors
-		FloorSubsystem floorSubsystem = new FloorSubsystem(testFile, schedulerMock, 6);
-		// read the file & update the number of people waiting on all floors
-		floorSubsystem.readInputFromFile();
-		// there should be 10 people total (10 requests)
-		assertEquals(10, floorSubsystem.getPeopleWaitingOnAllFloors());
-	}*/
-	
-	/**
-	 * This test case shows this FloorSubsystem can receive elevator info from scheduler &
-	 * then removes that person
-	 */
-	// FIXME
-	/*
-	@Test
-	void removePeopleWaitingPeopleFromFloorTest() {
-		String testFile = "src/test/resources/request_test.txt";
-		Scheduler schedulerMock = Mockito.mock(Scheduler.class);
-		// create FloorSubsystem with 7 floors
-		FloorSubsystem floorSubsystem = new FloorSubsystem(testFile,schedulerMock, 7);
-		// read the file & update the number of people waiting on all floors
-		floorSubsystem.readInputFromFile();
-		// there should be 4 people total (4 requests)
-		assertEquals(4, floorSubsystem.getPeopleWaitingOnAllFloors());
+	@SuppressWarnings("rawtypes")
+	void receiveRequest() {
+		DatagramSocket s = Mockito.mock(DatagramSocket.class);
+		DatagramSocket r = Mockito.mock(DatagramSocket.class);
 		
-		// Scheduler uses this method: Floor 1 opens elevator 1 and removes that 1 person from that floor
-		floorSubsystem.getElevatorInfoFromScheduler(1, 1, 3); //elevator 1 goes from Floor 1 to Floor 3
-		// Should be 3 people left on all floors
-		assertEquals(3, floorSubsystem.getPeopleWaitingOnAllFloors());
+		FloorSubsystem fs = new FloorSubsystem(8,s,r);
+		assertEquals(fs.getFloorRequests().size(), 0);
+		try {
+			Mockito.doAnswer(new Answer() {
+				@Override
+				public Object answer(InvocationOnMock invocation) throws Throwable {
+					return null;
+				}
+			}).when(s).send(Mockito.any(DatagramPacket.class));
+
+			Mockito.doAnswer(new Answer<Void>() {
+				@Override
+				public Void answer(InvocationOnMock invocation) throws Throwable {
+					byte[] data = new Request(LocalTime.of(2, 1, 1, 1), 1, Direction.UP, 4).toByteArray();
+					((DatagramPacket) invocation.getArguments()[0]).setData(data);					
+					((DatagramPacket) invocation.getArguments()[0]).setLength(data.length);
+					return null;
+				}
+			}).when(r).receive(Mockito.any(DatagramPacket.class));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-	}*/
+		fs.receiveInfo(); //receiving data
+		//fs.operate(); //sending data
+		assertEquals(fs.getFloorRequests().size(), 1);
+	}
+	
+	/*
+	 * This tests method receiveInfo() and should not add any requests to FLoorSubsystem 
+	 */
+	@Test
+	@SuppressWarnings("rawtypes")
+	void receiveConfimation() {
+		DatagramSocket s = Mockito.mock(DatagramSocket.class);
+		DatagramSocket r = Mockito.mock(DatagramSocket.class);
+		
+		FloorSubsystem fs = new FloorSubsystem(8,s,r);
+		assertEquals(fs.getFloorRequests().size(), 0);
+		
+		try {
+			Mockito.doAnswer(new Answer() {
+				@Override
+				public Object answer(InvocationOnMock invocation) throws Throwable {
+					return null;
+				}
+			}).when(s).send(Mockito.any(DatagramPacket.class));
+
+			Mockito.doAnswer(new Answer<Void>() {
+				@Override
+				public Void answer(InvocationOnMock invocation) throws Throwable {
+					byte[] data = new byte[PacketUtils.BUFFER_SIZE];
+					data[0] = (byte) 0;
+					data[1] = (byte) 0;
+					((DatagramPacket) invocation.getArguments()[0]).setData(data);					
+					((DatagramPacket) invocation.getArguments()[0]).setLength(data.length);
+					return null;
+				}
+			}).when(r).receive(Mockito.any(DatagramPacket.class));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		fs.receiveInfo(); //receiving data
+		//fs.operate(); //sending data
+		assertEquals(fs.getFloorRequests().size(), 0);
+	}
+	
+	
+	
+	@Test
+	@SuppressWarnings("rawtypes")
+	void sendRequest() {
+		DatagramSocket s = Mockito.mock(DatagramSocket.class);
+		DatagramSocket r = Mockito.mock(DatagramSocket.class);
+		
+		FloorSubsystem fs = new FloorSubsystem(8,s,r);
+		assertEquals(fs.getFloorRequests().size(), 0);
+		try {
+			Mockito.doAnswer(new Answer() {
+				@Override
+				public Object answer(InvocationOnMock invocation) throws Throwable {
+					System.out.print("Sending functionality works");
+					return null;
+				}
+			}).when(s).send(Mockito.any(DatagramPacket.class));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		fs.addFloorRequests(new Request(LocalTime.of(2, 1, 1, 1), 1, Direction.UP, 4));
+		assertEquals(fs.getFloorRequests().size(), 1);
+		fs.operate(); //sending data
+		assertEquals(fs.getFloorRequests().get(0).getRequestStatus(), true);
+	}
+	
+	
+	
+	
+	
 }
