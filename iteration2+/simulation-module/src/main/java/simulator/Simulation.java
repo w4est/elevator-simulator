@@ -36,18 +36,23 @@ public class Simulation {
 
 		String testFile = readInputFileFromStringArgs(args); // directory of test file for FloorSubsystem
 
-		// Gather an offset, so we can read the first entry from the file effectively as
-		// 0:00 or right now.
-		LocalTime initialTime = LocalTime.now();
+		
+		LocalTime initialTime;
 		long startTime = System.nanoTime();
 
 		try (InputFileReader iReader = new InputFileReader(testFile)) {
 			Optional<SimulationEntry> entry = iReader.getNextEntry();
-
+			// Gather an offset, so we can read the first entry from the file effectively as
+			// 0:00 or right now.
+			initialTime = entry.isPresent() ? entry.get().getTimestamp() : null;
 			while (entry.isPresent()) {
 				// Only wait for timestamps if it's realtimeMode.
-				if (entry.isPresent() && (!realTimeMode || isItRequestTime(initialTime, startTime, entry.get()))) {
+				long deltaTime = System.nanoTime() - startTime;
+				if (entry.isPresent() && (!realTimeMode || isItRequestTime(initialTime, deltaTime, entry.get()))) {
 					SimulationEntry currentEntry = entry.get();
+					System.out.println(
+							String.format("Sending Entry, realtime mode is %s, entry is %s, simulation time is: %s",
+									realTimeMode, entry.get().toString(), deltaTime));
 					sendRequestAtFloor(currentEntry, datagramSocket);
 
 					// Success, the new user should be simulated, read next entry
@@ -91,9 +96,8 @@ public class Simulation {
 	 * @param entry      The simulationEntry to evaluate.
 	 * @return whether it is appropriate to send the next request
 	 */
-	private static boolean isItRequestTime(LocalTime offsetTime, long startTime, SimulationEntry entry) {
-		long deltaTimeSinceStart = System.nanoTime() - startTime;
-		return offsetTime.plusNanos(deltaTimeSinceStart).isAfter(entry.getTimestamp());
+	private static boolean isItRequestTime(LocalTime offsetTime, long deltaTime, SimulationEntry entry) {
+		return offsetTime.plusNanos(deltaTime).isAfter(entry.getTimestamp());
 	}
 
 	/**
