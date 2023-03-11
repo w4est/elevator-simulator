@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.*;
 import java.util.Arrays;
 
-import common.Direction;
 import common.ElevatorInfoRequest;
 import common.PacketUtils;
 import common.Request;
@@ -65,8 +64,7 @@ public class ElevatorHelper implements Runnable {
 			sendData = priorityRequest.toByteArray();
 		}
 
-		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, receivePacket.getAddress(),
-				receivePacket.getPort());
+		sendPacket = new DatagramPacket(sendData, sendData.length, receivePacket.getAddress(), receivePacket.getPort());
 
 		try {
 			sendSocket.send(sendPacket);
@@ -75,12 +73,7 @@ public class ElevatorHelper implements Runnable {
 			System.exit(1);
 		}
 
-		if (elevatorStatus.getDirection() == Direction.IDLE) {
-			// what updates should we send to floor?
-			// this would be elev arrived at certain floor updates.
-		} else {
-			// this would be update lamps with current floor and arrow being passed.
-		}
+		floorHelper.sendPacket(receivePacket.getData());
 	}
 
 	public void run() {

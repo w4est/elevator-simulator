@@ -209,9 +209,8 @@ public class ElevatorSubsystem {
 	 * @param r Request, the highest priority request from the Scheduler
 	 */
 	public synchronized void updateFloorQueue() {
-
-		byte[] data = new ElevatorInfoRequest((short) elevator.getCurrentFloor(), elevator.getCurrentDirection(),
-				elevator.getCurrentElevatorState()).toByteArray();
+		
+		byte[] data = new ElevatorInfoRequest(elevator.getCarNumber(), elevator.getCurrentFloor(), elevator.getCurrentDirection(), elevator.getCurrentElevatorState()).toByteArray();
 		byte[] receive = this.sendElevatorRequestPacket(data);
 
 		if (receive[0] == 0 && receive[1] == 2) {
