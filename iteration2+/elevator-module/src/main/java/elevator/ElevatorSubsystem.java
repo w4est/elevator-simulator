@@ -15,8 +15,7 @@ import common.ElevatorInfoRequest;
 import common.ElevatorState;
 import common.PacketUtils;
 import common.Request;
-// FIXME
-//import scheduler.Scheduler;
+
 
 /**
  * This is a class used to simulate an elevator subsystem. This class is used to
