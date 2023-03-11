@@ -33,7 +33,6 @@ public class ElevatorSubsystemTest {
 	 * receive a new request from the Scheduler and add it to floorQueues
 	 * @author Farhan Mahamud
 	 */
-	/*
 	@Test
 	@SuppressWarnings("rawtypes")
 	void receiveRequest() {
