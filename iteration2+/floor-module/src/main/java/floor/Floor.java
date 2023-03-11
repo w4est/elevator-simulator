@@ -9,6 +9,7 @@ public class Floor{
 	private int numberOfPeople;
 	private boolean upButton;
 	private boolean downButton;
+	private int lampCount;
 	
 	/**
 	 * Floor Constructor sets up the initial state of a Floor.
@@ -19,6 +20,7 @@ public class Floor{
 		this.numberOfPeople = 0;
 		this.upButton = false;
 		this.downButton = false;
+		this.lampCount = 0;
 	}
 	
 	/**
@@ -103,5 +105,13 @@ public class Floor{
 	 */
 	public boolean getDownButton() {
 		return this.downButton;
+	}
+	
+	public void setLampCount(int elevatorNumber) {
+		this.lampCount = elevatorNumber;
+	}
+	
+	public int getLampCount() {
+		return this.lampCount;
 	}
 }
