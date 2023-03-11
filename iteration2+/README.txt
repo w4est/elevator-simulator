@@ -55,6 +55,8 @@ All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in th
 * Request : A class that is sent from the simulation, representing a request
 
 # elevator (module)
+
+![Elevator class diagram](./diagrams/elevator_module_class_diagram.png)
 * Elevator.java : a class to represent the elevator hardware 
 * ElevatorSubsystem.java : a class to manage elevators
   
