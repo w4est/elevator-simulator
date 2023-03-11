@@ -45,6 +45,7 @@ public class Scheduler {
 		LocalTime priorityRequest = null;
 
 		switch (elevatorDirection) {
+		// if the elevator is idle, it sends the oldest request
 		case IDLE:
 			for (LocalTime t : requests.keySet()) {
 				if (priorityRequest == null || t.isBefore(priorityRequest)) {
@@ -52,6 +53,7 @@ public class Scheduler {
 				}
 			}
 			break;
+		// if the elevator is moving up, it sends the closest request above the elevator
 		case UP:
 			for (LocalTime t : requests.keySet()) {
 				if ((requests.get(t).getFloorButton() == Direction.UP)
@@ -61,6 +63,8 @@ public class Scheduler {
 				}
 			}
 			break;
+		// if the elevator is moving down, it sends the closest request below the
+		// elevator
 		case DOWN:
 			for (LocalTime t : requests.keySet()) {
 				if ((requests.get(t).getFloorButton() == Direction.DOWN)
@@ -73,7 +77,7 @@ public class Scheduler {
 		}
 
 		Request returnRequest = null;
-		
+
 		if (priorityRequest != null) {
 			returnRequest = requests.get(priorityRequest);
 			requests.remove(priorityRequest);
@@ -81,16 +85,28 @@ public class Scheduler {
 		notifyAll();
 		return returnRequest;
 	}
-	
+
+	/**
+	 * The main method for the scheduler module.
+	 * 
+	 * @param args
+	 */
 	public static void main(String args[]) {
 		Scheduler sched = new Scheduler();
 		FloorHelper fh = new FloorHelper(sched);
 		ElevatorHelper eh = new ElevatorHelper(sched, fh);
-		
+
 		Thread fhThread = new Thread(fh);
 		Thread ehThread = new Thread(eh);
-		
+
 		fhThread.start();
 		ehThread.start();
+	}
+	
+	/**
+	 * requests list getter method used for testing.
+	 */
+	public TreeMap<LocalTime, Request> getRequests() {
+		return requests;
 	}
 }

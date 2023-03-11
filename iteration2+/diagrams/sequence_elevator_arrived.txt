@@ -1,141 +1,44 @@
 @startuml
-
-participant Floor
-participant FloorSubsystem
 participant Scheduler
+participant ElevatorHelper
 participant ElevatorSubsystem
+participant Elevator
 
-loop !scheduler.isDone()
-
+loop while running
     activate ElevatorSubsystem
+    ElevatorSubsystem -> ElevatorHelper: Sends UDP packet to Scheduler for new request
+
+    activate ElevatorHelper
+    ElevatorHelper-> Scheduler : Picks request based on Elevator's current situation
+
     activate Scheduler
+    Scheduler --> ElevatorHelper : Either returns a new request or nothing
+    deactivate Scheduler
 
-    loop !scheduler.isDone()
+    ElevatorHelper -> ElevatorSubsystem : Sends back what the scheduler returned as a packet
+    deactivate ElevatorHelper
 
-        ElevatorSubsystem -> ElevatorSubsystem: operate()
-        ElevatorSubsystem -> Scheduler: elevatorNeeded(): checks to see if there is a new request from scheduler
+    ElevatorSubsystem -> Elevator : Changes direction based on requests it needs to pick up or drop off requests it has and move to that floor
+    activate Elevator
+    deactivate Elevator
 
-        loop !elevatorNeeded && !done
-            Scheduler -> Scheduler: wait()
-            end loop
-        
-        alt done
-            Scheduler --> ElevatorSubsystem: 
-            end
+    alt needs to drop off someone
+        ElevatorSubsystem -> Elevator : Remove the requests that need to get off
+        activate Elevator
+        Elevator --> ElevatorSubsystem
+        deactivate Elevator
+        end
 
-        Scheduler -> Scheduler: LocalTime priorityRequest = null
+    alt needs to pick up someone
+        ElevatorSubsystem -> Elevator : Add request to elevator
+        activate Elevator
+        Elevator --> ElevatorSubsystem
+        deactivate Elevator
+        end
 
-        loop LocalTime t : requests.keySet()
-            alt checks to see if the current request is the oldest
-                Scheduler -> Scheduler: priorityRequest = t
-                end
-            end loop
+    ElevatorSubsystem -> Elevator : Move elevator and stop at requested floor
+    activate Elevator
+    deactivate Elevator
 
-        activate ElevatorSubsystem
-
-        Scheduler -> ElevatorSubsystem: elevatorSubsys.updateFloorQueue(requests.get(priorityRequest))
-        ElevatorSubsystem -> ElevatorSubsystem: floorQueues.add(r)
-        ElevatorSubsystem -> Scheduler: scheduler.requestReceived(elevator.getCarNumber(), r.getFloorNumber(), r.getCarButton())
-
-        activate FloorSubsystem
-        Scheduler -> FloorSubsystem: floorSubsystem.getElevatorInfoFromScheduler(elevatorNumber, departureFloorNumber, targetFloorNumber);
-
-        deactivate Scheduler
-        FloorSubsystem -> FloorSubsystem: removePersonFromFloor(departureFloorNumber);
-
-        loop Floor oneFloor : allFloors
-
-            alt floorNumber == oneFloor.getFloorNumber()
-                activate Floor
-                FloorSubsystem -> Floor: oneFloor.removePeople(1)
-
-                alt peopleLeavingFloor < numberOfPeople
-                    Floor -> Floor: numberOfPeople -= peopleLeavingFloor
-                end
-
-            deactivate Floor
-
-            end loop
-
-        end loop
-
-        deactivate FloorSubsystem
-
-        alt !floorQueues,isEmpty()
-            ElevatorSubsystem -> ElevatorSubsystem: this.operateComplete = false
-            end
-
-        alt !operateComplete
-            ElevatorSubsystem -> ElevatorSubsystem: this.elevator.nextState()
-            ElevatorSubsystem -> ElevatorSubsystem: changeDirection()
-
-            group changeDirection()
-            alt floorQueues.isEmpty()
-                ElevatorSubsystem -> ElevatorSubsystem: Updates the current direction and state to "IDLE"
-                end
-
-            loop Request r: floorQueues
-
-                alt elevator needs to go up to requested floor or destination floor
-                    ElevatorSubsystem -> ElevatorSubsystem: Updates direction and state to "moving up"
-
-                else elevator needs to go down to requested floor or destination floor
-                    ElevatorSubsystem -> ElevatorSubsystem: Updates direction and state to "moving down"
-
-                else elevator is on requested floor
-                    ElevatorSubsystem -> ElevatorSubsystem: Updates the current direction and state to "IDLE"
-
-                    end
-                    end
-
-                end loop
-            
-            loop while the elevator is moving
-                alt stopElevator() == 1
-                    ElevatorSubsystem -> ElevatorSubsystem: this.elevator.nextElevatorState()
-                    ElevatorSubsystem -> ElevatorSubsystem: movePeopleOnElevator(elevator.getCurrentFloor())
-
-                    loop int i = floorQueues.size() - 1; i >= 0; i--
-                        alt floorQueues.get(i).getFloorNumber() == currentFloor
-                           ElevatorSubsystem -> ElevatorSubsystem: people get off elevator
-                           end
-                        end loop
-
-                    ElevatorSubsystem -> ElevatorSubsystem: this.elevator.nextElevatorState()
-                    ElevatorSubsystem -> ElevatorSubsystem: changeDirection()
-                    note over ElevatorSubsystem: refer to the changeDirection() group above
-                                        
-                else stopElevator() == 2
-                    ElevatorSubsystem -> ElevatorSubsystem: Changing the elvator state twice and opening the doors
-                    ElevatorSubsystem -> ElevatorSubsystem: int people = this.elevator.clearFloor()
-                    end
-
-                ElevatorSubsystem -> ElevatorSubsystem: moveElevator()
-
-                alt if elevator floor is less than max floor and direction is "up"
-                        ElevatorSubsystem -> ElevatorSubsystem: increment to next floor
-
-                    else if elevator floor is greater than min floor and direction is "down"
-                        ElevatorSubsystem -> ElevatorSubsystem: this.elevator.setCurrentFloor(nextFloorDown)
-                        end
-
-                    ElevatorSubsystem -> Scheduler: notify scheduler of arrival
-
-                    activate Scheduler
-
-                    Scheduler --> ElevatorSubsystem
-                    deactivate Scheduler
-
-                end loop
-
-                alt this.elevator.allPeoplePickedUp()
-                    ElevatorSubsystem -> ElevatorSubsystem: this.operateComplete = true
-                    end
-
-            end
-
-    end loop
-deactivate ElevatorSubsystem
-
-
+end loop
 @enduml
