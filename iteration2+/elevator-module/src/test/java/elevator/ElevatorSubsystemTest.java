@@ -158,17 +158,17 @@ public class ElevatorSubsystemTest {
 		elevSus.getFloorQueues().add(r2);
 		elevSus.getFloorQueues().add(r3);
 
-		assertEquals(elevSus.getFloorQueues().size(), 5);
+		assertEquals(elevSus.getFloorQueues().size(), 3);
 		
 		elevSus.movePeopleOnElevator(elev.getCurrentFloor());
 		
-		assertEquals(elevSus.getFloorQueues().size(), 5);
+		assertEquals(elevSus.getFloorQueues().size(), 3);
 		assertEquals(elev.getElevatorQueue().size(), 0);
 		
 		elev.setCurrentFloor(elev.getCurrentFloor()+1);
 		elevSus.movePeopleOnElevator(elev.getCurrentFloor());
 		
-		assertEquals(elevSus.getFloorQueues().size(), 3);
+		assertEquals(elevSus.getFloorQueues().size(), 1);
 		assertEquals(elev.getElevatorQueue().size(), 2);
 
 		elevSus.stopElevator();
