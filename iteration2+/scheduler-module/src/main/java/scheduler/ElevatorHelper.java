@@ -2,14 +2,18 @@ package scheduler;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.Arrays;
 
 import common.ElevatorInfoRequest;
 import common.PacketUtils;
 import common.Request;
 
 /**
- * @author jacob
+ * @author Jacob Hovey
+ * 
+ *         The ElevatorHelper is a thread of the Scheduler module that helps
+ *         with receiving status update packets from the Elevator subsystem and
+ *         sending back requests that fit their current status. It also passes
+ *         the updates along to the floor.
  *
  */
 public class ElevatorHelper implements Runnable {
@@ -18,6 +22,14 @@ public class ElevatorHelper implements Runnable {
 	private Scheduler scheduler;
 	private FloorHelper floorHelper;
 
+	/**
+	 * The constructor for the ElevatorHelper.
+	 * 
+	 * @param scheduler   Scheduler, the main scheduler class that this thread
+	 *                    references.
+	 * @param floorHelper FloorHelper, the FloorHelper thread that this thread
+	 *                    references.
+	 */
 	public ElevatorHelper(Scheduler scheduler, FloorHelper floorHelper) {
 		try {
 			receiveSocket = new DatagramSocket(5004);
@@ -35,6 +47,13 @@ public class ElevatorHelper implements Runnable {
 		this.floorHelper = floorHelper;
 	}
 
+	/**
+	 * The receiveSendPacket method checks for packets from the Elevator Subsystem
+	 * that include elevator status information. When a packet is received, the
+	 * information is sent to the main Scheduler class and the priority request is
+	 * sent back. This is sent to the elevator and the status update is also passed
+	 * along to the floor, to control lamps and buttons.
+	 */
 	public void receiveSendPacket() {
 		byte[] receiveData = new byte[128];
 		receivePacket = new DatagramPacket(receiveData, receiveData.length);
@@ -46,8 +65,7 @@ public class ElevatorHelper implements Runnable {
 			System.exit(1);
 		}
 
-		System.out.println("Scheduler received packet from Elevator:\nBytes: "
-				+ Arrays.toString(receivePacket.getData()) + "\nString: " + new String(receivePacket.getData()));
+		System.out.println("Scheduler received update packet from Elevator.");
 
 		ElevatorInfoRequest elevatorStatus = ElevatorInfoRequest.fromByteArray(receiveData);
 
@@ -56,6 +74,8 @@ public class ElevatorHelper implements Runnable {
 
 		byte[] sendData = new byte[PacketUtils.BUFFER_SIZE];
 
+		// "empty" packet denoting that there are no new requests for this elevator
+		// thread to service.
 		if (priorityRequest == null) {
 			sendData = new byte[2];
 			sendData[0] = (byte) 0;
@@ -73,17 +93,25 @@ public class ElevatorHelper implements Runnable {
 			System.exit(1);
 		}
 
+		System.out.println("Scheduler sent request packet to Elevator.");
+
 		floorHelper.sendPacket(receivePacket.getData());
+
+		System.out.println("Scheduler passed update packet from Elevator to Floor.");
 	}
 
+	/**
+	 * The run method of the ElevatorHelper thread. This consistently loops through
+	 * the receiveSendPacket method.
+	 */
 	public void run() {
 		while (true) {
 			receiveSendPacket();
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				System.exit(1);
 			}
 		}
 	}
