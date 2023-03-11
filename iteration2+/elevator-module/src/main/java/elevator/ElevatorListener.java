@@ -39,7 +39,7 @@ public class ElevatorListener {
 			String received = new String(receive, 0, len);
 			System.out.println(received);
 
-			byte[] send = new ElevatorInfoRequest((short)elevatorSubsys.getElevator().getCurrentFloor(), 
+			byte[] send = new ElevatorInfoRequest(elevatorSubsys.getElevator().getCarNumber(), elevatorSubsys.getElevator().getCurrentFloor(), 
 					elevatorSubsys.getElevator().getCurrentDirection(), elevatorSubsys.getElevator().getCurrentElevatorState()).toByteArray();
 			
 			DatagramPacket sendPacket = new DatagramPacket(send, send.length, receivePacket.getAddress(),
