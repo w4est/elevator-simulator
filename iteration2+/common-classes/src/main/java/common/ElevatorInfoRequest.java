@@ -4,21 +4,24 @@ import java.nio.ByteBuffer;
 
 public class ElevatorInfoRequest {
 
+	private int carNumber;
 	private int floorNumber;
 	private Direction direction;
 	private ElevatorState state;
 
-	public ElevatorInfoRequest(int floorNumber, Direction direction, ElevatorState state) {
+	public ElevatorInfoRequest(int carNumber, int floorNumber, Direction direction, ElevatorState state) {
+		this.carNumber = carNumber;
 		this.floorNumber = floorNumber;
 		this.direction = direction;
 		this.state = state;
 	}
 
 	public byte[] toByteArray() {
-		byte[] message = new byte[18];
+		byte[] message = new byte[22];
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
 		byteBuffer.put((byte) 0);
 		byteBuffer.put((byte) 1);
+		byteBuffer.putInt(carNumber);
 		byteBuffer.putInt(floorNumber);
 		byteBuffer.putInt(direction.toInt());
 		byteBuffer.putInt(state.toInt());
@@ -34,10 +37,15 @@ public class ElevatorInfoRequest {
 			throw new IllegalArgumentException("Header is invalid, expected { 0, 2 }");
 		}
 
+		int carNumber = byteBuffer.getInt();
 		int floorNumber = byteBuffer.getInt();
 		Direction direction = Direction.fromInt(byteBuffer.getInt());
 		ElevatorState state = ElevatorState.fromInt(byteBuffer.getInt());
-		return new ElevatorInfoRequest(floorNumber, direction, state);
+		return new ElevatorInfoRequest(carNumber, floorNumber, direction, state);
+	}
+
+	public int getCarNumber() {
+		return carNumber;
 	}
 
 	public int getFloorNumber() {
