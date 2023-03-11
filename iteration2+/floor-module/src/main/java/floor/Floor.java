@@ -67,11 +67,9 @@ public class Floor{
 	 * @param peopleLeavingFloor int, the number of people leaving the floor.
 	 */
 	public void removePeople(int peopleLeavingFloor) {
-		if (peopleLeavingFloor > numberOfPeople) {
-			System.out.println("Cannot remove people that don't exist. People on Floor #" + floorNumber +
-					": " + numberOfPeople);
-		} else {
-			numberOfPeople -= peopleLeavingFloor;
+		if (peopleLeavingFloor < numberOfPeople) {
+			this.numberOfPeople -= peopleLeavingFloor;
+			System.out.println("*Floor "+ this.floorNumber + ": "+ peopleLeavingFloor + " people got off floor");
 		}
 	}
 	
