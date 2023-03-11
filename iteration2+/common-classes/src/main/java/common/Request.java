@@ -21,6 +21,8 @@ public class Request {
 	private boolean reachedStartFloor;
 	// check if the request destination floor has been completed from the Elevator
 	private boolean requestComplete;
+	// initially false but true when request has been sent by the FloorSubsystem
+	private boolean requestSent;
 
 	/**
 	 * Request Constructor sets up an individual person's request. The request will
@@ -38,6 +40,7 @@ public class Request {
 		this.carButton = carButton;
 		this.reachedStartFloor = false;
 		this.requestComplete = false;
+		this.requestSent = false;
 	}
 
 	/**
@@ -109,6 +112,19 @@ public class Request {
 	 */
 	public void setReachedStartFloor(boolean arrived) {
 		this.reachedStartFloor = arrived;
+	}
+	
+	public void setRequest(boolean sentRequest) {
+		this.requestSent = sentRequest;
+	}
+	
+	/**
+	 * Used to get the request status (false if not sent to scheduler, true if sent).
+	 * 
+	 * @return	boolean, the sent status of the request.
+	 */
+	public boolean getRequestStatus() {
+		return this.requestSent;
 	}
 
 	/**
