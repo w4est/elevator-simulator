@@ -10,13 +10,11 @@ Our program is composed of four major components; the floor subsystem and the el
 the scheduler is the lock for the threads. Our fourth component, what we have called the simulator, is the 
 entry point to run the program. For this iteration, all the simulator does is contain our main function. 
 
-![Class Diagram](./diagrams/class_diagram.png)
+To run the program, you must run each of the elevator, floors, and scheduler modules, and then ran the SimulationRunner the simulator module.
+This then will automatically input an example text file that we have created with elevator request data, and will print the results 
+showing that the data was passed back and forth between the subsystems, and the scheduler modules.
 
-To run the program, you must run Simulation.java in the simulator package. This should then automatically 
-input an example text file that we have created with elevator request data, and will print the results 
-showing that the data was passed back and forth between the subsystems, through the scheduler.
-
-In our test folder, we have created tests for the floor subsystem, file reader and elevator subsystem. We
+In our test folders, we have created tests for the floor subsystem, file reader and elevator subsystem. We
 believe that these tests are enough to fully encompass the functionality of our program for iteration 1. 
 An important thing to note is that we have used Mockito in some of our tests. It is a mocking framework that 
 helped us to write clean and simple tests. This should not present any issue when running our program or tests, but
@@ -40,22 +38,26 @@ Each of these suites can be run from their respective files.
 Below are the files within src that make up the Elevator Control System.
 All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in the "diagrams" folder.
 
-1. elevator (package)
-   * Direction.java : enum used to indicate direction of the elevator
-   * ElevatorState.java : enum used to indicate the elevator state
-   * ElevatorSubsystem.java : used to communicate with the Scheduler to manage the elevator. Implements runnable to be a thread.
-   * Elevator.java : used within ElevatorSubsystem to represent the state of the elevator. Implements runnable to be a thread.
+
+# common-classes (module)
+![Common classes diagram](./diagrams/common_classes_class_diagram.png)
+
+# elevator (module)
+  * Direction.java : enum used to indicate direction of the elevator
+  * ElevatorState.java : enum used to indicate the elevator state
+  * ElevatorSubsystem.java : used to communicate with the Scheduler to manage the elevator. Implements runnable to be a thread.
+  * Elevator.java : used within ElevatorSubsystem to represent the state of the elevator. Implements runnable to be a thread.
 2. floor (package)
-   * FloorSubsystem.java : reads input text file and sets up Floors to communicate with the Scheduler. Implements runnable to be a thread.
-   * Floor.java : used in FloorSubsystem to set up a floor in a building.
-   * InputFileReader.java : used within FloorSubsystem to help read a text file.
-   * SimulationEntry.java : used within FloorSubsystem to help read a text file.
+  * FloorSubsystem.java : reads input text file and sets up Floors to communicate with the Scheduler. Implements runnable to be a thread.
+  * Floor.java : used in FloorSubsystem to set up a floor in a building.
+  * InputFileReader.java : used within FloorSubsystem to help read a text file.
+  * SimulationEntry.java : used within FloorSubsystem to help read a text file.
 3. scheduler (package)
-   * Scheduler.java : responsible for communication between FloorSubsystem and ElevatorSubsystem. keeps everything thread-safe (Mutual Exclusion and Condition Synchronization)
-   * Request.java : used to save all relevant request information to use for optimizing scheduling.
-   * SchedulerStates.java : A enumeration of states that the scheduler can be in
+  * Scheduler.java : responsible for communication between FloorSubsystem and ElevatorSubsystem. keeps everything thread-safe (Mutual Exclusion and Condition Synchronization)
+  * Request.java : used to save all relevant request information to use for optimizing scheduling.
+  * SchedulerStates.java : A enumeration of states that the scheduler can be in
 4. simulator (package) 
-   * Simulation.java : responsible for program initialization & running the simulation from the console
+  * Simulation.java : responsible for program initialization & running the simulation from the console
 
 ## Set Up Instructions (Using Eclipse)
 Below are the set up instructions. For more information, see "L2G2_Test_Instructions.pdf".
@@ -82,7 +84,11 @@ Below are the set up instructions. For more information, see "L2G2_Test_Instruct
 7. Select Update Project...
 8. Select the project and click "Ok"
 9. Let eclipse download the appropriate dependencies (Such as JUnit)
-10. Run Simulation.java to see the simulation run in the console!
+10. In the "scheduler-module" package run the Scheduler.java
+11. In the "elevator-module" package run the ElevatorSubsystem.java
+12. In the "floor-module" package run the FloorSubsystem.java
+13. In the "simulator" package run "Simulation.java" to send data the to the elevator system!
+14. See progress in the console.
 
 ### Running tests (Using JUnit)
 1. Right click the "tests" folder in the project explorer

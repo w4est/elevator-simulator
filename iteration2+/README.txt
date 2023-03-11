@@ -68,7 +68,11 @@ Below are the set up instructions. For more information, see "L2G2_Test_Instruct
 7. Select Update Project...
 8. Select the project and click "Ok"
 9. Let eclipse download the appropriate dependencies (Such as JUnit)
-10. In the "simulator" package you will find "Simulation.java" to run and see the simulation in the console!
+10. In the "scheduler-module" package run the Scheduler.java
+11. In the "elevator-module" package run the ElevatorSubsystem.java
+12. In the "floor-module" package run the FloorSubsystem.java
+13. In the "simulator" package run "Simulation.java" to send data the to the elevator system!
+14. See progress in the console.
 
 ### Another way to run:
 1. Extract the zip file
