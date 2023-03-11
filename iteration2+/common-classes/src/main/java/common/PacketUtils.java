@@ -106,6 +106,12 @@ public class PacketUtils {
 		return LocalTime.of(hour, minute, second, nano);
 	}
 	
+	/**
+	 * Converts state to byte array
+	 * @param state
+	 * @return
+	 * @author Farhan Mahamud
+	 */
 	public static byte[] stateToByteArray(ElevatorState state) {
 		ByteBuffer byteBuffer = ByteBuffer.allocate(4);
 		byteBuffer.putInt(state.toInt());

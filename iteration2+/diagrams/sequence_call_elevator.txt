@@ -1,34 +1,28 @@
 @startuml
 
+participant Simulation
 participant FloorSubsystem
 participant Scheduler
-participant ElevatorSubsystem
 
-activate FloorSubsystem
+loop while running
 
-loop peopleWaitingOnAllFloors != 0
+    activate Simulation
+    Simulation -> FloorSubsystem: Reads and sends information from text file and sends them to floor subsystem
 
-    loop Map.Entry<LocalTime, Request> timestampRequest : allRequests.entrySet()
-        alt timestampRequest.getValue().getRequestStatus() == false
-            FloorSubsystem -> Scheduler: scheduler.requestElevator(timestampRequest.getKey(), timestampRequest.getValue());
-            activate Scheduler
-            Scheduler -> Scheduler: requests.put(time, request)
-            Scheduler -> Scheduler: elevatorNeeded = true
-            FloorSubsystem -> FloorSubsystem : timestampRequest.getValue().setRequest(true);
-        end loop
+    deactivate Simulation
+    activate FloorSubsystem
+
+    FloorSubsystem -> Scheduler : Sends requests periodically to scheduler
+
+    activate Scheduler
     deactivate Scheduler
-    end loop
-    FloorSubsystem -> FloorSubsystem : updatePeopleWaitingOnAllFloors()
+
+    Scheduler --> FloorSubsystem : Returns updates of the elevator subsystems
+    activate Scheduler
+    deactivate Scheduler
+
 end loop
 
-
-deactivate ElevatorSubsystem
-
-FloorSubsystem -> Scheduler: toggleDone()
 deactivate FloorSubsystem
-
-activate Scheduler
-deactivate Scheduler
-Scheduler -> Scheduler: this.done = !done
 
 @enduml

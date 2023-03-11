@@ -16,7 +16,6 @@ import common.ElevatorState;
 import common.PacketUtils;
 import common.Request;
 
-
 /**
  * This is a class used to simulate an elevator subsystem. This class is used to
  * communicate to the scheduler and receive messages to manage the elevator
@@ -28,10 +27,8 @@ import common.Request;
 public class ElevatorSubsystem implements Runnable {
 
 	private Elevator elevator; // The elevator associated with the subsystem
-	private DatagramPacket sendPacket, receivePacket;
-	protected DatagramSocket socket;
-	// FIXME
-	// private Scheduler scheduler; // The scheduler associated with the subsystem
+	private DatagramPacket sendPacket, receivePacket; // Packets for sending and receiveing
+	protected DatagramSocket socket; // Socket used for sending and receiving UDP packets
 	public final static int DEFAULT_MAX_FLOOR = 7; // The default max floor
 	public final static int DEFAULT_MIN_FLOOR = 1; // The default min floor
 	private final int MAX_FLOOR; // The variable max floor set by the constructor
@@ -44,6 +41,7 @@ public class ElevatorSubsystem implements Runnable {
 	 * 
 	 * @param s         // The scheduler
 	 * @param carNumber // The unique car number for the elevator
+	 * @author Farhan Mahamud
 	 */
 	public ElevatorSubsystem(int carNumber) {
 		this.MIN_FLOOR = DEFAULT_MIN_FLOOR;
@@ -55,6 +53,12 @@ public class ElevatorSubsystem implements Runnable {
 		this.setupSocket();
 	}
 
+	/**
+	 * Constructor used for testing with a Mockito socket
+	 * @param carNumber
+	 * @param s
+	 * @author Farhan Mahamud
+	 */
 	public ElevatorSubsystem(int carNumber, DatagramSocket s) {
 		this(carNumber);
 		this.closeSocket();
@@ -69,10 +73,9 @@ public class ElevatorSubsystem implements Runnable {
 	 * @param carNumber // The unique car number for the elevator
 	 * @param max       // The maximum floor level
 	 * @param min       // The minimum floor level
+	 * @author Farhan Mahamud
 	 */
 	public ElevatorSubsystem(/* Scheduler s, */ int carNumber, int max, int min) {
-		// FIXME
-		// this.scheduler = s;
 
 		if (min >= max) {
 			throw new IllegalArgumentException("Elevator needs at least 2 floors");
@@ -89,6 +92,10 @@ public class ElevatorSubsystem implements Runnable {
 
 	}
 
+	/**
+	 * Sets up the socket
+	 * @author Farhan Mahamud
+	 */
 	private void setupSocket() {
 		try {
 			socket = new DatagramSocket();
@@ -98,10 +105,19 @@ public class ElevatorSubsystem implements Runnable {
 		}
 	}
 
+	/**
+	 * Private method used for closing the socket
+	 */
 	private void closeSocket() {
 		socket.close();
 	}
 
+	/**
+	 * Public function to send and receive a UDP packet to and from the socket
+	 * @param data
+	 * @return byte[]
+	 * @author Farhan Mahamud
+	 */
 	public byte[] sendElevatorRequestPacket(byte[] data) {
 
 		byte[] receiveData = new byte[PacketUtils.BUFFER_SIZE];
@@ -127,7 +143,7 @@ public class ElevatorSubsystem implements Runnable {
 
 		try {
 			// Block until a datagram is received via sendReceiveSocket.
-			System.out.println("Elevator: Waiting to receive message from IntermediateHost");
+			System.out.println("Elevator: Waiting to receive message from Scheduler");
 			socket.receive(receivePacket); // Waiting to receive packet from host
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -146,6 +162,7 @@ public class ElevatorSubsystem implements Runnable {
 	 * 
 	 * @param message
 	 * @param length
+	 * @author Farhan Mahamud
 	 */
 	public static void printByteArray(byte[] message, int length) {
 		System.out.print("Message as bytes: ");
@@ -155,6 +172,11 @@ public class ElevatorSubsystem implements Runnable {
 		System.out.println("");
 	}
 
+	/**
+	 * Prints a given byte array
+	 * @param data
+	 * @author Farhan Mahamud
+	 */
 	private void printInfo(byte[] data) {
 		System.out.println(new String(data, 0, data.length)); // or could print "s"
 
@@ -305,7 +327,7 @@ public class ElevatorSubsystem implements Runnable {
 	}
 
 	/**
-	 * Private method used in operate to actually move the elevator up or down 1
+	 * Public method used in operate to actually move the elevator up or down 1
 	 * floor depending on the elevator's current state.
 	 * 
 	 * @author Subear Jama
@@ -324,14 +346,10 @@ public class ElevatorSubsystem implements Runnable {
 
 		System.out.println("	Moving: Elevator Current Floor & State: " + "Floor " + this.elevator.getCurrentFloor()
 				+ ", State: " + this.elevator.getCurrentElevatorState()); // Floor move
-
-		// Notify scheduler that elevator has moved
-		// FIXME
-		// this.scheduler.notifyElevatorArrival(this.elevator.getCarNumber(),this.elevator.getCurrentFloor());
 	}
 
 	/**
-	 * Private method used in operate that checks if a request starting floor from
+	 * Public method used in operate that checks if a request starting floor from
 	 * ElevatorSubsystem floorQueues matches the elevator's current floor. it then
 	 * removes that request from ElevatorSubsystem.
 	 * 
@@ -360,7 +378,7 @@ public class ElevatorSubsystem implements Runnable {
 	}
 
 	/**
-	 * Private method used in operate method to verify and set the elevator's
+	 * Public method used in operate method to verify and set the elevator's
 	 * current direction to go up/down/unchanged.
 	 * 
 	 * future iteration: sort through elevators and check their request lists
@@ -398,7 +416,7 @@ public class ElevatorSubsystem implements Runnable {
 	}
 
 	/**
-	 * Private method used in operate method to stop when the elevator has reached
+	 * Public method used in operate method to stop when the elevator has reached
 	 * its destination.
 	 * 
 	 * future iteration: stopElevator method will handle multiple elevator stops
@@ -423,9 +441,6 @@ public class ElevatorSubsystem implements Runnable {
 		
 		Thread eThread1 = new Thread(e);
 		Thread eThread2 = new Thread(e2);
-		//ElevatorListener listen = new ElevatorListener(e);
-		//Thread listenThread = new Thread(listen, "Elevator listener thread");
-		//listenThread.start();
 
 		eThread1.start();
 		eThread2.start();
