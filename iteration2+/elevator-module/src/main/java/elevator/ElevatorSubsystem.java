@@ -224,6 +224,8 @@ public class ElevatorSubsystem {
 	private void addRequestFromBytes(byte[] requestData) {
 		Request r = Request.fromByteArray(requestData);
 		floorQueues.add(r);
+		
+		elevator.getElevatorQueue().add(r);
 	}
 
 	/**
