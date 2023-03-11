@@ -24,7 +24,7 @@ import common.Request;
  * @author Farhan Mahamud
  *
  */
-public class ElevatorSubsystem {
+public class ElevatorSubsystem implements Runnable {
 
 	private Elevator elevator; // The elevator associated with the subsystem
 	private DatagramPacket sendPacket, receivePacket; // Packets for sending and receiveing
@@ -98,7 +98,7 @@ public class ElevatorSubsystem {
 	 */
 	private void setupSocket() {
 		try {
-			socket = new DatagramSocket(PacketUtils.ELEVATOR_PORT);
+			socket = new DatagramSocket();
 		} catch (SocketException se) {
 			se.printStackTrace();
 			System.exit(1);
@@ -123,7 +123,7 @@ public class ElevatorSubsystem {
 		byte[] receiveData = new byte[PacketUtils.BUFFER_SIZE];
 
 		try {
-			sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), 5001); // Initialize packet
+			sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), 5004); // Initialize packet
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -230,12 +230,11 @@ public class ElevatorSubsystem {
 	 * @param r Request, the highest priority request from the Scheduler
 	 */
 	public synchronized void updateFloorQueue() {
-
-		byte[] data = new ElevatorInfoRequest((short) elevator.getCurrentFloor(), elevator.getCurrentDirection(),
-				elevator.getCurrentElevatorState()).toByteArray();
+		
+		byte[] data = new ElevatorInfoRequest(elevator.getCarNumber(), elevator.getCurrentFloor(), elevator.getCurrentDirection(), elevator.getCurrentElevatorState()).toByteArray();
 		byte[] receive = this.sendElevatorRequestPacket(data);
 
-		if (receive[0] == 0 && receive[1] == 2) {
+		if (receive[0] == 0 && receive[1] == 3) {
 			addRequestFromBytes(receive);
 		} else {
 			System.out.println("No new request received");
@@ -246,6 +245,8 @@ public class ElevatorSubsystem {
 	private void addRequestFromBytes(byte[] requestData) {
 		Request r = Request.fromByteArray(requestData);
 		floorQueues.add(r);
+		
+		elevator.getElevatorQueue().add(r);
 	}
 
 	/**
@@ -259,18 +260,19 @@ public class ElevatorSubsystem {
 	private void operate() {
 		// 1: check with scheduler to wait for request.
 		// Scheduler sends request stored in floorQueues using updateFloorQueue method
-
+		this.updateFloorQueue();
+		
 		if (!floorQueues.isEmpty()) {
 			this.operateComplete = false;
 		}
 
 		if (!operateComplete) {
 			System.out.println("	ElevatorSubsystem: Start Operate Cycle");
-			System.out.println("	1. Elevator Current Floor & State: " + "Floor " + this.elevator.getCurrentFloor()
+			System.out.println("	1. Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor " + this.elevator.getCurrentFloor()
 					+ ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
 
 			this.elevator.nextElevatorState(); // STOP_OPENED -> STOP_CLOSED
-			System.out.println("	2. Elevator Current Floor & State: " + "Floor " + this.elevator.getCurrentFloor()
+			System.out.println("	2. Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor " + this.elevator.getCurrentFloor()
 					+ ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
 
 			// 2: set the elevator's current direction (MOVING_UP/DOWN)
@@ -300,20 +302,19 @@ public class ElevatorSubsystem {
 							+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
 
 					this.elevator.nextElevatorState(); // STOP_CLOSED -> STOP_OPENED
+					this.elevator.setCurrentDirection(Direction.IDLE);
 					System.out.println("	6: Elevator Current Floor & State: " + "Floor "
 							+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
 
 					// elevator reached destination, clear floor and break while loop
 					int peopleRemoved = this.elevator.clearFloor();
 					System.out.println(
-							"	7. Elevator reached destination and dropped off " + peopleRemoved + " request(s)!");
+							"	7. Elevator reached destination and dropped off request(s)!");
 					break;
 				}
 
 				// move elevator up or down 1 floor based on current elevator state
 				moveElevator();
-
-				this.updateFloorQueue();
 			}
 
 			// check operateComplete condition (have all requests been picked up &
@@ -434,11 +435,21 @@ public class ElevatorSubsystem {
 		return 0;
 	}
 
-	public static void main(String args[]) {
+	public static void main(String[] args) {
 		ElevatorSubsystem e = new ElevatorSubsystem(1);
+		ElevatorSubsystem e2 = new ElevatorSubsystem(2);
+		
+		Thread eThread1 = new Thread(e);
+		Thread eThread2 = new Thread(e2);
 
+		eThread1.start();
+		eThread2.start();
+	}
+
+	@Override
+	public void run() {
 		while (true) {
-			e.operate();
+			operate();
 		}
 	}
 }

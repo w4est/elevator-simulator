@@ -21,6 +21,8 @@ public class Request {
 	private boolean reachedStartFloor;
 	// check if the request destination floor has been completed from the Elevator
 	private boolean requestComplete;
+	// initially false but true when request has been sent by the FloorSubsystem
+	private boolean requestSent;
 
 	/**
 	 * Request Constructor sets up an individual person's request. The request will
@@ -38,6 +40,7 @@ public class Request {
 		this.carButton = carButton;
 		this.reachedStartFloor = false;
 		this.requestComplete = false;
+		this.requestSent = false;
 	}
 
 	/**
@@ -110,6 +113,19 @@ public class Request {
 	public void setReachedStartFloor(boolean arrived) {
 		this.reachedStartFloor = arrived;
 	}
+	
+	public void setRequest(boolean sentRequest) {
+		this.requestSent = sentRequest;
+	}
+	
+	/**
+	 * Used to get the request status (false if not sent to scheduler, true if sent).
+	 * 
+	 * @return	boolean, the sent status of the request.
+	 */
+	public boolean getRequestStatus() {
+		return this.requestSent;
+	}
 
 	/**
 	 * Used to check if the request has been completed
@@ -137,8 +153,7 @@ public class Request {
 	public byte[] toByteArray() {
 		byte[] message = new byte[36];
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
-		byteBuffer.put((byte) 0);
-		byteBuffer.put((byte) 2);
+		byteBuffer.put(PacketHeaders.Request.getHeaderBytes());
 		byteBuffer.putInt(floorNumber);
 		byteBuffer.putInt(floorButton.ordinal());
 		byteBuffer.putInt(carButton);
@@ -158,7 +173,7 @@ public class Request {
 		byte[] header = new byte[2];
 		byteBuffer.get(header, 0, 2);
 
-		byte[] expectedHeader = PacketHeaders.FloorButtonRequest.getHeaderBytes();
+		byte[] expectedHeader = PacketHeaders.Request.getHeaderBytes();
 		if (header[0] != expectedHeader[0] && header[1] != expectedHeader[1]) {
 			throw new IllegalArgumentException("Header is invalid, expected { 0, 2 }");
 		}

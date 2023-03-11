@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 public class RequestTest {
 
-	private static final byte[] testBytes = { 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0,
+	private static final byte[] testBytes = { 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0,
 			1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 };
 
 	@Test

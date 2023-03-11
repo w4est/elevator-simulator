@@ -6,7 +6,7 @@ package common;
  *
  */
 public enum PacketHeaders {
-	FloorButtonRequest(new byte[]{0,3}),
+	Request(new byte[]{0,3}),
 	ElevatorInfoRequest(new byte[]{0,1});
 	
 	byte[] headerBytes;
