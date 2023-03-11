@@ -10,8 +10,8 @@ Our program is composed of four major components; the floor subsystem and the el
 the scheduler is the lock for the threads. Our fourth component, what we have called the simulator, is the 
 entry point to run the program. For this iteration, all the simulator does is contain our main function. 
 
-To run the program, you must run each of the elevator, floors, and scheduler modules, and then ran the SimulationRunner the simulator module.
-This then will automatically input an example text file that we have created with elevator request data, and will print the results 
+To run the program, you must run each of the floors, and scheduler modules, and then run the SimulationRunner the simulator module, followed by the elevator module.
+This then will automatically input an example text file (in the simulation module) that we have created with elevator request data, and will print the results 
 showing that the data was passed back and forth between the subsystems, and the scheduler modules.
 
 In our test folders, we have created tests for the floor subsystem, file reader and elevator subsystem. We
@@ -20,44 +20,60 @@ An important thing to note is that we have used Mockito in some of our tests. It
 helped us to write clean and simple tests. This should not present any issue when running our program or tests, but
  we believe it is important to note that this library has been used in case there are any discrepancies.
 
-All of the tests are included in the same java packages as the source, but under the test folder:
-1. elevator (package)
+All of the tests are included in the same java packages as the source, but under the test folder of their respective maven module:
+1. common-classes (module)
+   * RequestTest.java
+   * ElevatorInfoRequestTest.java
+1. elevator-module (module)
    * ElevatorSubsystemTest.java
    * ElevatorTest.java
-2. floor (package)
+2. floor-module (module)
    * FloorSubsystemTest.java
-   * InputFileReaderTest.java
-3. scheduler (package)
+3. scheduler-module (module)
    * SchedulerTest.java
-4. simulator (package)
+   * FloorHelperTest.java
+   * ElevatorHelperTest.java
+4. simulation-module (module)
    * SimulationTest.java
+   * InputFileReaderTest.java
 
 Each of these suites can be run from their respective files.
 
 ## Main Filenames (Explained)
-Below are the files within src that make up the Elevator Control System.
+Below are the files within the source folders that make up the Elevator Control System.
 All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in the "diagrams" folder.
 
 
 # common-classes (module)
+
 ![Common classes diagram](./diagrams/common_classes_class_diagram.png)
+* Direction : A shared enum to indicate direction of the elevator
+* ElevatorInfoRequest : A class representing an elevator state, sent by the Elevator
+* ElevatorState : A shared enum to indicate the state of an elevator
+* PacketHeaders : An enum that helps manage packet headers for reading of network objects
+* PacketUtils : A class with helpfule static functions and constants
+* Request : A class that is sent from the simulation, representing a request
 
 # elevator (module)
-  * Direction.java : enum used to indicate direction of the elevator
-  * ElevatorState.java : enum used to indicate the elevator state
-  * ElevatorSubsystem.java : used to communicate with the Scheduler to manage the elevator. Implements runnable to be a thread.
-  * Elevator.java : used within ElevatorSubsystem to represent the state of the elevator. Implements runnable to be a thread.
-2. floor (package)
-  * FloorSubsystem.java : reads input text file and sets up Floors to communicate with the Scheduler. Implements runnable to be a thread.
-  * Floor.java : used in FloorSubsystem to set up a floor in a building.
-  * InputFileReader.java : used within FloorSubsystem to help read a text file.
-  * SimulationEntry.java : used within FloorSubsystem to help read a text file.
-3. scheduler (package)
-  * Scheduler.java : responsible for communication between FloorSubsystem and ElevatorSubsystem. keeps everything thread-safe (Mutual Exclusion and Condition Synchronization)
-  * Request.java : used to save all relevant request information to use for optimizing scheduling.
-  * SchedulerStates.java : A enumeration of states that the scheduler can be in
-4. simulator (package) 
-  * Simulation.java : responsible for program initialization & running the simulation from the console
+* Elevator.java : a class to represent the elevator hardware 
+* ElevatorSubsystem.java : a class to manage elevators
+  
+# floor (module)
+* FloorSubsystem.java : a class to manage floor operations
+* Floor.java : used in FloorSubsystem to set up a floor in a building.
+  
+# scheduler-module (module)
+* Scheduler.java : responsible for communication between FloorSubsystem and ElevatorSubsystem.
+* FloorHelper.java : A helper class for communication with the floors
+* ElevatorHelper.java : A helper class for communication with the elevators
+
+# simulation-module (module) 
+
+![Simulation diagram](./diagrams/simulation_module_class_diagram.png)
+* Simulation.java : responsible for program initialization & running the simulation from the console
+* SimulationRunner.java : A class that used to kickoff the Simulation class.
+* InputFileReader.java : used within FloorSubsystem to help read a text file.
+* SimulationEntry.java : used within FloorSubsystem to help read a text file.
 
 ## Set Up Instructions (Using Eclipse)
 Below are the set up instructions. For more information, see "L2G2_Test_Instructions.pdf".
@@ -72,7 +88,13 @@ Below are the set up instructions. For more information, see "L2G2_Test_Instruct
 7. Select Update Project...
 8. Select the project and click "Ok"
 9. Let eclipse download the appropriate dependencies (Such as JUnit)
-10. In the "simulator" package you will find "Simulation.java" to run and see the simulation in the console!
+10. In the "scheduler-module" package run the Scheduler.java
+11. In the "floor-module" package run the FloorSubsystem.java
+12. In the "simulator" package run "Simulation.java" to send data the to the elevator system!
+ * If you'd like to run in realtime mode, add the argument --realtime
+ * If you'd like to run a new file for sending requests, use the argument --file [filename]
+13. In the "elevator-module" package run the ElevatorSubsystem.java (It is imperative that this is last)
+14. See progress in the console. It is suggested to stop the elevator early to make it easier to read it's logs (It is always active)
 
 ### Another way to run:
 1. Extract the zip file
@@ -85,13 +107,15 @@ Below are the set up instructions. For more information, see "L2G2_Test_Instruct
 8. Select the project and click "Ok"
 9. Let eclipse download the appropriate dependencies (Such as JUnit)
 10. In the "scheduler-module" package run the Scheduler.java
-11. In the "elevator-module" package run the ElevatorSubsystem.java
-12. In the "floor-module" package run the FloorSubsystem.java
-13. In the "simulator" package run "Simulation.java" to send data the to the elevator system!
-14. See progress in the console.
+11. In the "floor-module" package run the FloorSubsystem.java
+12. In the "simulator" package run "Simulation.java" to send data the to the elevator system!
+ * If you'd like to run in realtime mode, add the argument --realtime
+ * If you'd like to run a new file for sending requests, use the argument --file [filename]
+13. In the "elevator-module" package run the ElevatorSubsystem.java (It is imperative that this is last)
+14. See progress in the console. It is suggested to stop the elevator early to make it easier to read it's logs (It is always active)
 
 ### Running tests (Using JUnit)
-1. Right click the "tests" folder in the project explorer
+1. Right click the "tests" folder in the project explorer from any module
 2. Select "run as JUnit tests"
 
 
@@ -100,6 +124,7 @@ Below are the set up instructions. For more information, see "L2G2_Test_Instruct
 2. Go to "Run as"
 3. Select "Maven build..."
 4. Input the goals as "compile test"
+5. All tests in all modules will be run to completion.
 
 
 ## Breakdown Of Responsibilities
