@@ -61,6 +61,7 @@ All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in th
 * ElevatorSubsystem.java : a class to manage elevators
   
 # floor (module)
+![FloorSubsystem class diagram](./diagrams/floorsubsystem__module_class_diagram.png)
 * FloorSubsystem.java : a class to manage floor operations
 * Floor.java : used in FloorSubsystem to set up a floor in a building.
   
