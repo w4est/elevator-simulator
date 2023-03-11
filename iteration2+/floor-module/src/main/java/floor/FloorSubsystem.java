@@ -84,7 +84,7 @@ public class FloorSubsystem implements Runnable {
 	/*
 	 * Method used for testing only since floorsubsystem should be running "forever"
 	 */
-	public void closeSocket() {
+	private void closeSocket() {
 		receiveSocket.close();
 		sendSocket.close();
 	}
