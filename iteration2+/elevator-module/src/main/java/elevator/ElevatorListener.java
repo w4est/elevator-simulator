@@ -4,10 +4,13 @@ import java.io.IOException;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import common.ElevatorInfoRequest;
+import common.PacketUtils;
 
-public class ElevatorListener {
+public class ElevatorListener implements Runnable{
 	
 	private ElevatorSubsystem elevatorSubsys;
 	private DatagramSocket socket;
@@ -19,6 +22,22 @@ public class ElevatorListener {
 
 	public void elevatorCommunication() {
 		while (true) {
+			byte[] send = new ElevatorInfoRequest(elevatorSubsys.getElevator().getCarNumber(), elevatorSubsys.getElevator().getCurrentFloor(), 
+					elevatorSubsys.getElevator().getCurrentDirection(), elevatorSubsys.getElevator().getCurrentElevatorState()).toByteArray();
+			
+			DatagramPacket sendPacket;
+
+			
+			try {
+				sendPacket = new DatagramPacket(send, send.length, InetAddress.getLocalHost(),
+						PacketUtils.SCHEDULER_ELEVATOR_PORT);
+				socket.send(sendPacket); // Send packet to client
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+			System.out.println("Elevator Listener: packet sent to client");
+			
 			byte receive[] = new byte[150];
 			DatagramPacket receivePacket = new DatagramPacket(receive, receive.length);
 			System.out.println("Elevator Listener: Waiting for Packet from Client.\n");
@@ -38,22 +57,12 @@ public class ElevatorListener {
 
 			String received = new String(receive, 0, len);
 			System.out.println(received);
-
-			byte[] send = new ElevatorInfoRequest((short)elevatorSubsys.getElevator().getCurrentFloor(), 
-					elevatorSubsys.getElevator().getCurrentDirection(), elevatorSubsys.getElevator().getCurrentElevatorState()).toByteArray();
-			
-			DatagramPacket sendPacket = new DatagramPacket(send, send.length, receivePacket.getAddress(),
-					receivePacket.getPort());
-
-//			len = sendPacket.getLength();
-			
-			try {
-				socket.send(sendPacket); // Send packet to client
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-			System.out.println("Elevator Listener: packet sent to client");
 		}
+	}
+
+	@Override
+	public void run() {
+		this.elevatorCommunication();
+		
 	}
 }

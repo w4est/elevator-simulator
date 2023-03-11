@@ -90,7 +90,7 @@ public class Scheduler {
 		Thread fhThread = new Thread(fh);
 		Thread ehThread = new Thread(eh);
 		
-		fhThread.run();
-		ehThread.run();
+		fhThread.start();
+		ehThread.start();
 	}
 }
