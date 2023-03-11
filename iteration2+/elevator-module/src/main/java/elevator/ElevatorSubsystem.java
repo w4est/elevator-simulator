@@ -92,7 +92,7 @@ public class ElevatorSubsystem {
 
 	private void setupSocket() {
 		try {
-			socket = new DatagramSocket(PacketUtils.ELEVATOR_PORT);
+			socket = new DatagramSocket();
 		} catch (SocketException se) {
 			se.printStackTrace();
 			System.exit(1);
@@ -108,7 +108,7 @@ public class ElevatorSubsystem {
 		byte[] receiveData = new byte[PacketUtils.BUFFER_SIZE];
 
 		try {
-			sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), 5001); // Initialize packet
+			sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), 5004); // Initialize packet
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -213,7 +213,7 @@ public class ElevatorSubsystem {
 		byte[] data = new ElevatorInfoRequest(elevator.getCarNumber(), elevator.getCurrentFloor(), elevator.getCurrentDirection(), elevator.getCurrentElevatorState()).toByteArray();
 		byte[] receive = this.sendElevatorRequestPacket(data);
 
-		if (receive[0] == 0 && receive[1] == 2) {
+		if (receive[0] == 0 && receive[1] == 3) {
 			addRequestFromBytes(receive);
 		} else {
 			System.out.println("No new request received");
@@ -252,6 +252,7 @@ public class ElevatorSubsystem {
 					+ ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
 
 			// 2: set the elevator's current direction (MOVING_UP/DOWN)
+			this.updateFloorQueue();
 			changeDirection();
 
 			// 3: Move elevator until it has moved the request
@@ -290,8 +291,6 @@ public class ElevatorSubsystem {
 
 				// move elevator up or down 1 floor based on current elevator state
 				moveElevator();
-
-				this.updateFloorQueue();
 			}
 
 			// check operateComplete condition (have all requests been picked up &
@@ -416,11 +415,11 @@ public class ElevatorSubsystem {
 		return 0;
 	}
 
-	public static void main() {
+	public static void main(String[] args) {
 		ElevatorSubsystem e = new ElevatorSubsystem(1);
-		ElevatorListener listen = new ElevatorListener(e);
-		Thread listenThread = new Thread(listen, "Elevator listener thread");
-		listenThread.start();
+		//ElevatorListener listen = new ElevatorListener(e);
+		//Thread listenThread = new Thread(listen, "Elevator listener thread");
+		//listenThread.start();
 
 		while (true) {
 			e.operate();
