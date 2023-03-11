@@ -46,7 +46,7 @@ All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in th
 
 # common-classes (module)
 
-![Common classes diagram](./diagrams/common_classes_class_diagram.png)
+![Common class diagram](./diagrams/common_classes_class_diagram.png)
 * Direction : A shared enum to indicate direction of the elevator
 * ElevatorInfoRequest : A class representing an elevator state, sent by the Elevator
 * ElevatorState : A shared enum to indicate the state of an elevator
@@ -63,13 +63,15 @@ All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in th
 * Floor.java : used in FloorSubsystem to set up a floor in a building.
   
 # scheduler-module (module)
+
+![Scheduler class diagram](./diagrams/scheduler_module_class_diagram.png)
 * Scheduler.java : responsible for communication between FloorSubsystem and ElevatorSubsystem.
 * FloorHelper.java : A helper class for communication with the floors
 * ElevatorHelper.java : A helper class for communication with the elevators
 
 # simulation-module (module) 
 
-![Simulation diagram](./diagrams/simulation_module_class_diagram.png)
+![Simulation class diagram](./diagrams/simulation_module_class_diagram.png)
 * Simulation.java : responsible for program initialization & running the simulation from the console
 * SimulationRunner.java : A class that used to kickoff the Simulation class.
 * InputFileReader.java : used within FloorSubsystem to help read a text file.
