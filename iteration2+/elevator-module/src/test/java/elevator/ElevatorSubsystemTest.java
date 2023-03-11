@@ -83,6 +83,7 @@ public class ElevatorSubsystemTest {
 	// }
 
 	@Test
+	@SuppressWarnings("rawtypes")
 	void receiveRequest() {
 		DatagramSocket s = Mockito.mock(DatagramSocket.class);
 		ElevatorSubsystem elevSub = new ElevatorSubsystem(1, s);
@@ -114,6 +115,7 @@ public class ElevatorSubsystemTest {
 	}
 	
 	@Test
+	@SuppressWarnings("rawtypes")
 	void receiveConfimation() {
 		DatagramSocket s = Mockito.mock(DatagramSocket.class);
 		ElevatorSubsystem elevSub = new ElevatorSubsystem(1, s);
@@ -152,13 +154,9 @@ public class ElevatorSubsystemTest {
 		Request r1 = new Request(LocalTime.now(), 2, Direction.UP, 5);
 		Request r2 = new Request(LocalTime.now(), 2, Direction.UP, 3);
 		Request r3 = new Request(LocalTime.now(), 3, Direction.UP, 4);
-		Request r4 = new Request(LocalTime.now(), 4, Direction.DOWN, 1);
-		Request r5 = new Request(LocalTime.now(), 5, Direction.UP, 7);
 		elevSus.getFloorQueues().add(r1);
 		elevSus.getFloorQueues().add(r2);
 		elevSus.getFloorQueues().add(r3);
-		elevSus.getFloorQueues().add(r4);
-		elevSus.getFloorQueues().add(r5);
 
 		assertEquals(elevSus.getFloorQueues().size(), 5);
 		
