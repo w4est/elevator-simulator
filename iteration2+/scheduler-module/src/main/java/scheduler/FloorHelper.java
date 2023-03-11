@@ -2,7 +2,9 @@ package scheduler;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.Arrays;
 
+import common.PacketHeaders;
 import common.PacketUtils;
 import common.Request;
 
@@ -59,13 +61,22 @@ public class FloorHelper implements Runnable {
 
 		System.out.println("Scheduler received request packet from Floor.");
 
-		Request newRequest = Request.fromByteArray(receiveData);
+		byte[] packetHeader = Arrays.copyOf(receivePacket.getData(), 2);
+		if (Arrays.equals(PacketHeaders.Request.getHeaderBytes(), packetHeader)) {
+			Request newRequest = Request.fromByteArray(receivePacket.getData());
 
-		scheduler.organizeRequest(newRequest.getLocalTime(), newRequest);
+			scheduler.organizeRequest(newRequest.getLocalTime(), newRequest);
 
-		System.out.println("Scheduler added request to the queue.");
+			System.out.println("Scheduler added request to the queue.");
+		}
 	}
 
+	/**
+	 * This sends a packet to the floor with any update information received from
+	 * the elevator, for the purpose of controlling lamps and displays.
+	 * 
+	 * @param sendData byte[], the relevant data to be passed along.
+	 */
 	public void sendPacket(byte[] sendData) {
 		try {
 			sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getLocalHost(), 5001);
@@ -89,5 +100,26 @@ public class FloorHelper implements Runnable {
 		while (true) {
 			receivePacket();
 		}
+	}
+
+	/**
+	 * setter method for the sendSocket; used for testing.
+	 * 
+	 * @param sendSocket DatagramSocket, the socket to use to replace the sender.
+	 */
+	public void setSendSocket(DatagramSocket sendSocket) {
+		this.sendSocket.close();
+		this.sendSocket = sendSocket;
+	}
+
+	/**
+	 * setter method for the receiveSocket; used for testing.
+	 * 
+	 * @param receiveSocket DatagramSocket, the socket to use to replace the
+	 *                      receiver.
+	 */
+	public void setReceiveSocket(DatagramSocket receiveSocket) {
+		this.receiveSocket.close();
+		this.receiveSocket = receiveSocket;
 	}
 }

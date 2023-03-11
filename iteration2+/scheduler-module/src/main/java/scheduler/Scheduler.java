@@ -102,4 +102,11 @@ public class Scheduler {
 		fhThread.start();
 		ehThread.start();
 	}
+	
+	/**
+	 * requests list getter method used for testing.
+	 */
+	public TreeMap<LocalTime, Request> getRequests() {
+		return requests;
+	}
 }

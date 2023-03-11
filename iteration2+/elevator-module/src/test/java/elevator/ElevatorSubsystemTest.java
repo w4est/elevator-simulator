@@ -33,7 +33,8 @@ public class ElevatorSubsystemTest {
 	 * receive a new request from the Scheduler and add it to floorQueues
 	 * @author Farhan Mahamud
 	 */
-	/*@Test
+	/*
+	@Test
 	@SuppressWarnings("rawtypes")
 	void receiveRequest() {
 		DatagramSocket s = Mockito.mock(DatagramSocket.class);
@@ -56,14 +57,13 @@ public class ElevatorSubsystemTest {
 				}
 			}).when(s).receive(Mockito.any(DatagramPacket.class));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		// Thread elevatorThread = new Thread(elevSub);
 
 		elevSub.updateFloorQueue();
 		assertEquals(elevSub.getFloorQueues().size(), 1);
-	}*/
+	}
 	
 	/**
 	 * Tests if the ElevatorSubsystem can properly send an update message to 
@@ -99,7 +99,6 @@ public class ElevatorSubsystemTest {
 				}
 			}).when(s).receive(Mockito.any(DatagramPacket.class));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
