@@ -26,7 +26,7 @@ import common.Request;
  * @author Farhan Mahamud
  *
  */
-public class ElevatorSubsystem {
+public class ElevatorSubsystem implements Runnable {
 
 	private Elevator elevator; // The elevator associated with the subsystem
 	private DatagramPacket sendPacket, receivePacket;
@@ -239,22 +239,22 @@ public class ElevatorSubsystem {
 	private void operate() {
 		// 1: check with scheduler to wait for request.
 		// Scheduler sends request stored in floorQueues using updateFloorQueue method
-
+		this.updateFloorQueue();
+		
 		if (!floorQueues.isEmpty()) {
 			this.operateComplete = false;
 		}
 
 		if (!operateComplete) {
 			System.out.println("	ElevatorSubsystem: Start Operate Cycle");
-			System.out.println("	1. Elevator Current Floor & State: " + "Floor " + this.elevator.getCurrentFloor()
+			System.out.println("	1. Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor " + this.elevator.getCurrentFloor()
 					+ ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
 
 			this.elevator.nextElevatorState(); // STOP_OPENED -> STOP_CLOSED
-			System.out.println("	2. Elevator Current Floor & State: " + "Floor " + this.elevator.getCurrentFloor()
+			System.out.println("	2. Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor " + this.elevator.getCurrentFloor()
 					+ ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
 
 			// 2: set the elevator's current direction (MOVING_UP/DOWN)
-			this.updateFloorQueue();
 			changeDirection();
 
 			// 3: Move elevator until it has moved the request
@@ -281,13 +281,14 @@ public class ElevatorSubsystem {
 							+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
 
 					this.elevator.nextElevatorState(); // STOP_CLOSED -> STOP_OPENED
+					this.elevator.setCurrentDirection(Direction.IDLE);
 					System.out.println("	6: Elevator Current Floor & State: " + "Floor "
 							+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
 
 					// elevator reached destination, clear floor and break while loop
 					int peopleRemoved = this.elevator.clearFloor();
 					System.out.println(
-							"	7. Elevator reached destination and dropped off " + peopleRemoved + " request(s)!");
+							"	7. Elevator reached destination and dropped off request(s)!");
 					break;
 				}
 
@@ -419,12 +420,22 @@ public class ElevatorSubsystem {
 
 	public static void main(String[] args) {
 		ElevatorSubsystem e = new ElevatorSubsystem(1);
+		ElevatorSubsystem e2 = new ElevatorSubsystem(2);
+		
+		Thread eThread1 = new Thread(e);
+		Thread eThread2 = new Thread(e2);
 		//ElevatorListener listen = new ElevatorListener(e);
 		//Thread listenThread = new Thread(listen, "Elevator listener thread");
 		//listenThread.start();
 
+		eThread1.start();
+		eThread2.start();
+	}
+
+	@Override
+	public void run() {
 		while (true) {
-			e.operate();
+			operate();
 		}
 	}
 }
