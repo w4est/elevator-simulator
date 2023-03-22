@@ -87,17 +87,26 @@ public class Scheduler {
 			returnRequests = new ArrayList<Request>();
 			// if there are multiple requests that fit the elevator path well (same
 			// direction as the prioritized request and same floor or after), then all of
-			// them are organized and sent at once.
+			// them are organized and sent at once. We limit the number of requests sent at
+			// once to 3 so that one elevator does not get overloaded and multiple can
+			// distribute evenly.
 			for (LocalTime t : requests.keySet()) {
-				if (requests.get(priorityRequest).getFloorButton().equals(Direction.UP)) {
-					if ((requests.get(t).getFloorButton().equals(requests.get(priorityRequest).getFloorButton()))
-							&& (requests.get(t).getFloorNumber() >= requests.get(priorityRequest).getFloorNumber())) {
-						returnRequests.add(requests.get(t));
-					}
-				} else if (requests.get(priorityRequest).getFloorButton().equals(Direction.DOWN)) {
-					if ((requests.get(t).getFloorButton().equals(requests.get(priorityRequest).getFloorButton()))
-							&& (requests.get(t).getFloorNumber() <= requests.get(priorityRequest).getFloorNumber())) {
-						returnRequests.add(requests.get(t));
+				int i = 0;
+				if (i < 3) {
+					if (requests.get(priorityRequest).getFloorButton().equals(Direction.UP)) {
+						if ((requests.get(t).getFloorButton().equals(requests.get(priorityRequest).getFloorButton()))
+								&& (requests.get(t).getFloorNumber() >= requests.get(priorityRequest)
+										.getFloorNumber())) {
+							returnRequests.add(requests.get(t));
+							i++;
+						}
+					} else if (requests.get(priorityRequest).getFloorButton().equals(Direction.DOWN)) {
+						if ((requests.get(t).getFloorButton().equals(requests.get(priorityRequest).getFloorButton()))
+								&& (requests.get(t).getFloorNumber() <= requests.get(priorityRequest)
+										.getFloorNumber())) {
+							returnRequests.add(requests.get(t));
+							i++;
+						}
 					}
 				}
 			}
