@@ -27,8 +27,8 @@ import common.Request;
 public class ElevatorSubsystem implements Runnable {
 
 	private Elevator elevator; // The elevator associated with the subsystem
-	private DatagramPacket sendPacket, receivePacket; // Packets for sending and receiveing
-	protected DatagramSocket socket; // Socket used for sending and receiving UDP packets
+//	private DatagramPacket sendPacket, receivePacket; // Packets for sending and receiveing
+//	protected DatagramSocket socket; // Socket used for sending and receiving UDP packets
 	public final static int DEFAULT_MAX_FLOOR = 7; // The default max floor
 	public final static int DEFAULT_MIN_FLOOR = 1; // The default min floor
 	private final int MAX_FLOOR; // The variable max floor set by the constructor
@@ -50,7 +50,7 @@ public class ElevatorSubsystem implements Runnable {
 		floorQueues = new ArrayList<>();
 		this.operateComplete = false;
 		this.elevator.setCurrentFloor(MIN_FLOOR);
-		this.setupSocket();
+//		this.setupSocket();
 	}
 
 	/**
@@ -61,8 +61,8 @@ public class ElevatorSubsystem implements Runnable {
 	 */
 	public ElevatorSubsystem(int carNumber, DatagramSocket s) {
 		this(carNumber);
-		this.closeSocket();
-		this.socket = s;
+//		this.closeSocket();
+//		this.socket = s;
 	}
 
 	/**
@@ -88,7 +88,7 @@ public class ElevatorSubsystem implements Runnable {
 		floorQueues = new ArrayList<>();
 		this.operateComplete = false;
 		this.elevator.setCurrentFloor(MIN_FLOOR);
-		this.setupSocket();
+//		this.setupSocket();
 
 	}
 
@@ -96,21 +96,21 @@ public class ElevatorSubsystem implements Runnable {
 	 * Sets up the socket
 	 * @author Farhan Mahamud
 	 */
-	private void setupSocket() {
-		try {
-			socket = new DatagramSocket();
-		} catch (SocketException se) {
-			se.printStackTrace();
-			System.exit(1);
-		}
-	}
+//	private void setupSocket() {
+//		try {
+//			socket = new DatagramSocket();
+//		} catch (SocketException se) {
+//			se.printStackTrace();
+//			System.exit(1);
+//		}
+//	}
 
 	/**
 	 * Private method used for closing the socket
 	 */
-	private void closeSocket() {
-		socket.close();
-	}
+//	private void closeSocket() {
+//		socket.close();
+//	}
 
 	/**
 	 * Public function to send and receive a UDP packet to and from the socket
@@ -118,44 +118,44 @@ public class ElevatorSubsystem implements Runnable {
 	 * @return byte[]
 	 * @author Farhan Mahamud
 	 */
-	public byte[] sendElevatorRequestPacket(byte[] data) {
-
-		byte[] receiveData = new byte[PacketUtils.BUFFER_SIZE];
-
-		try {
-			sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), 5004); // Initialize packet
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-
-		System.out.println("Elevator: Sending packet");
-		printInfo(data);
-
-		try {
-			this.socket.send(sendPacket); // Sends packet to host
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-
-		receivePacket = new DatagramPacket(receiveData, receiveData.length); // Initialize receive packet
-
-		try {
-			// Block until a datagram is received via sendReceiveSocket.
-			System.out.println("Elevator: Waiting to receive message from Scheduler");
-			socket.receive(receivePacket); // Waiting to receive packet from host
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-
-		// Process the received datagram.
-		System.out.println("Elevator: Received data");
-		printInfo(receivePacket.getData());
-
-		return receivePacket.getData();
-	}
+//	public byte[] sendElevatorRequestPacket(byte[] data) {
+//
+//		byte[] receiveData = new byte[PacketUtils.BUFFER_SIZE];
+//
+//		try {
+//			sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), 5004); // Initialize packet
+//		} catch (UnknownHostException e) {
+//			e.printStackTrace();
+//			System.exit(1);
+//		}
+//
+//		System.out.println("Elevator: Sending packet");
+//		printInfo(data);
+//
+//		try {
+//			this.socket.send(sendPacket); // Sends packet to host
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			System.exit(1);
+//		}
+//
+//		receivePacket = new DatagramPacket(receiveData, receiveData.length); // Initialize receive packet
+//
+//		try {
+//			// Block until a datagram is received via sendReceiveSocket.
+//			System.out.println("Elevator: Waiting to receive message from Scheduler");
+//			socket.receive(receivePacket); // Waiting to receive packet from host
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			System.exit(1);
+//		}
+//
+//		// Process the received datagram.
+//		System.out.println("Elevator: Received data");
+//		printInfo(receivePacket.getData());
+//
+//		return receivePacket.getData();
+//	}
 
 	/**
 	 * Prints a given array 'message' for a certain amount of length as bytes
@@ -164,28 +164,28 @@ public class ElevatorSubsystem implements Runnable {
 	 * @param length
 	 * @author Farhan Mahamud
 	 */
-	public static void printByteArray(byte[] message, int length) {
-		System.out.print("Message as bytes: ");
-		for (int i = 0; i < length; i++) {
-			System.out.print(message[i] + " ");
-		}
-		System.out.println("");
-	}
+//	public static void printByteArray(byte[] message, int length) {
+//		System.out.print("Message as bytes: ");
+//		for (int i = 0; i < length; i++) {
+//			System.out.print(message[i] + " ");
+//		}
+//		System.out.println("");
+//	}
 
 	/**
 	 * Prints a given byte array
 	 * @param data
 	 * @author Farhan Mahamud
 	 */
-	private void printInfo(byte[] data) {
-		System.out.println(new String(data, 0, data.length)); // or could print "s"
-
-		System.out.print("Message as bytes: ");
-		for (int i = 0; i < data.length; i++) {
-			System.out.print(data[i] + " ");
-		}
-		System.out.println("");
-	}
+//	private void printInfo(byte[] data) {
+//		System.out.println(new String(data, 0, data.length)); // or could print "s"
+//
+//		System.out.print("Message as bytes: ");
+//		for (int i = 0; i < data.length; i++) {
+//			System.out.print(data[i] + " ");
+//		}
+//		System.out.println("");
+//	}
 
 	/**
 	 * Gets the elevator associated with the subsystem
@@ -229,25 +229,25 @@ public class ElevatorSubsystem implements Runnable {
 	 * 
 	 * @param r Request, the highest priority request from the Scheduler
 	 */
-	public synchronized void updateFloorQueue() {
-		
-		byte[] data = new ElevatorInfoRequest(elevator.getCarNumber(), elevator.getCurrentFloor(), elevator.getCurrentDirection(), elevator.getCurrentElevatorState()).toByteArray();
-		byte[] receive = this.sendElevatorRequestPacket(data);
+//	public synchronized void updateFloorQueue() {
+//		
+//		byte[] data = new ElevatorInfoRequest(elevator.getCarNumber(), elevator.getCurrentFloor(), elevator.getCurrentDirection(), elevator.getCurrentElevatorState()).toByteArray();
+//		byte[] receive = this.sendElevatorRequestPacket(data);
+//
+//		if (receive[0] == 0 && receive[1] == 3) {
+//			addRequestFromBytes(receive);
+//		} else {
+//			System.out.println("No new request received");
+//		}
+//
+//	}
 
-		if (receive[0] == 0 && receive[1] == 3) {
-			addRequestFromBytes(receive);
-		} else {
-			System.out.println("No new request received");
-		}
-
-	}
-
-	private void addRequestFromBytes(byte[] requestData) {
-		Request r = Request.fromByteArray(requestData);
-		floorQueues.add(r);
-		
-		elevator.getElevatorQueue().add(r);
-	}
+//	private void addRequestFromBytes(byte[] requestData) {
+//		Request r = Request.fromByteArray(requestData);
+//		floorQueues.add(r);
+//		
+//		elevator.getElevatorQueue().add(r);
+//	}
 
 	/**
 	 * Private method repeatedly called in run until the scheduler is done. Used to
@@ -260,7 +260,7 @@ public class ElevatorSubsystem implements Runnable {
 	private void operate() {
 		// 1: check with scheduler to wait for request.
 		// Scheduler sends request stored in floorQueues using updateFloorQueue method
-		this.updateFloorQueue();
+//		this.updateFloorQueue();
 		
 		if (!floorQueues.isEmpty()) {
 			this.operateComplete = false;
@@ -438,12 +438,14 @@ public class ElevatorSubsystem implements Runnable {
 	public static void main(String[] args) {
 		ElevatorSubsystem e = new ElevatorSubsystem(1);
 		ElevatorSubsystem e2 = new ElevatorSubsystem(2);
+		ElevatorListener listen = new ElevatorListener(e);
 		
 		Thread eThread1 = new Thread(e);
 		Thread eThread2 = new Thread(e2);
+		Thread listenThread = new Thread(listen);
 
-		eThread1.start();
-		eThread2.start();
+		//eThread1.start();
+		listenThread.start();
 	}
 
 	@Override
