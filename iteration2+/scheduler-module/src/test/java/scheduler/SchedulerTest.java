@@ -3,6 +3,7 @@ package scheduler;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,19 +22,29 @@ public class SchedulerTest {
 		Request request3 = new Request(LocalTime.parse("01:20:00"), 4, Direction.DOWN, 1);
 		Request request4 = new Request(LocalTime.parse("01:30:00"), 5, Direction.UP, 7);
 		
+		ArrayList<Request> requestList1 = new ArrayList<Request>();
+		ArrayList<Request> requestList2 = new ArrayList<Request>();
+		ArrayList<Request> requestList3 = new ArrayList<Request>();
+		ArrayList<Request> requestList4 = new ArrayList<Request>();
+		
+		requestList1.add(request1);
+		requestList2.add(request2);
+		requestList3.add(request3);
+		requestList4.add(request4);
+		
 		scheduler.organizeRequest(request3.getLocalTime(), request3);
 		scheduler.organizeRequest(request1.getLocalTime(), request1);
 		scheduler.organizeRequest(request4.getLocalTime(), request4);
 		scheduler.organizeRequest(request2.getLocalTime(), request2);
 		
-		assertEquals(request1, scheduler.sendPriorityRequest(Direction.IDLE, 1));
-		assertEquals(null, scheduler.sendPriorityRequest(Direction.DOWN, 2));
-		assertEquals(request2, scheduler.sendPriorityRequest(Direction.IDLE, 1));
-		assertEquals(request4, scheduler.sendPriorityRequest(Direction.UP, 2));
-		assertEquals(null, scheduler.sendPriorityRequest(Direction.UP, 3));
-		assertEquals(null, scheduler.sendPriorityRequest(Direction.UP, 4));
-		assertEquals(null, scheduler.sendPriorityRequest(Direction.UP, 5));
-		assertEquals(null, scheduler.sendPriorityRequest(Direction.UP, 6));
-		assertEquals(request3, scheduler.sendPriorityRequest(Direction.IDLE, 7));
+		assertEquals(requestList1, scheduler.sendRequests(Direction.IDLE, 1));
+		assertEquals(null, scheduler.sendRequests(Direction.DOWN, 2));
+		assertEquals(requestList2, scheduler.sendRequests(Direction.IDLE, 1));
+		assertEquals(requestList4, scheduler.sendRequests(Direction.UP, 2));
+		assertEquals(null, scheduler.sendRequests(Direction.UP, 3));
+		assertEquals(null, scheduler.sendRequests(Direction.UP, 4));
+		assertEquals(null, scheduler.sendRequests(Direction.UP, 5));
+		assertEquals(null, scheduler.sendRequests(Direction.UP, 6));
+		assertEquals(requestList3, scheduler.sendRequests(Direction.IDLE, 7));
 	}
 }
