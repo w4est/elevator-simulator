@@ -2,6 +2,8 @@ package common;
 
 import java.nio.ByteBuffer;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Jacob Hovey
@@ -113,15 +115,16 @@ public class Request {
 	public void setReachedStartFloor(boolean arrived) {
 		this.reachedStartFloor = arrived;
 	}
-	
+
 	public void setRequest(boolean sentRequest) {
 		this.requestSent = sentRequest;
 	}
-	
+
 	/**
-	 * Used to get the request status (false if not sent to scheduler, true if sent).
+	 * Used to get the request status (false if not sent to scheduler, true if
+	 * sent).
 	 * 
-	 * @return	boolean, the sent status of the request.
+	 * @return boolean, the sent status of the request.
 	 */
 	public boolean getRequestStatus() {
 		return this.requestSent;
@@ -148,10 +151,11 @@ public class Request {
 
 	/**
 	 * Converts request to byte array
+	 * 
 	 * @return
 	 */
 	public byte[] toByteArray() {
-		byte[] message = new byte[36];
+		byte[] message = new byte[32];
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
 		byteBuffer.put(PacketHeaders.Request.getHeaderBytes());
 		byteBuffer.putInt(floorNumber);
@@ -165,27 +169,33 @@ public class Request {
 
 	/**
 	 * Converts byte array to a request
+	 * 
 	 * @param message
 	 * @return
 	 */
-	public static Request fromByteArray(byte[] message) {
+	public static List<Request> fromByteArray(byte[] message) {
+		List<Request> requests = new ArrayList<>();
+
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
-		byte[] header = new byte[2];
-		byteBuffer.get(header, 0, 2);
+		while (byteBuffer.position() < message.length) {
+			byte[] header = new byte[2];
+			byteBuffer.get(header, 0, 2);
 
-		byte[] expectedHeader = PacketHeaders.Request.getHeaderBytes();
-		if (header[0] != expectedHeader[0] && header[1] != expectedHeader[1]) {
-			throw new IllegalArgumentException("Header is invalid, expected { 0, 2 }");
+			byte[] expectedHeader = PacketHeaders.Request.getHeaderBytes();
+			if (header[0] != expectedHeader[0] && header[1] != expectedHeader[1]) {
+				throw new IllegalArgumentException("Header is invalid, expected { 0, 2 }");
+			}
+
+			int floorNumber = byteBuffer.getInt();
+			Direction direction = Direction.fromInt(byteBuffer.getInt());
+			int carButton = byteBuffer.getInt();
+			byte[] localTimeBytes = new byte[16];
+			byteBuffer.get(localTimeBytes, 0, 16);
+			LocalTime localTime = PacketUtils.byteArrayToLocalTime(localTimeBytes);
+			boolean reachedStartFloor = byteBuffer.get() == (byte) 1 ? true : false;
+			boolean requestComplete = byteBuffer.get() == (byte) 1 ? true : false;
+			requests.add(new Request(localTime, floorNumber, direction, carButton, reachedStartFloor, requestComplete));
 		}
-
-		int floorNumber = byteBuffer.getInt();
-		Direction direction = Direction.fromInt(byteBuffer.getInt());
-		int carButton = byteBuffer.getInt();
-		byte[] localTimeBytes = new byte[16];
-		byteBuffer.get(localTimeBytes, 0, 16);
-		LocalTime localTime = PacketUtils.byteArrayToLocalTime(localTimeBytes);
-		boolean reachedStartFloor = byteBuffer.get() == (byte) 1 ? true : false;
-		boolean requestComplete = byteBuffer.get() == (byte) 1 ? true : false;
-		return new Request(localTime, floorNumber, direction, carButton, reachedStartFloor, requestComplete);
+		return requests;
 	}
 }
