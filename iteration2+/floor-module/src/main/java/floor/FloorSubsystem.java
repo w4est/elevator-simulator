@@ -10,6 +10,7 @@ import java.util.*;
 
 import common.Direction;
 import common.ElevatorInfoRequest;
+import common.PacketUtils;
 import common.Request;
 
 /**
@@ -46,7 +47,7 @@ public class FloorSubsystem implements Runnable {
 		}
 		this.firstThreadActive = false;
 		try {
-			receiveSocket = new DatagramSocket(5001);
+			receiveSocket = new DatagramSocket(PacketUtils.FLOOR_PORT); // Floor port 5001
 			sendSocket = new DatagramSocket();
 		} catch (SocketException se) {
 		      se.printStackTrace();
@@ -166,6 +167,26 @@ public class FloorSubsystem implements Runnable {
 	}
 	
 	/**
+	 * floor timer fault should be regarded as a hard fault and 
+	 * should shut down the corresponding elevator
+	 */
+	private void shutDownElevator() {
+		//elevator status output should show these faults
+		
+		//inject faults using the the input file
+		
+		//make packet to send 
+		// to scheduler that will shut down the right elevator
+		
+		//ex of dataflow for floor timer fault:
+		//SimulationRunner -> F -> S-> E -> S -> F (fault!) -> S -> E (shutdown)
+		
+		
+		
+		
+	}
+	
+	/**
 	 * Method used to reduce code duplication for printing packet info to the console.
 	 * @param consoleMessage String, message to be sent
 	 * @param toOrFrom String, used to print "To" or "From".
@@ -196,8 +217,8 @@ public class FloorSubsystem implements Runnable {
 	 * Case 2: Receiving message from Scheduler to update FloorSubsystem
 	 */
 	public void receiveInfo() {
-		byte data[] = new byte[128]; // received client data
-		receivePacket = new DatagramPacket(data, data.length); // for receiving client packet 
+		byte data[] = new byte[PacketUtils.BUFFER_SIZE]; // space for received data (128)
+		receivePacket = new DatagramPacket(data, data.length); // for receiving packet 
 		try {        
 			System.out.println("Waiting for packet...");
 			receiveSocket.receive(receivePacket); // Blocked until packet is received
@@ -230,7 +251,7 @@ public class FloorSubsystem implements Runnable {
 			}
 		}
 		
-		//**Case 2: if the packet is from the scheduler, update the FloorSubsystem lamp
+		//**Case 2: if the packet is from the scheduler (first 2 bytes "01"), update the FloorSubsystem lamp
 		else if(receivePacket.getData()[0] == (byte)0 && receivePacket.getData()[1] == (byte)1) {
 			printPacketInfo("FloorSubsystem: Received Packet:", "From Simulation", receivePacket, receivePacket.getData());
 			ElevatorInfoRequest elevatorStatus = ElevatorInfoRequest.fromByteArray(receivePacket.getData());
@@ -257,7 +278,7 @@ public class FloorSubsystem implements Runnable {
 	 */
 	public void sendInfoToScheduler(byte[] requestByte) {
 		try {
-			sendPacket = new DatagramPacket(requestByte, requestByte.length,InetAddress.getLocalHost(), 5003); // Step 1
+			sendPacket = new DatagramPacket(requestByte, requestByte.length,InetAddress.getLocalHost(), PacketUtils.SCHEDULER_FLOOR_PORT); // scheduler port 5003
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.exit(1);
