@@ -3,6 +3,7 @@ package scheduler;
 import java.io.IOException;
 import java.net.*;
 import java.util.Arrays;
+import java.util.List;
 
 import common.PacketHeaders;
 import common.PacketUtils;
@@ -63,11 +64,13 @@ public class FloorHelper implements Runnable {
 
 		byte[] packetHeader = Arrays.copyOf(receivePacket.getData(), 2);
 		if (Arrays.equals(PacketHeaders.Request.getHeaderBytes(), packetHeader)) {
-			Request newRequest = Request.fromByteArray(receivePacket.getData());
+			List<Request> newRequests = Request.fromByteArray(receivePacket.getData());
 
-			scheduler.organizeRequest(newRequest.getLocalTime(), newRequest);
+			for (Request newRequest : newRequests) {
+				scheduler.organizeRequest(newRequest.getLocalTime(), newRequest);
 
-			System.out.println("Scheduler added request to the queue.");
+				System.out.println("Scheduler added request to the queue.");
+			}
 		}
 	}
 
