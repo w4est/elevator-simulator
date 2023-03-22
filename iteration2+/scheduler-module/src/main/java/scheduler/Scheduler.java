@@ -85,8 +85,27 @@ public class Scheduler {
 
 		if (priorityRequest != null) {
 			returnRequests = new ArrayList<Request>();
-			returnRequests.add(requests.get(priorityRequest));
-			requests.remove(priorityRequest);
+			// if there are multiple requests that fit the elevator path well (same
+			// direction as the prioritized request and same floor or after), then all of
+			// them are organized and sent at once.
+			for (LocalTime t : requests.keySet()) {
+				if (requests.get(priorityRequest).getFloorButton().equals(Direction.UP)) {
+					if ((requests.get(t).getFloorButton().equals(requests.get(priorityRequest).getFloorButton()))
+							&& (requests.get(t).getFloorNumber() >= requests.get(priorityRequest).getFloorNumber())) {
+						returnRequests.add(requests.get(t));
+					}
+				} else if (requests.get(priorityRequest).getFloorButton().equals(Direction.DOWN)) {
+					if ((requests.get(t).getFloorButton().equals(requests.get(priorityRequest).getFloorButton()))
+							&& (requests.get(t).getFloorNumber() <= requests.get(priorityRequest).getFloorNumber())) {
+						returnRequests.add(requests.get(t));
+					}
+				}
+			}
+			// remove all requests from the main queue that are going to be sent to the
+			// elevator
+			for (Request r : returnRequests) {
+				requests.remove(r.getLocalTime(), r);
+			}
 		}
 		notifyAll();
 		return returnRequests;

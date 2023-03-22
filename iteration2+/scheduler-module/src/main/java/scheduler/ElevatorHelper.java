@@ -2,6 +2,7 @@ package scheduler;
 
 import java.io.IOException;
 import java.net.*;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -86,7 +87,11 @@ public class ElevatorHelper implements Runnable {
 				sendData[0] = (byte) 0;
 				sendData[1] = (byte) 0;
 			} else {
-				sendData = sendRequests.get(0).toByteArray();
+				while (sendRequests.size() != 0) {
+					ByteBuffer byteBuffer = ByteBuffer.wrap(sendData);
+					byteBuffer.put(sendRequests.get(0).toByteArray());
+					sendRequests.remove(0);
+				}
 			}
 
 			sendPacket = new DatagramPacket(sendData, sendData.length, receivePacket.getAddress(),
