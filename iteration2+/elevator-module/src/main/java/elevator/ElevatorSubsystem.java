@@ -242,12 +242,14 @@ public class ElevatorSubsystem implements Runnable {
 //
 //	}
 
-//	private void addRequestFromBytes(byte[] requestData) {
-//		Request r = Request.fromByteArray(requestData);
-//		floorQueues.add(r);
-//		
-//		elevator.getElevatorQueue().add(r);
-//	}
+
+	private void addRequestFromBytes(byte[] requestData) {
+		// TODO
+		//Request r = Request.fromByteArray(requestData);
+		//floorQueues.add(r);
+		
+		//elevator.getElevatorQueue().add(r);
+	}
 
 	/**
 	 * Private method repeatedly called in run until the scheduler is done. Used to
