@@ -2,6 +2,7 @@ package scheduler;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import common.ElevatorInfoRequest;
@@ -73,19 +74,19 @@ public class ElevatorHelper implements Runnable {
 
 		byte[] packetHeader = Arrays.copyOf(receivePacket.getData(), 2);
 		if (Arrays.equals(PacketHeaders.ElevatorInfoRequest.getHeaderBytes(), packetHeader)) {
-			Request priorityRequest = scheduler.sendPriorityRequest(elevatorStatus.getDirection(),
+			ArrayList<Request> sendRequests = scheduler.sendRequests(elevatorStatus.getDirection(),
 					elevatorStatus.getFloorNumber());
 
 			byte[] sendData = new byte[PacketUtils.BUFFER_SIZE];
 
 			// "empty" packet denoting that there are no new requests for this elevator
 			// thread to service.
-			if (priorityRequest == null) {
+			if (sendRequests == null) {
 				sendData = new byte[2];
 				sendData[0] = (byte) 0;
 				sendData[1] = (byte) 0;
 			} else {
-				sendData = priorityRequest.toByteArray();
+				sendData = sendRequests.get(0).toByteArray();
 			}
 
 			sendPacket = new DatagramPacket(sendData, sendData.length, receivePacket.getAddress(),
