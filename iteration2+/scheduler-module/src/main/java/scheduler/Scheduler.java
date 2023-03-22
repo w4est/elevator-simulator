@@ -39,13 +39,18 @@ public class Scheduler {
 	/**
 	 * This is called by the ElevatorHelper thread when a request is ready to be
 	 * serviced. This iterates through the requests list in order of priority, and
-	 * searches for any requests that best fit the current elevator path.
+	 * searches for any requests that best fit the current elevator path. It sends
+	 * the request that best fits the criteria. If there are multiple requests on
+	 * the same floor going the same direction, it can send them at the same time.
 	 */
-	public synchronized Request sendPriorityRequest(Direction elevatorDirection, int elevatorFloor) {
+	public synchronized ArrayList<Request> sendRequests(Direction elevatorDirection, int elevatorFloor) {
+		// "priorityRequest" refers to the request that best fits the current elevator
+		// state and path
 		LocalTime priorityRequest = null;
 
 		switch (elevatorDirection) {
-		// if the elevator is idle, it sends the oldest request
+		// if the elevator is idle, it sends the oldest request and any others that are
+		// starting on the same floor moving in the same direction
 		case IDLE:
 			for (LocalTime t : requests.keySet()) {
 				if (priorityRequest == null || t.isBefore(priorityRequest)) {
@@ -76,14 +81,34 @@ public class Scheduler {
 			break;
 		}
 
-		Request returnRequest = null;
+		ArrayList<Request> returnRequests = null;
 
 		if (priorityRequest != null) {
-			returnRequest = requests.get(priorityRequest);
-			requests.remove(priorityRequest);
+			returnRequests = new ArrayList<Request>();
+			// if there are multiple requests that fit the elevator path well (same
+			// direction as the prioritized request and same floor or after), then all of
+			// them are organized and sent at once.
+			for (LocalTime t : requests.keySet()) {
+				if (requests.get(priorityRequest).getFloorButton().equals(Direction.UP)) {
+					if ((requests.get(t).getFloorButton().equals(requests.get(priorityRequest).getFloorButton()))
+							&& (requests.get(t).getFloorNumber() >= requests.get(priorityRequest).getFloorNumber())) {
+						returnRequests.add(requests.get(t));
+					}
+				} else if (requests.get(priorityRequest).getFloorButton().equals(Direction.DOWN)) {
+					if ((requests.get(t).getFloorButton().equals(requests.get(priorityRequest).getFloorButton()))
+							&& (requests.get(t).getFloorNumber() <= requests.get(priorityRequest).getFloorNumber())) {
+						returnRequests.add(requests.get(t));
+					}
+				}
+			}
+			// remove all requests from the main queue that are going to be sent to the
+			// elevator
+			for (Request r : returnRequests) {
+				requests.remove(r.getLocalTime(), r);
+			}
 		}
 		notifyAll();
-		return returnRequest;
+		return returnRequests;
 	}
 
 	/**
@@ -102,7 +127,7 @@ public class Scheduler {
 		fhThread.start();
 		ehThread.start();
 	}
-	
+
 	/**
 	 * requests list getter method used for testing.
 	 */
