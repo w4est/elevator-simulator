@@ -243,10 +243,11 @@ public class ElevatorSubsystem implements Runnable {
 	}
 
 	private void addRequestFromBytes(byte[] requestData) {
-		Request r = Request.fromByteArray(requestData);
-		floorQueues.add(r);
+		// TODO
+		//Request r = Request.fromByteArray(requestData);
+		//floorQueues.add(r);
 		
-		elevator.getElevatorQueue().add(r);
+		//elevator.getElevatorQueue().add(r);
 	}
 
 	/**

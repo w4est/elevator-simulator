@@ -32,7 +32,7 @@ public class SimulationTest {
 				@Override
 				public Void answer(InvocationOnMock invocation) throws Throwable {
 					byte[] data = ((DatagramPacket) invocation.getArgument(0)).getData();
-					sentRequests.add(Request.fromByteArray(data));
+					sentRequests.addAll(Request.fromByteArray(data));
 					return null;
 				}
 			}).when(mockSocket).send(any(DatagramPacket.class));

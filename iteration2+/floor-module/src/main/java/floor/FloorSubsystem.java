@@ -210,21 +210,25 @@ public class FloorSubsystem implements Runnable {
 		
 		
 		//Case 1: if receivePacket is a request from simulation (first 2 bytes "03") then store in FloorSubsystem
-		if(receivePacket.getData()[0] == (byte)0 && receivePacket.getData()[1] == (byte)3) {
-			printPacketInfo("FloorSubsystem: Received Packet:", "From Simulation", receivePacket, receivePacket.getData());
+		if (receivePacket.getData()[0] == (byte) 0 && receivePacket.getData()[1] == (byte) 3) {
+			printPacketInfo("FloorSubsystem: Received Packet:", "From Simulation", receivePacket,
+					receivePacket.getData());
 			// Set up request list
-			Request inputRequest = Request.fromByteArray(receivePacket.getData());
-			allRequests.add(inputRequest);
+			List<Request> inputRequests = Request.fromByteArray(receivePacket.getData());
+			allRequests.addAll(inputRequests);
 			// Set up Floor for that receive packet (increase # of people and set direction
 			for (Floor oneFloor : allFloors) {
-				if (oneFloor.getFloorNumber() == inputRequest.getFloorNumber()) {
-					 // anytime there's another floor keep adding (incrementing) # of people
-					oneFloor.addNumberOfPeople(1);
-					this.peopleWaitingOnAllFloors +=1;
-					if (inputRequest.getFloorButton() == Direction.UP) {
-						oneFloor.setUpButton(true);
-					} else if (inputRequest.getFloorButton() == Direction.DOWN){
-						oneFloor.setDownButton(true);
+
+				for (Request inputRequest : inputRequests) {
+					if (oneFloor.getFloorNumber() == inputRequest.getFloorNumber()) {
+						// anytime there's another floor keep adding (incrementing) # of people
+						oneFloor.addNumberOfPeople(1);
+						this.peopleWaitingOnAllFloors += 1;
+						if (inputRequest.getFloorButton() == Direction.UP) {
+							oneFloor.setUpButton(true);
+						} else if (inputRequest.getFloorButton() == Direction.DOWN) {
+							oneFloor.setDownButton(true);
+						}
 					}
 				}
 			}
