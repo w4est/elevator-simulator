@@ -1,14 +1,27 @@
 package simulator;
 
 import java.io.IOException;
-import java.net.DatagramSocket;
 
 public class SimulationRunner {
 	public static void main(String[] args) throws IOException {
-		try (DatagramSocket socket = new DatagramSocket()) {
-			System.out.println("Starting simulation");
-			Simulation sim = new Simulation(args, socket);
-			sim.runSimulation();
+
+		if (isGuiFlagInStringArgs(args)) {
+			SimulationGUI simulationGUI = new SimulationGUI();
+			simulationGUI.openScreen();
+		} else {
+			Thread simulationThread = new Thread(new SimulationThread(args));
+			simulationThread.start();
 		}
+	}
+
+	private static boolean isGuiFlagInStringArgs(String args[]) {
+
+		for (int i = 0, max = args.length; i < max; i++) {
+			if (args[i].equalsIgnoreCase("--gui")) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

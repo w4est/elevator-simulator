@@ -2,12 +2,14 @@ package common;
 
 /**
  * Class to define header bits for UDP packets
- * @author WIll Forest
+ * @author Will Forest
  *
  */
 public enum PacketHeaders {
 	Request(new byte[]{0,3}),
-	ElevatorInfoRequest(new byte[]{0,1});
+	ElevatorInfoRequest(new byte[]{0,1}),
+	DoorFault(new byte[]{9,1}),
+	SlowFault(new byte[]{9,2});
 	
 	byte[] headerBytes;
 	
