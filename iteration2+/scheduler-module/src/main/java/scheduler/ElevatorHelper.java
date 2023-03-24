@@ -87,8 +87,8 @@ public class ElevatorHelper implements Runnable {
 				sendData[0] = (byte) 0;
 				sendData[1] = (byte) 0;
 			} else {
+				ByteBuffer byteBuffer = ByteBuffer.wrap(sendData);
 				while (sendRequests.size() != 0) {
-					ByteBuffer byteBuffer = ByteBuffer.wrap(sendData);
 					byteBuffer.put(sendRequests.get(0).toByteArray());
 					sendRequests.remove(0);
 				}

@@ -70,10 +70,7 @@ public class ElevatorListener implements Runnable{
 	private void addRequestsFromBytes(byte[] requestData) {
 		List<Request> requests = Request.fromByteArray(requestData);
 		
-		for (Request r : requests) {
-			elevSys.getFloorQueues().add(r);
-			elevSys.getElevator().getElevatorQueue().add(r);
-		}
+		elevSys.addRequests(requests);
 	}
 	
 	/**
@@ -87,7 +84,7 @@ public class ElevatorListener implements Runnable{
 		byte[] receiveData = new byte[PacketUtils.BUFFER_SIZE];
 
 		try {
-			sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), PacketUtils.ELEVATOR_PORT); // Initialize packet
+			sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), PacketUtils.SCHEDULER_ELEVATOR_PORT); // Initialize packet
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.exit(1);

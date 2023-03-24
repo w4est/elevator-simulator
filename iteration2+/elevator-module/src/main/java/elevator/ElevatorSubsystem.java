@@ -9,6 +9,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 // Import libraries
 import java.util.ArrayList;
+import java.util.List;
 
 import common.Direction;
 import common.ElevatorInfoRequest;
@@ -55,6 +56,7 @@ public class ElevatorSubsystem implements Runnable {
 
 	/**
 	 * Constructor used for testing with a Mockito socket
+	 * 
 	 * @param carNumber
 	 * @param s
 	 * @author Farhan Mahamud
@@ -94,6 +96,7 @@ public class ElevatorSubsystem implements Runnable {
 
 	/**
 	 * Sets up the socket
+	 * 
 	 * @author Farhan Mahamud
 	 */
 //	private void setupSocket() {
@@ -114,6 +117,7 @@ public class ElevatorSubsystem implements Runnable {
 
 	/**
 	 * Public function to send and receive a UDP packet to and from the socket
+	 * 
 	 * @param data
 	 * @return byte[]
 	 * @author Farhan Mahamud
@@ -174,6 +178,7 @@ public class ElevatorSubsystem implements Runnable {
 
 	/**
 	 * Prints a given byte array
+	 * 
 	 * @param data
 	 * @author Farhan Mahamud
 	 */
@@ -223,32 +228,12 @@ public class ElevatorSubsystem implements Runnable {
 		return floorQueues;
 	}
 
-	/**
-	 * Method used by the scheduler to update the list of the requests assigned by
-	 * the scheduler.
-	 * 
-	 * @param r Request, the highest priority request from the Scheduler
-	 */
-//	public synchronized void updateFloorQueue() {
-//		
-//		byte[] data = new ElevatorInfoRequest(elevator.getCarNumber(), elevator.getCurrentFloor(), elevator.getCurrentDirection(), elevator.getCurrentElevatorState()).toByteArray();
-//		byte[] receive = this.sendElevatorRequestPacket(data);
-//
-//		if (receive[0] == 0 && receive[1] == 3) {
-//			addRequestFromBytes(receive);
-//		} else {
-//			System.out.println("No new request received");
-//		}
-//
-//	}
-
-
-	private void addRequestFromBytes(byte[] requestData) {
-		// TODO
-		//Request r = Request.fromByteArray(requestData);
-		//floorQueues.add(r);
-		
-		//elevator.getElevatorQueue().add(r);
+	public synchronized void addRequests(List<Request> requests) {
+		for (Request r : requests) {
+			floorQueues.add(r);
+			elevator.getElevatorQueue().add(r);
+		}
+		notifyAll();
 	}
 
 	/**
@@ -259,73 +244,75 @@ public class ElevatorSubsystem implements Runnable {
 	 * 
 	 * @author Subear Jama and Farhan Mahamud
 	 */
-	private void operate() {
-		// 1: check with scheduler to wait for request.
-		// Scheduler sends request stored in floorQueues using updateFloorQueue method
-//		this.updateFloorQueue();
-		
-		if (!floorQueues.isEmpty()) {
-			this.operateComplete = false;
+	private synchronized void operate() {
+		while (floorQueues.isEmpty()) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				System.exit(1);
+				e.printStackTrace();
+			}
 		}
 
-		if (!operateComplete) {
-			System.out.println("	ElevatorSubsystem: Start Operate Cycle");
-			System.out.println("	1. Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor " + this.elevator.getCurrentFloor()
-					+ ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
+		System.out.println("	ElevatorSubsystem: Start Operate Cycle");
+		System.out.println("	1. Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
+				+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
 
-			this.elevator.nextElevatorState(); // STOP_OPENED -> STOP_CLOSED
-			System.out.println("	2. Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor " + this.elevator.getCurrentFloor()
-					+ ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
+		this.elevator.nextElevatorState(); // STOP_OPENED -> STOP_CLOSED
+		System.out.println("	2. Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
+				+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
 
-			// 2: set the elevator's current direction (MOVING_UP/DOWN)
-			changeDirection();
+		// 2: set the elevator's current direction (MOVING_UP/DOWN)
+		changeDirection();
 
-			// 3: Move elevator until it has moved the request
-			while (this.elevator.getCurrentElevatorState() != ElevatorState.STOP_OPENED
-					&& this.elevator.getCurrentElevatorState() != ElevatorState.STOP_CLOSED) {
-				// stop for starting request
-				if (stopElevator() == 1) {
-					this.elevator.nextElevatorState(); // MOVING_UP/DOWN -> STOP_CLOSED
-					System.out.println("	3: Elevator Current Floor & State: " + "Floor "
-							+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
+		// 3: Move elevator until it has moved the request
+		while (this.elevator.getCurrentElevatorState() != ElevatorState.STOP_OPENED
+				&& this.elevator.getCurrentElevatorState() != ElevatorState.STOP_CLOSED) {
+			// stop for starting request
+			if (stopElevator() == 1) {
+				this.elevator.nextElevatorState(); // MOVING_UP/DOWN -> STOP_CLOSED
+				System.out.println("	3: Elevator Current Floor & State: " + "Floor "
+						+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
 
-					this.elevator.nextElevatorState(); // STOP_CLOSED -> STOP_OPENED
-					System.out.println("	4: Elevator Current Floor & State: " + "Floor "
-							+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
+				this.elevator.nextElevatorState(); // STOP_CLOSED -> STOP_OPENED
+				System.out.println("	4: Elevator Current Floor & State: " + "Floor "
+						+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
 
-					movePeopleOnElevator(elevator.getCurrentFloor()); // in method will go to STOP_CLOSED then
-																		// MOVING_UP/DOWN
+				movePeopleOnElevator(elevator.getCurrentFloor()); // in method will go to STOP_CLOSED then
+																	// MOVING_UP/DOWN
 
-				}
-				// stop for destination request
-				else if (stopElevator() == 2) {
-					this.elevator.nextElevatorState(); // MOVING_UP/DOWN -> STOP_CLOSED
-					System.out.println("	5: Elevator Current Floor & State: " + "Floor "
-							+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
+			}
+			// stop for destination request
+			else if (stopElevator() == 2) {
+				this.elevator.nextElevatorState(); // MOVING_UP/DOWN -> STOP_CLOSED
+				System.out.println("	5: Elevator Current Floor & State: " + "Floor "
+						+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
 
-					this.elevator.nextElevatorState(); // STOP_CLOSED -> STOP_OPENED
-					this.elevator.setCurrentDirection(Direction.IDLE);
-					System.out.println("	6: Elevator Current Floor & State: " + "Floor "
-							+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
+				this.elevator.nextElevatorState(); // STOP_CLOSED -> STOP_OPENED
+				this.elevator.setCurrentDirection(Direction.IDLE);
+				System.out.println("	6: Elevator Current Floor & State: " + "Floor "
+						+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
 
-					// elevator reached destination, clear floor and break while loop
-					int peopleRemoved = this.elevator.clearFloor();
-					System.out.println(
-							"	7. Elevator reached destination and dropped off request(s)!");
+				// elevator reached destination, clear floor and break while loop
+				int peopleRemoved = this.elevator.clearFloor();
+				System.out.println("	7. Elevator reached destination and dropped off request(s)!");
+				if (elevator.getElevatorQueue().isEmpty()) {
 					break;
 				}
-
-				// move elevator up or down 1 floor based on current elevator state
-				moveElevator();
+				else {
+					changeDirection();
+				}
 			}
 
-			// check operateComplete condition (have all requests been picked up &
-			// completed)
-			if (this.elevator.allPeoplePickedUp()) {
-				this.operateComplete = true;
-			}
+			// move elevator up or down 1 floor based on current elevator state
+			moveElevator();
 		}
 
+		// check operateComplete condition (have all requests been picked up &
+		// completed)
+		if (this.elevator.allPeoplePickedUp()) {
+			this.operateComplete = true;
+		}
 	}
 
 	/**
@@ -339,10 +326,10 @@ public class ElevatorSubsystem implements Runnable {
 		int nextFloorDown = this.elevator.getCurrentFloor() - 1;
 
 		if (this.elevator.getCurrentElevatorState() == ElevatorState.MOVING_UP
-				&& elevator.getCurrentFloor() <= this.MAX_FLOOR) {
+				&& elevator.getCurrentFloor() < this.MAX_FLOOR) {
 			this.elevator.setCurrentFloor(nextFloorUp);
 		} else if (this.elevator.getCurrentElevatorState() == ElevatorState.MOVING_DOWN
-				&& elevator.getCurrentFloor() >= this.MIN_FLOOR) {
+				&& elevator.getCurrentFloor() > this.MIN_FLOOR) {
 			this.elevator.setCurrentFloor(nextFloorDown);
 		}
 
@@ -364,7 +351,6 @@ public class ElevatorSubsystem implements Runnable {
 		for (int i = floorQueues.size() - 1; i >= 0; i--) {
 			if (floorQueues.get(i).getFloorNumber() == currentFloor) {
 				people++;
-				this.getElevator().addPeople(floorQueues.get(i));
 				floorQueues.remove(i);
 			}
 		}
@@ -380,8 +366,8 @@ public class ElevatorSubsystem implements Runnable {
 	}
 
 	/**
-	 * Public method used in operate method to verify and set the elevator's
-	 * current direction to go up/down/unchanged.
+	 * Public method used in operate method to verify and set the elevator's current
+	 * direction to go up/down/unchanged.
 	 * 
 	 * future iteration: sort through elevators and check their request lists
 	 * 
@@ -441,19 +427,30 @@ public class ElevatorSubsystem implements Runnable {
 		ElevatorSubsystem e = new ElevatorSubsystem(1);
 		ElevatorSubsystem e2 = new ElevatorSubsystem(2);
 		ElevatorListener listen = new ElevatorListener(e);
-		
+		ElevatorListener listen2 = new ElevatorListener(e2);
+
 		Thread eThread1 = new Thread(e);
 		Thread eThread2 = new Thread(e2);
 		Thread listenThread = new Thread(listen);
+		Thread listenThread2 = new Thread(listen2);
 
-		//eThread1.start();
+		eThread1.start();
+		eThread2.start();
 		listenThread.start();
+		listenThread2.start();
 	}
 
 	@Override
 	public void run() {
 		while (true) {
 			operate();
+			this.toString();
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }
