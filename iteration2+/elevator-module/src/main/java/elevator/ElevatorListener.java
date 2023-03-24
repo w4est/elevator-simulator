@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.List;
 
 import common.ElevatorInfoRequest;
 import common.PacketUtils;
@@ -59,29 +60,20 @@ public class ElevatorListener implements Runnable{
 		if (receive[0] == 0 && receive[1] == 0) {
 			System.out.println("No new request received");
 		} else {
-			convertBytesToRequests(receive);
+			addRequestsFromBytes(receive);
 		}
 
 	}
 	
-	private void convertBytesToRequests(byte[] b) {
-		int index = 0;
-		
-		 while(index < b.length) {
-			 if (b[index*36] == 0 && b[index*36 + 1] == 3) {
-				 addRequestFromBytes(Arrays.copyOfRange(b, index, index + 35));
-				 index += 36;
-			 } else {
-				 break;
-			 }
-		 }
-	}
 
-	private void addRequestFromBytes(byte[] requestData) {
-		Request r = Request.fromByteArray(requestData);
-		elevSys.getFloorQueues().add(r);
+
+	private void addRequestsFromBytes(byte[] requestData) {
+		List<Request> requests = Request.fromByteArray(requestData);
 		
-		elevSys.getElevator().getElevatorQueue().add(r);
+		for (Request r : requests) {
+			elevSys.getFloorQueues().add(r);
+			elevSys.getElevator().getElevatorQueue().add(r);
+		}
 	}
 	
 	/**
