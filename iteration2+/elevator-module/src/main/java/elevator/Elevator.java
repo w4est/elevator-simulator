@@ -156,14 +156,15 @@ public class Elevator implements Runnable {
 	 * @author Subear Jama
 	 */
 	public boolean stopStartFloorCheck() {
+		boolean foundStartFloor = false;
 		for (Request r: this.elevatorQueue) {
 			//if the elevator currentFloor reached a request starting floor, STOP and set request (reachedStartFloor)
 			if (r.getFloorNumber() == currentFloor && r.getReachedStartFloor() == false) {
 				r.setReachedStartFloor(true);
-				return true;
+				foundStartFloor = true;
 			} 
 		}
-		return false;
+		return foundStartFloor;
 	}
 	
 	/**

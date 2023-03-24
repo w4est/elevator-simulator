@@ -236,7 +236,7 @@ public class FloorSubsystem implements Runnable {
 					receivePacket.getData());
 			// Set up request list
 			List<Request> inputRequests = Request.fromByteArray(receivePacket.getData());
-			allRequests.addAll(inputRequests);
+			allRequests.add(inputRequests.get(0));
 			// Set up Floor for that receive packet (increase # of people and set direction
 			for (Floor oneFloor : allFloors) {
 

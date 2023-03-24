@@ -177,7 +177,7 @@ public class Request {
 		List<Request> requests = new ArrayList<>();
 
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
-		while (byteBuffer.position() < message.length) {
+		while (((byteBuffer.position() + 1) < message.length) && (message[byteBuffer.position() + 1] != 0)) {
 			byte[] header = new byte[2];
 			byteBuffer.get(header, 0, 2);
 

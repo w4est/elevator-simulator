@@ -54,4 +54,25 @@ public class RequestTest {
 			assertEquals(LocalTime.of(2, 1, 1, 1), floorButtonPress.get(0).getLocalTime());
 		}
 	}
+	
+	@Test
+	void shouldDeserializeMultipleRequestsToObjectTooLong() {
+
+		// Allocate 3 requests in a single packet
+		ByteBuffer buffer = ByteBuffer.allocate(testBytes.length * 4);
+		buffer.put(testBytes);
+		buffer.put(testBytes);
+		buffer.put(testBytes);
+
+		List<Request> floorButtonPress = Request.fromByteArray(buffer.array());
+
+		assertEquals(3, floorButtonPress.size());
+
+		for (int i = 0; i < 3; i++) {
+			assertEquals(Direction.UP, floorButtonPress.get(0).getFloorButton());
+			assertEquals(1, floorButtonPress.get(0).getFloorNumber());
+			assertEquals(LocalTime.of(2, 1, 1, 1), floorButtonPress.get(0).getLocalTime());
+		}
+	}
+
 }

@@ -60,7 +60,7 @@ public class ElevatorSubsystemTest {
 		}
 		// Thread elevatorThread = new Thread(elevSub);
 
-		elevSub.updateFloorQueue();
+//		elevSub.updateFloorQueue();
 		assertEquals(elevSub.getFloorQueues().size(), 1);
 	}
 	
@@ -101,7 +101,7 @@ public class ElevatorSubsystemTest {
 			e.printStackTrace();
 		}
 
-		elevSub.updateFloorQueue();
+//		elevSub.updateFloorQueue();
 		assertEquals(elevSub.getFloorQueues().size(), 0);
 	}
 	

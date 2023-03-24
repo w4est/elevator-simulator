@@ -65,12 +65,8 @@ public class FloorHelper implements Runnable {
 		byte[] packetHeader = Arrays.copyOf(receivePacket.getData(), 2);
 		if (Arrays.equals(PacketHeaders.Request.getHeaderBytes(), packetHeader)) {
 			List<Request> newRequests = Request.fromByteArray(receivePacket.getData());
-
-			for (Request newRequest : newRequests) {
-				scheduler.organizeRequest(newRequest.getLocalTime(), newRequest);
-
-				System.out.println("Scheduler added request to the queue.");
-			}
+			scheduler.organizeRequest(newRequests.get(0).getLocalTime(), newRequests.get(0));
+			System.out.println("Scheduler added request to the queue.");
 		}
 	}
 
