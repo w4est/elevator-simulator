@@ -1,6 +1,7 @@
 package common;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class ElevatorInfoRequest {
 
@@ -19,8 +20,7 @@ public class ElevatorInfoRequest {
 	public byte[] toByteArray() {
 		byte[] message = new byte[22];
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
-		byteBuffer.put((byte) 0);
-		byteBuffer.put((byte) 1);
+		byteBuffer.put(PacketHeaders.ElevatorInfoRequest.getHeaderBytes());
 		byteBuffer.putInt(carNumber);
 		byteBuffer.putInt(floorNumber);
 		byteBuffer.putInt(direction.toInt());
@@ -33,8 +33,8 @@ public class ElevatorInfoRequest {
 		byte[] header = new byte[2];
 		byteBuffer.get(header, 0, 2);
 
-		if (header[0] != 0 && header[1] != 2) {
-			throw new IllegalArgumentException("Header is invalid, expected { 0, 2 }");
+		if (!Arrays.equals(header, PacketHeaders.ElevatorInfoRequest.getHeaderBytes())) {
+			throw new IllegalArgumentException("Header is invalid, expected { 0, 1 }");
 		}
 
 		int carNumber = byteBuffer.getInt();
