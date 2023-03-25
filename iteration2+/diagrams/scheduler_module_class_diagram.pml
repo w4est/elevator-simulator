@@ -90,7 +90,8 @@ package "scheduler module" #DDDDDD {
        - TreeMap<LocalTime, Request> requests
        
        + organizeRequest(LocalTime, Request) : void
-       + sendPriorityRequest(Direction, int) : Request
+       + sendRequests(Direction, int): ArrayList<Request>
+       + getRequests() : TreeMap<LocalTime, Request>
        + {static} main(String[]) : void
     }
 
@@ -102,6 +103,8 @@ package "scheduler module" #DDDDDD {
 	- Scheduler scheduler
   
         + run() : void
+        + setSendSocket(DatagramSocket) : void
+        + setReceiveSocket(DatagramSocket) : void
         + receivePacket() : void
         + sendPacket(byte[]) : void
     }
@@ -116,6 +119,8 @@ package "scheduler module" #DDDDDD {
   
         + run() : void
         + receiveSendPacket() : void
+        + setSendSocket(DatagramSocket) : void
+        + setReceiveSocket(DatagramSocket) : void
     }
 }
 
