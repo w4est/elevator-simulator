@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +32,7 @@ public class ElevatorListener implements Runnable{
 	private void setupSocket() {
 		try {
 			socket = new DatagramSocket();
+			socket.setSoTimeout(2000);
 		} catch (SocketException se) {
 			se.printStackTrace();
 			System.exit(1);
@@ -105,8 +107,12 @@ public class ElevatorListener implements Runnable{
 		try {
 			// Block until a datagram is received via sendReceiveSocket.
 			System.out.println("Elevator: Waiting to receive message from Scheduler");
+			
 			socket.receive(receivePacket); // Waiting to receive packet from host
+		} catch (SocketTimeoutException e) {
+			return new byte[] {0, 0};
 		} catch (IOException e) {
+		
 			e.printStackTrace();
 			System.exit(1);
 		}
