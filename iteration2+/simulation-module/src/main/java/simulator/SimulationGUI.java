@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -37,7 +38,7 @@ public class SimulationGUI {
 		doorFault.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				sendDoorFault(model.getNumber().intValue());
+				sendDoorFault(model.getNumber().intValue());  // passing in elevatornum
 			}
 		});
 		doorFault.setEnabled(false);
@@ -69,7 +70,6 @@ public class SimulationGUI {
 				simulationThread.start();
 			}
 		});
-
 		frame.add(startButton);
 		frame.add(doorFault);
 		frame.add(slowFault);
@@ -80,7 +80,7 @@ public class SimulationGUI {
 	}
 
 	public void openScreen() {
-		frame.setSize(1280, 720);
+		frame.setSize(800, 300);
 		frame.setLayout(null);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -89,25 +89,40 @@ public class SimulationGUI {
 	
 	// TODO, verify that the ELEVATOR_PORT is the proper starting port per elevator subsystem, or alter the class to have 
 	// an effected elevator
-	private void sendDoorFault(int elevatorNumber) {
-		try (DatagramSocket faultSocket = new DatagramSocket()) {
-			byte[] fault = PacketHeaders.DoorFault.getHeaderBytes();
-			DatagramPacket doorFaultPacket = new DatagramPacket(fault, fault.length, InetAddress.getLocalHost(),
-					elevatorNumber + PacketUtils.ELEVATOR_PORT);
-			faultSocket.send(doorFaultPacket);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	
+	/**
+	 * Fault used for someone pushing at the door. (first 2 bytes: {9,1})
+	 * Send fault to FloorSubsystem -> Scheduler -> ElevatorSubsystem
+	 */
+	private void sendDoorFault(int elevatorNum) {
+		byte[] fault = PacketHeaders.DoorFault.getHeaderBytes();
+		sendFaultToElevatorListener(fault, elevatorNum);
 	}
 
-	private void sendSlowFault(int elevatorNumber) {
-		try (DatagramSocket faultSocket = new DatagramSocket()) {
-			byte[] fault = PacketHeaders.SlowFault.getHeaderBytes();
-			DatagramPacket slowFaultPacket = new DatagramPacket(fault, fault.length, InetAddress.getLocalHost(),
-					elevatorNumber + PacketUtils.ELEVATOR_PORT);
-			faultSocket.send(slowFaultPacket);
+	/**
+	 *  Fault used for trying to leave and exit the system. (first 2 bytes: {9,2})
+	 *  Elevator slows and floor timer fault will shut it down.
+	 * Send fault to FloorSubsystem -> Scheduler -> ElevatorSubsystem
+	 */
+	private void sendSlowFault(int elevatorNum) {
+		byte[] fault = PacketHeaders.SlowFault.getHeaderBytes();
+		sendFaultToElevatorListener(fault, elevatorNum);
+	}
+	
+	/**
+	 * Method used to send faults directly to ElevatorFault Listener
+	 * @param requestByte byte[],the request to store into a packet and send
+	 */
+	public synchronized void sendFaultToElevatorListener(byte[] requestByte, int carNum) {
+		System.out.println("CAR NUMBER : " + carNum);
+		int elavatorPortNum = PacketUtils.ELEVATOR_PORT + carNum;
+		
+		try (DatagramSocket sendSocket = new DatagramSocket()){
+			DatagramPacket sendPacket = new DatagramPacket(requestByte, requestByte.length,InetAddress.getLocalHost(), elavatorPortNum);
+			sendSocket.send(sendPacket);
 		} catch (IOException e) {
 			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 }

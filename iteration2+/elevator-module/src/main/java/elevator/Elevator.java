@@ -209,7 +209,7 @@ public class Elevator {
 		if (elevatorState != ElevatorState.STOP_CLOSED && elevatorState != ElevatorState.STOP_OPENED) {
 			throw new IllegalArgumentException("Can only accept close or open door events!");
 		}
-		
+		System.out.println("Elevator #" + this.carNumber + " moving doors");
 		boolean noDoorAlerts = false;
 
 		while (noDoorAlerts == false) {
@@ -218,6 +218,7 @@ public class Elevator {
 				Thread.sleep(2500);
 			} catch (InterruptedException e) {
 				// The door was hit / is not acting properly, try again
+				System.out.println("Door fault received while moving doors, try again!");
 				noDoorAlerts = false;
 			}
 		}
