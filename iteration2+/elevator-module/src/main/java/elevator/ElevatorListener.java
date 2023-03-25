@@ -18,6 +18,7 @@ public class ElevatorListener implements Runnable {
 	private ElevatorSubsystem elevSys;
 	private DatagramPacket sendPacket, receivePacket; // Packets for sending and receiveing
 	protected DatagramSocket socket; // Socket used for sending and receiving UDP packets
+	private static boolean debug = false;
 
 	public ElevatorListener(ElevatorSubsystem e) {
 		elevSys = e;
@@ -54,7 +55,9 @@ public class ElevatorListener implements Runnable {
 		byte[] receive = this.sendElevatorRequestPacket(data);
 
 		if (receive[0] == 0 && receive[1] == 0) {
-			System.out.println("No new request received");
+			if (debug) {
+				System.out.println("No new request received");
+			}
 		} else {
 			addRequestsFromBytes(receive);
 		}
@@ -92,8 +95,10 @@ public class ElevatorListener implements Runnable {
 			System.exit(1);
 		}
 
-		System.out.println("Elevator: Sending packet");
-		printInfo(data);
+		if (debug) {
+			System.out.println("Elevator: Sending packet");
+			printInfo(data);
+		}
 
 		try {
 			this.socket.send(sendPacket); // Sends packet to host
@@ -106,7 +111,9 @@ public class ElevatorListener implements Runnable {
 
 		try {
 			// Block until a datagram is received via sendReceiveSocket.
-			System.out.println("Elevator: Waiting to receive message from Scheduler");
+			if (debug) {
+				System.out.println("Elevator: Waiting to receive message from Scheduler");
+			}
 
 			socket.receive(receivePacket); // Waiting to receive packet from host
 		} catch (SocketTimeoutException e) {
@@ -117,11 +124,14 @@ public class ElevatorListener implements Runnable {
 			System.exit(1);
 		}
 
-		// Process the received datagram.
-		System.out.println("Elevator: Received data");
-		printInfo(receivePacket.getData());
+		if (debug) {
+			// Process the received datagram.
+			System.out.println("Elevator: Received data");
+			printInfo(receivePacket.getData());
+		}
 
 		return receivePacket.getData();
+
 	}
 
 	/**
@@ -132,11 +142,13 @@ public class ElevatorListener implements Runnable {
 	 * @author Farhan Mahamud
 	 */
 	public static void printByteArray(byte[] message, int length) {
+
 		System.out.print("Message as bytes: ");
 		for (int i = 0; i < length; i++) {
 			System.out.print(message[i] + " ");
 		}
 		System.out.println("");
+
 	}
 
 	/**
@@ -153,6 +165,7 @@ public class ElevatorListener implements Runnable {
 			System.out.print(data[i] + " ");
 		}
 		System.out.println("");
+
 	}
 
 	@Override
