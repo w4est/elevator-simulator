@@ -49,19 +49,6 @@ public class ElevatorSubsystem implements Runnable {
 	}
 
 	/**
-	 * Constructor used for testing with a Mockito socket
-	 * 
-	 * @param carNumber
-	 * @param s
-	 * @author Farhan Mahamud
-	 */
-	public ElevatorSubsystem(int carNumber, DatagramSocket s) {
-		this(carNumber);
-//		this.closeSocket();
-//		this.socket = s;
-	}
-
-	/**
 	 * This is another constructor for the user for passing in custom maximum and
 	 * minimum floor levels
 	 * 
@@ -280,6 +267,7 @@ public class ElevatorSubsystem implements Runnable {
 		for (int i = floorQueues.size() - 1; i >= 0; i--) {
 			if (floorQueues.get(i).getFloorNumber() == currentFloor) {
 				people++;
+				elevator.addPeople(floorQueues.get(i));
 				floorQueues.remove(i);
 			}
 		}

@@ -24,6 +24,11 @@ public class ElevatorListener implements Runnable {
 		elevSys = e;
 		setupSocket();
 	}
+	
+	public ElevatorListener(ElevatorSubsystem e, DatagramSocket s) {
+		elevSys = e;
+		this.socket = s;
+	}
 
 	/**
 	 * Sets up the socket

@@ -36,7 +36,13 @@ public class ElevatorFaultListener implements Runnable{
 		}
 	}
 	
-	private void checkForFaults() {
+	public ElevatorFaultListener(ElevatorSubsystem e, Thread elevatorThread, DatagramSocket s) {		
+		elevSys = e;
+		this.elevatorThread = elevatorThread;
+		receiveSocket = s;
+	}
+	
+	public void checkForFaults() {
 		
 		byte[] receiveData = new byte[PacketUtils.BUFFER_SIZE];
 		receivePacket = new DatagramPacket(receiveData, receiveData.length);
@@ -52,13 +58,13 @@ public class ElevatorFaultListener implements Runnable{
 		// if the ElevatorFaultListener receives a door fault (stuck), elevator should fix itself (transient fault)
 		if (receivePacket.getData()[0] == (byte)9 && receivePacket.getData()[1] == (byte)1) {
 			//fault function in elevatorsubsystem needed
-			System.out.println("DOOR FAULT RECEIVED");
+			System.out.println("DOOR FAULT RECEIVED for Elevator " + this.elevSys.getElevator().getCarNumber());
 			this.elevatorThread.interrupt();
 		} 
 		// if the ElevatorListener receives a slow fault, shut down elevator (hard fault)
 		else if (receivePacket.getData()[0] == (byte)9 && receivePacket.getData()[1] == (byte)2) {
-			System.out.println("SLOW FAULT RECEIVED");
-			this.elevSys.activateSlowFault();
+			System.out.println("SLOW FAULT RECEIVED for Elevator " + this.elevSys.getElevator().getCarNumber());
+			this.elevSys.emergencyStop();
 		}
 	}
 			
