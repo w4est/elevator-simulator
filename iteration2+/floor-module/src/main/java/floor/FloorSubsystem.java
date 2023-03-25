@@ -167,26 +167,6 @@ public class FloorSubsystem implements Runnable {
 	}
 	
 	/**
-	 * floor timer fault should be regarded as a hard fault and 
-	 * should shut down the corresponding elevator
-	 */
-	private void shutDownElevator() {
-		//elevator status output should show these faults
-		
-		//inject faults using the the input file
-		
-		//make packet to send 
-		// to scheduler that will shut down the right elevator
-		
-		//ex of dataflow for floor timer fault:
-		//SimulationRunner -> F -> S-> E -> S -> F (fault!) -> S -> E (shutdown)
-		
-		
-		
-		
-	}
-	
-	/**
 	 * Method used to reduce code duplication for printing packet info to the console.
 	 * @param consoleMessage String, message to be sent
 	 * @param toOrFrom String, used to print "To" or "From".
@@ -197,6 +177,7 @@ public class FloorSubsystem implements Runnable {
 		System.out.println(consoleMessage);
 		System.out.println(toOrFrom + " host: " + packet.getAddress());
 		System.out.println("host port: " + packet.getPort()); // sending to = destination host port
+		// Uncomment below if you want more information about the packet (used for debugging)
 		/*
 		int len = packet.getLength();
 		System.out.println("Length: " + len);
