@@ -8,11 +8,11 @@ import java.time.LocalTime;
 public class PacketUtils {
 
 	public static final int BUFFER_SIZE = 128;
-	public static final int ELEVATOR_PORT = 5002;
-	public static final int SCHEDULER_FLOOR_PORT = 5003;
-	public static final int SCHEDULER_ELEVATOR_PORT = 5004;
-	public static final int FLOOR_PORT = 5001;
-	public static final int SYNC_PORT = 5055;
+	public static final int ELEVATOR_PORT = 50002;
+	public static final int SCHEDULER_FLOOR_PORT = 50003;
+	public static final int SCHEDULER_ELEVATOR_PORT = 50004;
+	public static final int FLOOR_PORT = 50001;
+	public static final int SYNC_PORT = 50055;
 
 	/**
 	 * Converts UTF-8 strings into byte[] for transport, and places them into the
