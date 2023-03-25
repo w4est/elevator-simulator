@@ -197,6 +197,7 @@ public class FloorSubsystem implements Runnable {
 		System.out.println(consoleMessage);
 		System.out.println(toOrFrom + " host: " + packet.getAddress());
 		System.out.println("host port: " + packet.getPort()); // sending to = destination host port
+		/*
 		int len = packet.getLength();
 		System.out.println("Length: " + len);
 		System.out.println("Containing: ");
@@ -207,7 +208,7 @@ public class FloorSubsystem implements Runnable {
 		//used len instead of data.length because of big byte array sizes filled with zeros (100)
 		for(int i=0; i< len; i++) {
 			System.out.print(data[i] +" ");
-	    }
+	    }*/
 		System.out.println();
 	}
 	
@@ -272,6 +273,17 @@ public class FloorSubsystem implements Runnable {
 				}
 			}
 		}
+		//**Case 3: Receiving Faults (Send over to scheduler)
+		else if(receivePacket.getData()[0] == (byte)9 && receivePacket.getData()[1] == (byte)1) {
+			System.out.println("FloorSubsystem: SENDING DOOR FAULT");
+			sendInfoToScheduler(receivePacket.getData());
+			
+		}
+		else if(receivePacket.getData()[0] == (byte)9 && receivePacket.getData()[1] == (byte)2) {
+			System.out.println("FloorSubsystem: SENDING SLOW FAULT");
+			sendInfoToScheduler(receivePacket.getData());
+			
+		}
 		updatePeopleWaitingOnAllFloors(); //update peopleWaitingOnAllFloors count
 
 	}
@@ -280,7 +292,7 @@ public class FloorSubsystem implements Runnable {
 	 * Method used in run() to send requests to the scheduler via port 5003
 	 * @param requestByte byte[],the request to store into a packet and send
 	 */
-	public void sendInfoToScheduler(byte[] requestByte) {
+	public synchronized void sendInfoToScheduler(byte[] requestByte) {
 		try {
 			sendPacket = new DatagramPacket(requestByte, requestByte.length,InetAddress.getLocalHost(), PacketUtils.SCHEDULER_FLOOR_PORT); // scheduler port 5003
 		} catch (UnknownHostException e) {
