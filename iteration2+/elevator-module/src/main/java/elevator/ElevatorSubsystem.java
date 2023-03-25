@@ -262,8 +262,7 @@ public class ElevatorSubsystem implements Runnable {
 		} else {
 			System.out.println(
 					"	Moving: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
-							+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // Floor
-																														// move
+							+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState());
 		}
 	}
 
