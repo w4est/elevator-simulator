@@ -273,20 +273,9 @@ public class FloorSubsystem implements Runnable {
 				}
 			}
 		}
-		//**Case 3: Receiving Faults (Send over to scheduler)
-		else if(receivePacket.getData()[0] == (byte)9 && receivePacket.getData()[1] == (byte)1) {
-			System.out.println("FloorSubsystem: SENDING DOOR FAULT");
-			sendInfoToScheduler(receivePacket.getData());
-			
-		}
-		else if(receivePacket.getData()[0] == (byte)9 && receivePacket.getData()[1] == (byte)2) {
-			System.out.println("FloorSubsystem: SENDING SLOW FAULT");
-			sendInfoToScheduler(receivePacket.getData());
-			
-		}
 		updatePeopleWaitingOnAllFloors(); //update peopleWaitingOnAllFloors count
 
-	}
+	}	
 	
 	/**
 	 * Method used in run() to send requests to the scheduler via port 5003

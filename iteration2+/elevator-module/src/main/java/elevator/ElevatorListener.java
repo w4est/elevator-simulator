@@ -58,16 +58,7 @@ public class ElevatorListener implements Runnable {
 			if (debug) {
 				System.out.println("No new request received");
 			}
-		} 
-		// if the ElevatorListener receives a door fault (stuck), elevator should fix itself (transient fault)
-		else if (receive[0] == (byte)9 && receive[1] == (byte)1){
-			//fault function in elevatorsubsystem needed
-		}
-		// if the ElevatorListener receives a slow fault, shut down elevator (hard fault)
-		else if (receive[0] == (byte)9 && receive[1] == (byte)2){
-			elevSys.emergencyStop();
-		}
-		else {
+		} else {
 			addRequestsFromBytes(receive);
 		}
 

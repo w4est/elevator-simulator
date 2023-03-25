@@ -8,7 +8,7 @@ import java.time.LocalTime;
 public class PacketUtils {
 
 	public static final int BUFFER_SIZE = 128;
-	public static final int ELEVATOR_PORT = 50002;
+	public static final int ELEVATOR_PORT = 50020;
 	public static final int SCHEDULER_FLOOR_PORT = 50003;
 	public static final int SCHEDULER_ELEVATOR_PORT = 50004;
 	public static final int FLOOR_PORT = 50001;

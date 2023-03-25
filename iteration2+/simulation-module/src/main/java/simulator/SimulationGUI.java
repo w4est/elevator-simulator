@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -27,9 +28,9 @@ public class SimulationGUI {
 		model.setMaximum(10);
 		model.setMinimum(1);
 		model.setValue(1);
-		//JLabel l = new JLabel("elevator to message:");
-		//JSpinner elevatorSpinner = new JSpinner(model);
-		//l.setLabelFor(elevatorSpinner);
+		JLabel l = new JLabel("elevator to message:");
+		JSpinner elevatorSpinner = new JSpinner(model);
+		l.setLabelFor(elevatorSpinner);
 		
 		JButton doorFault = new JButton("Send door fault");
 		doorFault.setBounds(230, 100, 200, 40);
@@ -37,7 +38,7 @@ public class SimulationGUI {
 		doorFault.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				sendDoorFault();
+				sendDoorFault(model.getNumber().intValue());  // passing in elevatornum
 			}
 		});
 		doorFault.setEnabled(false);
@@ -48,7 +49,7 @@ public class SimulationGUI {
 		slowFault.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				sendSlowFault();
+				sendSlowFault(model.getNumber().intValue());
 			}
 		});
 		slowFault.setEnabled(false);
@@ -72,10 +73,10 @@ public class SimulationGUI {
 		frame.add(startButton);
 		frame.add(doorFault);
 		frame.add(slowFault);
-		//frame.add(l);
-		//frame.add(elevatorSpinner);
-		//l.setBounds(250, 150, 150, 30);
-		//elevatorSpinner.setBounds(400, 150, 50, 30);
+		frame.add(l);
+		frame.add(elevatorSpinner);
+		l.setBounds(250, 150, 150, 30);
+		elevatorSpinner.setBounds(400, 150, 50, 30);
 	}
 
 	public void openScreen() {
@@ -93,14 +94,9 @@ public class SimulationGUI {
 	 * Fault used for someone pushing at the door. (first 2 bytes: {9,1})
 	 * Send fault to FloorSubsystem -> Scheduler -> ElevatorSubsystem
 	 */
-	private void sendDoorFault() {
-		try (DatagramSocket faultSocket = new DatagramSocket()) {
-			byte[] fault = PacketHeaders.DoorFault.getHeaderBytes();
-			DatagramPacket doorFaultPacket = new DatagramPacket(fault, fault.length, InetAddress.getLocalHost(),PacketUtils.FLOOR_PORT);
-			faultSocket.send(doorFaultPacket);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	private void sendDoorFault(int elevatorNum) {
+		byte[] fault = PacketHeaders.DoorFault.getHeaderBytes();
+		sendFaultToElevatorListener(fault, elevatorNum);
 	}
 
 	/**
@@ -108,13 +104,25 @@ public class SimulationGUI {
 	 *  Elevator slows and floor timer fault will shut it down.
 	 * Send fault to FloorSubsystem -> Scheduler -> ElevatorSubsystem
 	 */
-	private void sendSlowFault() {
-		try (DatagramSocket faultSocket = new DatagramSocket()) {
-			byte[] fault = PacketHeaders.SlowFault.getHeaderBytes();
-			DatagramPacket slowFaultPacket = new DatagramPacket(fault, fault.length, InetAddress.getLocalHost(),PacketUtils.FLOOR_PORT);
-			faultSocket.send(slowFaultPacket);
+	private void sendSlowFault(int elevatorNum) {
+		byte[] fault = PacketHeaders.SlowFault.getHeaderBytes();
+		sendFaultToElevatorListener(fault, elevatorNum);
+	}
+	
+	/**
+	 * Method used to send faults directly to ElevatorFault Listener
+	 * @param requestByte byte[],the request to store into a packet and send
+	 */
+	public synchronized void sendFaultToElevatorListener(byte[] requestByte, int carNum) {
+		System.out.println("CAR NUMBER : " + carNum);
+		int elavatorPortNum = PacketUtils.ELEVATOR_PORT + carNum;
+		
+		try (DatagramSocket sendSocket = new DatagramSocket()){
+			DatagramPacket sendPacket = new DatagramPacket(requestByte, requestByte.length,InetAddress.getLocalHost(), elavatorPortNum);
+			sendSocket.send(sendPacket);
 		} catch (IOException e) {
 			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 }

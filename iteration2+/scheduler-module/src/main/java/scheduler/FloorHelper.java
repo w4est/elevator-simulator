@@ -29,7 +29,7 @@ public class FloorHelper implements Runnable {
 	 */
 	public FloorHelper(Scheduler scheduler) {
 		try {
-			receiveSocket = new DatagramSocket(5003);
+			receiveSocket = new DatagramSocket(PacketUtils.SCHEDULER_FLOOR_PORT);
 		} catch (SocketException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -62,18 +62,12 @@ public class FloorHelper implements Runnable {
 
 		System.out.println("Scheduler received request packet from Floor.");
 
-		// if it is a fault, send directly to elevator
-		if (receivePacket.getData()[0] == (byte)9 && ((receivePacket.getData()[1] == (byte)1) || (receivePacket.getData()[1] == (byte)2))) {
-			sendFault(receivePacket.getData());
-		} else {
-			byte[] packetHeader = Arrays.copyOf(receivePacket.getData(), 2);
-			if (Arrays.equals(PacketHeaders.Request.getHeaderBytes(), packetHeader)) {
-				List<Request> newRequests = Request.fromByteArray(receivePacket.getData());
-				scheduler.organizeRequest(newRequests.get(0).getLocalTime(), newRequests.get(0));
-				System.out.println("Scheduler added request to the queue.");
-			}
+		byte[] packetHeader = Arrays.copyOf(receivePacket.getData(), 2);
+		if (Arrays.equals(PacketHeaders.Request.getHeaderBytes(), packetHeader)) {
+			List<Request> newRequests = Request.fromByteArray(receivePacket.getData());
+			scheduler.organizeRequest(newRequests.get(0).getLocalTime(), newRequests.get(0));
+			System.out.println("Scheduler added request to the queue.");
 		}
-		
 	}
 
 	/**
@@ -84,7 +78,7 @@ public class FloorHelper implements Runnable {
 	 */
 	public void sendPacket(byte[] sendData) {
 		try {
-			sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getLocalHost(), PacketUtils.FLOOR_PORT);
+			sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getLocalHost(), 5001);
 		} catch (UnknownHostException e1) {
 			e1.printStackTrace();
 			System.exit(1);
@@ -126,18 +120,5 @@ public class FloorHelper implements Runnable {
 	public void setReceiveSocket(DatagramSocket receiveSocket) {
 		this.receiveSocket.close();
 		this.receiveSocket = receiveSocket;
-	}
-	
-	/**
-	 * Sends a fault directly to the ElevatorHelper
-	 * @param fault byte[], the fault message to send
-	 */
-	public void sendFault(byte[] fault) {
-		try (DatagramSocket faultSocket = new DatagramSocket()) {
-			DatagramPacket faultPacket = new DatagramPacket(fault, fault.length, InetAddress.getLocalHost(),PacketUtils.SCHEDULER_ELEVATOR_PORT);
-			faultSocket.send(faultPacket);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }
