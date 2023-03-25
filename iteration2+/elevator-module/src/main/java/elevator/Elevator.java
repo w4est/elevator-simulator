@@ -14,14 +14,15 @@ import common.Request;
  * @author Farhan Mahamud
  *
  */
-public class Elevator implements Runnable {
+public class Elevator {
 
 	private int currentFloor; // The current floor of the elevator
 	private Direction currentDirection; // The current direction of the elevator
 	private int carNumber; // The unique car number
 	private ElevatorState elevatorState; // The current state of the elevator
 	private ArrayList<Request> elevatorQueue; // The requests stored in an elevator
-
+	private boolean slowMode = false; // Used to simulate motor problems
+	
 	/**
 	 * The default constructor
 	 * @param carNum // The unique car number
@@ -114,16 +115,15 @@ public class Elevator implements Runnable {
 	public void addPeople(Request r) {
 		elevatorQueue.add(r);
 	}
-
-	/**
-	 * The default run function inherited from the implement class
-	 */
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		
-	}
 	
+	public boolean isSlowMode() {
+		return slowMode;
+	}
+
+	public void setSlowMode(boolean slowMode) {
+		this.slowMode = slowMode;
+	}
+
 	/**
 	 * This method checks through requests to verify if the elevator completed all requests
 	 * @return boolean, true = all requests have been picked up, false otherwise
@@ -202,5 +202,44 @@ public class Elevator implements Runnable {
 			}
 		}
 		return people;
+	}
+	
+	public void openOrCloseDoor() {
+
+		if (elevatorState != ElevatorState.STOP_CLOSED && elevatorState != ElevatorState.STOP_OPENED) {
+			throw new IllegalArgumentException("Can only accept close or open door events!");
+		}
+		
+		boolean noDoorAlerts = false;
+
+		while (noDoorAlerts == false) {
+			noDoorAlerts = true;
+			try {
+				Thread.sleep(2500);
+			} catch (InterruptedException e) {
+				// The door was hit / is not acting properly, try again
+				noDoorAlerts = false;
+			}
+		}
+		elevatorState = elevatorState.nextState();
+	}
+	
+	
+	public void waitForPeopleToMoveOffOrOnElevator(int numPeople) {
+		// Make sure we spend the exact amount of time required, event if
+		// interrupts come at this time (we don't have interrupt handling here)
+		long timeForPeopleToMove = 1500 * numPeople;
+		long timeStartedMoving = System.currentTimeMillis();
+		while (timeForPeopleToMove > 0) {
+			try {
+				Thread.sleep(timeForPeopleToMove);
+				timeForPeopleToMove = 0L;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				if (timeStartedMoving - System.currentTimeMillis() < 4000) {
+					timeForPeopleToMove = timeStartedMoving - System.currentTimeMillis();
+				}
+			}
+		}
 	}
 }

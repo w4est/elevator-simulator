@@ -149,13 +149,9 @@ public class ElevatorSubsystem implements Runnable {
 				+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
 	
 		//Elevator door is closing to begin its path
-		try {
-			Thread.sleep(2500);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		// STOP_OPENED -> STOP_CLOSED
+		elevator.openOrCloseDoor();
 
-		this.elevator.nextElevatorState(); // STOP_OPENED -> STOP_CLOSED
 		System.out.println("	2. Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
 				+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
 
@@ -171,14 +167,10 @@ public class ElevatorSubsystem implements Runnable {
 				System.out.println("	3: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
 						+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
 				
-				//Elevator door is opening to pick up people
-				try {
-					Thread.sleep(2500);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-
-				this.elevator.nextElevatorState(); // STOP_CLOSED -> STOP_OPENED
+				// Elevator door is opening to pick up people
+				// STOP_CLOSED -> STOP_OPENED
+				elevator.openOrCloseDoor();
+				
 				System.out.println("	4: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
 						+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
 
@@ -192,14 +184,10 @@ public class ElevatorSubsystem implements Runnable {
 				System.out.println("	5: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
 						+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
 				
-				//Elevator door is opening to drop off people
-				try {
-					Thread.sleep(2500);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				// Elevator door is opening to drop off people
+				// STOP_CLOSED -> STOP_OPENED
+				elevator.openOrCloseDoor();
 
-				this.elevator.nextElevatorState(); // STOP_CLOSED -> STOP_OPENED
 				this.elevator.setCurrentDirection(Direction.IDLE);
 				System.out.println("	6: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
 						+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
@@ -212,12 +200,10 @@ public class ElevatorSubsystem implements Runnable {
 					break;
 				} else {
 					//Elevator door is closing after dropping off people
-					try {
-						Thread.sleep(2500 + (1000 * peopleRemoved));
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					this.getElevator().setElevatorStateManually(ElevatorState.STOP_CLOSED);
+					elevator.waitForPeopleToMoveOffOrOnElevator(peopleRemoved);
+					// STOP_OPENED -> STOP_CLOSE
+					elevator.openOrCloseDoor();
+					
 					System.out.println("	8: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
 							+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
 					changeDirection();
@@ -248,10 +234,20 @@ public class ElevatorSubsystem implements Runnable {
 		}
 		
 		//Elevator moving floor to floor
-		try {
-			Thread.sleep(4000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		// Make sure we spend the exact amount of time required, event if
+		// interrupts come at this time (we don't have interrupt handling here)
+		long timeStartedMoving = System.currentTimeMillis();
+		long timeToSpend = 4000;
+		while (timeToSpend > 0) {
+			try {
+				Thread.sleep(timeToSpend);
+				timeToSpend = 0L;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				if (timeStartedMoving - System.currentTimeMillis() < 4000) {
+					timeToSpend = timeStartedMoving - System.currentTimeMillis();
+				}
+			}
 		}
 
 		System.out.println("	Moving: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor " + this.elevator.getCurrentFloor()
@@ -277,16 +273,13 @@ public class ElevatorSubsystem implements Runnable {
 		}
 		
 		//Elevator door is closing after picking up people
-		try {
-			Thread.sleep(2500 + (1500 * people));
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		elevator.waitForPeopleToMoveOffOrOnElevator(people);
+		// STOP_OPENED -> STOP_CLOSED
+		elevator.openOrCloseDoor();
 
 		System.out.println(String.format("	ElevatorSubsystem: %d request from Floor %d got on the Elevator " + this.elevator.getCarNumber(), people,
 				currentFloor));
 		// close elevator
-		this.elevator.nextElevatorState(); // STOP_OPENED -> STOP_CLOSED
 		System.out.println("	Elevator Current Floor & State: " + "Floor " + this.elevator.getCurrentFloor()
 				+ ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
 		// set elevator's direction again
@@ -363,11 +356,11 @@ public class ElevatorSubsystem implements Runnable {
 	public static void main(String[] args) {
 		ElevatorSubsystem e = new ElevatorSubsystem(1);
 		ElevatorSubsystem e2 = new ElevatorSubsystem(2);
-		ElevatorListener listen = new ElevatorListener(e);
-		ElevatorListener listen2 = new ElevatorListener(e2);
-
 		Thread eThread1 = new Thread(e);
 		Thread eThread2 = new Thread(e2);
+		
+		ElevatorListener listen = new ElevatorListener(e, eThread1);
+		ElevatorListener listen2 = new ElevatorListener(e2, eThread2);
 		Thread listenThread = new Thread(listen);
 		Thread listenThread2 = new Thread(listen2);
 		
@@ -393,7 +386,7 @@ public class ElevatorSubsystem implements Runnable {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
+				// Nothing important is to happen, just start the next cycle a little early
 				e.printStackTrace();
 			}
 		}
