@@ -1,0 +1,35 @@
+@startuml
+binary  "ElevatorSubsystem"    as E
+binary  "Scheduler"    as S
+binary  "FloorSubsystem"    as F
+concise State
+
+@0
+E is Idle
+S is Idle
+F is Idle
+State is Normal
+
+@1
+F is High
+
+@2
+F is Idle
+S is High
+
+@3
+S is Idle
+E is High
+
+@4
+S is High: fault
+State is Slow
+
+@5
+E is Idle
+State is "Stopped Elevator"
+
+@8
+State is {-}
+
+@enduml
