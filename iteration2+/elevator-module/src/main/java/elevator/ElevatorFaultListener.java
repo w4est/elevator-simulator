@@ -58,7 +58,7 @@ public class ElevatorFaultListener implements Runnable{
 		// if the ElevatorListener receives a slow fault, shut down elevator (hard fault)
 		else if (receivePacket.getData()[0] == (byte)9 && receivePacket.getData()[1] == (byte)2) {
 			System.out.println("SLOW FAULT RECEIVED");
-			this.elevSys.emergencyStop();
+			this.elevSys.activateSlowFault();
 		}
 	}
 			
