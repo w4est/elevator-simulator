@@ -152,7 +152,6 @@ public class ElevatorSubsystem implements Runnable {
 		try {
 			Thread.sleep(2500);
 		} catch (InterruptedException e) {
-			System.exit(1);
 			e.printStackTrace();
 		}
 
@@ -176,7 +175,6 @@ public class ElevatorSubsystem implements Runnable {
 				try {
 					Thread.sleep(2500);
 				} catch (InterruptedException e) {
-					System.exit(1);
 					e.printStackTrace();
 				}
 
@@ -198,7 +196,6 @@ public class ElevatorSubsystem implements Runnable {
 				try {
 					Thread.sleep(2500);
 				} catch (InterruptedException e) {
-					System.exit(1);
 					e.printStackTrace();
 				}
 
@@ -218,7 +215,6 @@ public class ElevatorSubsystem implements Runnable {
 					try {
 						Thread.sleep(2500 + (1000 * peopleRemoved));
 					} catch (InterruptedException e) {
-						System.exit(1);
 						e.printStackTrace();
 					}
 					this.getElevator().setElevatorStateManually(ElevatorState.STOP_CLOSED);
@@ -255,7 +251,6 @@ public class ElevatorSubsystem implements Runnable {
 		try {
 			Thread.sleep(4000);
 		} catch (InterruptedException e) {
-			System.exit(1);
 			e.printStackTrace();
 		}
 
@@ -285,7 +280,6 @@ public class ElevatorSubsystem implements Runnable {
 		try {
 			Thread.sleep(2500 + (1500 * people));
 		} catch (InterruptedException e) {
-			System.exit(1);
 			e.printStackTrace();
 		}
 
