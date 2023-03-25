@@ -134,8 +134,8 @@ public class FloorHelper implements Runnable {
 	 */
 	public void sendFault(byte[] fault) {
 		try (DatagramSocket faultSocket = new DatagramSocket()) {
-			DatagramPacket doorFaultPacket = new DatagramPacket(fault, fault.length, InetAddress.getLocalHost(),PacketUtils.ELEVATOR_PORT);
-			faultSocket.send(doorFaultPacket);
+			DatagramPacket faultPacket = new DatagramPacket(fault, fault.length, InetAddress.getLocalHost(),PacketUtils.SCHEDULER_ELEVATOR_PORT);
+			faultSocket.send(faultPacket);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

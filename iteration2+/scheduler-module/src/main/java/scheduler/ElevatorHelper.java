@@ -68,46 +68,59 @@ public class ElevatorHelper implements Runnable {
 			e.printStackTrace();
 			System.exit(1);
 		}
-
-		System.out.println("Scheduler received update packet from Elevator.");
-		byte[] packetHeader = Arrays.copyOf(receivePacket.getData(), 2);
-		if (Arrays.equals(PacketHeaders.ElevatorInfoRequest.getHeaderBytes(), packetHeader)) {
-			ElevatorInfoRequest elevatorStatus = ElevatorInfoRequest.fromByteArray(receivePacket.getData());
-			
-			ArrayList<Request> sendRequests = scheduler.sendRequests(elevatorStatus.getDirection(),
-					elevatorStatus.getFloorNumber());
-
-			byte[] sendData = new byte[PacketUtils.BUFFER_SIZE];
-
-			// "empty" packet denoting that there are no new requests for this elevator
-			// thread to service.
-			if (sendRequests == null) {
-				sendData = new byte[2];
-				sendData[0] = (byte) 0;
-				sendData[1] = (byte) 0;
-			} else {
-				ByteBuffer byteBuffer = ByteBuffer.wrap(sendData);
-				while (sendRequests.size() != 0) {
-					byteBuffer.put(sendRequests.get(0).toByteArray());
-					sendRequests.remove(0);
-				}
-			}
-
-			sendPacket = new DatagramPacket(sendData, sendData.length, receivePacket.getAddress(),
-					receivePacket.getPort());
-
+		
+		//if Elevator helper receives a fault (from FloorHelper), then send directly to that Elevator
+		//else, continue normal operation
+		if (receivePacket.getData()[0] == (byte)9 && ((receivePacket.getData()[1] == (byte)1) || (receivePacket.getData()[1] == (byte)2))) {
+			DatagramPacket faultPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress() ,receivePacket.getPort());
 			try {
-				sendSocket.send(sendPacket);
+				sendSocket.send(faultPacket);
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
+		} else {
+			System.out.println("Scheduler received update packet from Elevator.");
+			byte[] packetHeader = Arrays.copyOf(receivePacket.getData(), 2);
+			if (Arrays.equals(PacketHeaders.ElevatorInfoRequest.getHeaderBytes(), packetHeader)) {
+				ElevatorInfoRequest elevatorStatus = ElevatorInfoRequest.fromByteArray(receivePacket.getData());
+				
+				ArrayList<Request> sendRequests = scheduler.sendRequests(elevatorStatus.getDirection(),
+						elevatorStatus.getFloorNumber());
 
-			System.out.println("Scheduler sent request packet to Elevator.");
+				byte[] sendData = new byte[PacketUtils.BUFFER_SIZE];
 
-			floorHelper.sendPacket(receivePacket.getData());
+				// "empty" packet denoting that there are no new requests for this elevator
+				// thread to service.
+				if (sendRequests == null) {
+					sendData = new byte[2];
+					sendData[0] = (byte) 0;
+					sendData[1] = (byte) 0;
+				} else {
+					ByteBuffer byteBuffer = ByteBuffer.wrap(sendData);
+					while (sendRequests.size() != 0) {
+						byteBuffer.put(sendRequests.get(0).toByteArray());
+						sendRequests.remove(0);
+					}
+				}
 
-			System.out.println("Scheduler passed update packet from Elevator to Floor.");
+				sendPacket = new DatagramPacket(sendData, sendData.length, receivePacket.getAddress(),
+						receivePacket.getPort());
+
+				try {
+					sendSocket.send(sendPacket);
+				} catch (IOException e) {
+					e.printStackTrace();
+					System.exit(1);
+				}
+
+				System.out.println("Scheduler sent request packet to Elevator.");
+
+				floorHelper.sendPacket(receivePacket.getData());
+
+				System.out.println("Scheduler passed update packet from Elevator to Floor.");
+			}
+			
 		}
 	}
 
@@ -151,4 +164,5 @@ public class ElevatorHelper implements Runnable {
 		this.receiveSocket.close();
 		this.receiveSocket = receiveSocket;
 	}
+	
 }

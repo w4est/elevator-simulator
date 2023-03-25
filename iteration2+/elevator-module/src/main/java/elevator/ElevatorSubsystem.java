@@ -352,7 +352,7 @@ public class ElevatorSubsystem implements Runnable {
 	}
 
 	/**
-	 * This is called by the scheduler if a slow fault is detected in this elevator.
+	 * This is called by the ElevatorHelper if a slow fault from the scheduler is detected in this elevator.
 	 * This stops the elevator until the scheduler tells it to resume.
 	 */
 	public void emergencyStop() {
