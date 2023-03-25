@@ -70,11 +70,10 @@ public class ElevatorHelper implements Runnable {
 		}
 
 		System.out.println("Scheduler received update packet from Elevator.");
-
-		ElevatorInfoRequest elevatorStatus = ElevatorInfoRequest.fromByteArray(receiveData);
-
 		byte[] packetHeader = Arrays.copyOf(receivePacket.getData(), 2);
 		if (Arrays.equals(PacketHeaders.ElevatorInfoRequest.getHeaderBytes(), packetHeader)) {
+			ElevatorInfoRequest elevatorStatus = ElevatorInfoRequest.fromByteArray(receivePacket.getData());
+			
 			ArrayList<Request> sendRequests = scheduler.sendRequests(elevatorStatus.getDirection(),
 					elevatorStatus.getFloorNumber());
 
