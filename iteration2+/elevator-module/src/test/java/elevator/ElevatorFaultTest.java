@@ -1,6 +1,7 @@
 package elevator;
 
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -13,6 +14,11 @@ import org.mockito.stubbing.Answer;
 
 import common.PacketUtils;
 
+/**
+ * A test class for testing the ElevatorFaultListener class
+ * @author Farhan Mahamud
+ *
+ */
 public class ElevatorFaultTest {
 	
 	/**
@@ -60,7 +66,7 @@ public class ElevatorFaultTest {
 	@SuppressWarnings("rawtypes")
 	void receiveSlowFault() {
 		DatagramSocket s = Mockito.mock(DatagramSocket.class);
-		ElevatorSubsystem elevSub = new ElevatorSubsystem(1);
+		ElevatorSubsystem elevSub = Mockito.mock(ElevatorSubsystem.class);
 		Thread elevSubThread = Mockito.mock(Thread.class);
 		ElevatorFaultListener fault = new ElevatorFaultListener(elevSub, elevSubThread, s);
 		
@@ -87,7 +93,9 @@ public class ElevatorFaultTest {
 			e.printStackTrace();
 		}
 
+		
+		when(elevSub.getElevator()).thenReturn(new Elevator(0));
 		fault.checkForFaults();
-		Mockito.verify(elevSubThread, times(1)).interrupt();;
+		Mockito.verify(elevSub, times(1)).activateSlowFault();
 	}
 }

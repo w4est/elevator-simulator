@@ -100,6 +100,10 @@ public class Elevator {
 		this.currentDirection = currentDirection;
 	}
 	
+	public void setCarNum(int c) {
+		this.carNumber = c;
+	}
+	
 	/**
 	 * Getter method used to get the elevators list of requests
 	 * @return ArrayList<Request>, the list of requests in the elevator
