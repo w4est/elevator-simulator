@@ -29,6 +29,9 @@ public class ElevatorSubsystem implements Runnable {
 	private final int MIN_FLOOR; // The variable min floor set by the constructor
 	private ArrayList<Request> floorQueues; // The list of requests given by the scheduler
 
+	private final long FLOOR_MOVEMENT_DEADLINE = 5000L;
+	private boolean running = true;
+
 	/**
 	 * The default constructor if no minimum and maximum floors are not given
 	 * 
@@ -139,16 +142,14 @@ public class ElevatorSubsystem implements Runnable {
 			try {
 				wait();
 			} catch (InterruptedException e) {
-				System.exit(1);
-				e.printStackTrace();
 			}
 		}
 
 		System.out.println("	ElevatorSubsystem: Start Operate Cycle");
 		System.out.println("	1. Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
 				+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
-	
-		//Elevator door is closing to begin its path
+
+		// Elevator door is closing to begin its path
 		// STOP_OPENED -> STOP_CLOSED
 		elevator.openOrCloseDoor();
 
@@ -160,19 +161,21 @@ public class ElevatorSubsystem implements Runnable {
 
 		// 3: Move elevator until it has moved the request
 		while (this.elevator.getCurrentElevatorState() != ElevatorState.STOP_OPENED
-				&& this.elevator.getCurrentElevatorState() != ElevatorState.STOP_CLOSED) {
+				&& this.elevator.getCurrentElevatorState() != ElevatorState.STOP_CLOSED && running) {
 			// stop for starting request
 			if (stopElevator() == 1) {
 				this.elevator.nextElevatorState(); // MOVING_UP/DOWN -> STOP_CLOSED
-				System.out.println("	3: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
-						+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
-				
+				System.out.println("	3: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: "
+						+ "Floor " + this.elevator.getCurrentFloor() + ", State: "
+						+ this.elevator.getCurrentElevatorState()); // STOP_CLOSED
+
 				// Elevator door is opening to pick up people
 				// STOP_CLOSED -> STOP_OPENED
 				elevator.openOrCloseDoor();
-				
-				System.out.println("	4: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
-						+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
+
+				System.out.println("	4: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: "
+						+ "Floor " + this.elevator.getCurrentFloor() + ", State: "
+						+ this.elevator.getCurrentElevatorState()); // STOP_OPENED
 
 				movePeopleOnElevator(elevator.getCurrentFloor()); // in method will go to STOP_CLOSED then
 																	// MOVING_UP/DOWN
@@ -181,31 +184,34 @@ public class ElevatorSubsystem implements Runnable {
 			// stop for destination request
 			else if (stopElevator() == 2) {
 				this.elevator.nextElevatorState(); // MOVING_UP/DOWN -> STOP_CLOSED
-				System.out.println("	5: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
-						+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
-				
+				System.out.println("	5: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: "
+						+ "Floor " + this.elevator.getCurrentFloor() + ", State: "
+						+ this.elevator.getCurrentElevatorState()); // STOP_CLOSED
+
 				// Elevator door is opening to drop off people
 				// STOP_CLOSED -> STOP_OPENED
 				elevator.openOrCloseDoor();
 
 				this.elevator.setCurrentDirection(Direction.IDLE);
-				System.out.println("	6: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
-						+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
+				System.out.println("	6: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: "
+						+ "Floor " + this.elevator.getCurrentFloor() + ", State: "
+						+ this.elevator.getCurrentElevatorState()); // STOP_OPENED
 
 				// elevator reached destination, clear floor and break while loop
 				int peopleRemoved = this.elevator.clearFloor();
-				System.out
-						.println("	7. Elevator " + this.elevator.getCarNumber() + " reached destination and dropped off " + peopleRemoved + " request(s)!");
+				System.out.println("	7. Elevator " + this.elevator.getCarNumber()
+						+ " reached destination and dropped off " + peopleRemoved + " request(s)!");
 				if (elevator.getElevatorQueue().isEmpty()) {
 					break;
 				} else {
-					//Elevator door is closing after dropping off people
+					// Elevator door is closing after dropping off people
 					elevator.waitForPeopleToMoveOffOrOnElevator(peopleRemoved);
 					// STOP_OPENED -> STOP_CLOSE
 					elevator.openOrCloseDoor();
-					
-					System.out.println("	8: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
-							+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
+
+					System.out.println("	8: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: "
+							+ "Floor " + this.elevator.getCurrentFloor() + ", State: "
+							+ this.elevator.getCurrentElevatorState()); // STOP_CLOSED
 					changeDirection();
 				}
 			}
@@ -232,26 +238,33 @@ public class ElevatorSubsystem implements Runnable {
 				&& elevator.getCurrentFloor() > this.MIN_FLOOR) {
 			this.elevator.setCurrentFloor(nextFloorDown);
 		}
-		
-		//Elevator moving floor to floor
+
+		// Elevator moving floor to floor
 		// Make sure we spend the exact amount of time required, event if
 		// interrupts come at this time (we don't have interrupt handling here)
 		long timeStartedMoving = System.currentTimeMillis();
-		long timeToSpend = 4000;
+		long timeToSpend = elevator.isSlowMode() ? 8000 : 4000;
 		while (timeToSpend > 0) {
 			try {
 				Thread.sleep(timeToSpend);
 				timeToSpend = 0L;
 			} catch (InterruptedException e) {
-				e.printStackTrace();
-				if (timeStartedMoving - System.currentTimeMillis() < 4000) {
-					timeToSpend = timeStartedMoving - System.currentTimeMillis();
+				// Keep going, interruptions don't affect elevator motors
+				if (System.currentTimeMillis() - timeStartedMoving < timeToSpend) {
+					timeToSpend = System.currentTimeMillis() - timeStartedMoving;
 				}
 			}
 		}
 
-		System.out.println("	Moving: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor " + this.elevator.getCurrentFloor()
-				+ ", State: " + this.elevator.getCurrentElevatorState()); // Floor move
+		// Check deadline met
+		if (System.currentTimeMillis() - timeStartedMoving > FLOOR_MOVEMENT_DEADLINE) {
+			emergencyStop();
+		} else {
+			System.out.println(
+					"	Moving: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
+							+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // Floor
+																														// move
+		}
 	}
 
 	/**
@@ -271,14 +284,15 @@ public class ElevatorSubsystem implements Runnable {
 				floorQueues.remove(i);
 			}
 		}
-		
-		//Elevator door is closing after picking up people
+
+		// Elevator door is closing after picking up people
 		elevator.waitForPeopleToMoveOffOrOnElevator(people);
 		// STOP_OPENED -> STOP_CLOSED
 		elevator.openOrCloseDoor();
 
-		System.out.println(String.format("	ElevatorSubsystem: %d request from Floor %d got on the Elevator " + this.elevator.getCarNumber(), people,
-				currentFloor));
+		System.out.println(String.format(
+				"	ElevatorSubsystem: %d request from Floor %d got on the Elevator " + this.elevator.getCarNumber(),
+				people, currentFloor));
 		// close elevator
 		System.out.println("	Elevator Current Floor & State: " + "Floor " + this.elevator.getCurrentFloor()
 				+ ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
@@ -345,12 +359,23 @@ public class ElevatorSubsystem implements Runnable {
 	}
 
 	/**
-	 * This is called by the ElevatorHelper if a slow fault from the scheduler is detected in this elevator.
-	 * This stops the elevator until the scheduler tells it to resume.
+	 * This is called by the ElevatorHelper if a slow fault from the scheduler is
+	 * detected in this elevator. This stops the elevator until the scheduler tells
+	 * it to resume.
 	 */
-	public void emergencyStop() {
+	private void emergencyStop() {
+		running = false;
 		System.out.println("Elevator " + this.getElevator().getCarNumber()
 				+ " encountered a slow running fault and terminated. Emergency services contacted to save the stuck people.");
+	}
+
+	/*
+	 * Simulate something going wrong with the elevator motor, the elevator should
+	 * move slower
+	 */
+	public void activateSlowFault() {
+		System.out.println("Elevator" + elevator.getCarNumber() + " is acting weird and slowed down!");
+		elevator.setSlowMode(true);
 	}
 
 	public static void main(String[] args) {
@@ -358,15 +383,15 @@ public class ElevatorSubsystem implements Runnable {
 		ElevatorSubsystem e2 = new ElevatorSubsystem(2);
 		Thread eThread1 = new Thread(e);
 		Thread eThread2 = new Thread(e2);
-		
+
 		ElevatorListener listen = new ElevatorListener(e);
 		ElevatorListener listen2 = new ElevatorListener(e2);
 		Thread listenThread = new Thread(listen);
 		Thread listenThread2 = new Thread(listen2);
-		
+
 		ElevatorFaultListener faultListen = new ElevatorFaultListener(e, eThread1);
 		ElevatorFaultListener faultListen2 = new ElevatorFaultListener(e2, eThread2);
-		
+
 		Thread faultListenThread = new Thread(faultListen);
 		Thread faultListenThread2 = new Thread(faultListen2);
 
@@ -380,14 +405,13 @@ public class ElevatorSubsystem implements Runnable {
 
 	@Override
 	public void run() {
-		while (true) {
+		while (running) {
 			operate();
 			this.toString();
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// Nothing important is to happen, just start the next cycle a little early
-				e.printStackTrace();
 			}
 		}
 	}
