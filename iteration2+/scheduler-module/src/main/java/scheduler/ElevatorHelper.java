@@ -36,7 +36,7 @@ public class ElevatorHelper implements Runnable {
 	 */
 	public ElevatorHelper(Scheduler scheduler, FloorHelper floorHelper) {
 		try {
-			receiveSocket = new DatagramSocket(5004);
+			receiveSocket = new DatagramSocket(PacketUtils.SCHEDULER_ELEVATOR_PORT);
 		} catch (SocketException e) {
 			e.printStackTrace();
 			System.exit(1);
