@@ -236,9 +236,9 @@ public class Elevator {
 				Thread.sleep(timeForPeopleToMove);
 				timeForPeopleToMove = 0L;
 			} catch (InterruptedException e) {
-				e.printStackTrace();
-				if (timeStartedMoving - System.currentTimeMillis() < 4000) {
-					timeForPeopleToMove = timeStartedMoving - System.currentTimeMillis();
+				// No interruptions matter here, resume the process of people moving off or on
+				if (System.currentTimeMillis() - timeStartedMoving < timeForPeopleToMove) {
+					timeForPeopleToMove = System.currentTimeMillis() - timeStartedMoving;
 				}
 			}
 		}
