@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -85,10 +84,6 @@ public class SimulationGUI {
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
-
-	
-	// TODO, verify that the ELEVATOR_PORT is the proper starting port per elevator subsystem, or alter the class to have 
-	// an effected elevator
 	
 	/**
 	 * Fault used for someone pushing at the door. (first 2 bytes: {9,1})

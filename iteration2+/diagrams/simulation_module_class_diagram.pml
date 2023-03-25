@@ -86,14 +86,31 @@ class SimulationEntry {
 
 class SimulationRunner {
    + main(String[]) : void
+   - isGuiFlagInStringArgs(String[]) : boolean
 }
 
-    SimulationRunner ..> Simulation
+class SimulationGUI {
+   + openScreen() : void
+   - sendDoorFault(int) : void
+   - sendSlowFault(int) : void
+   - sendFaultToElevatorListener(byte[], int): void
+}
+
+class SimulationThread {
+
+}
+
+
+    SimulationRunner ..> SimulationThread
+    SimulationRunner ..> SimulationGUI
+    SimulationGUI ..> SimulationThread
+    SimulationThread ..> Simulation
     InputFileReader ..> SimulationEntry
     InputFileReader ..> Direction
     Simulation ..> InputFileReader
     Simulation ..> SimulationEntry
 }
+
 
 class DatagramSocket {
 
@@ -101,6 +118,7 @@ class DatagramSocket {
 
 Simulation -> DatagramSocket
 Simulation ..|> PacketUtils
+SimulationGUI ..|> PacketUtils
 SimulationEntry -> LocalTime
 Request -> LocalTime
 @enduml
