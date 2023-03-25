@@ -7,14 +7,13 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.List;
 
 import common.ElevatorInfoRequest;
 import common.PacketUtils;
 import common.Request;
 
-public class ElevatorListener implements Runnable{
+public class ElevatorListener implements Runnable {
 
 	private ElevatorSubsystem elevSys;
 	private DatagramPacket sendPacket, receivePacket; // Packets for sending and receiveing
@@ -24,9 +23,10 @@ public class ElevatorListener implements Runnable{
 		elevSys = e;
 		setupSocket();
 	}
-	
+
 	/**
 	 * Sets up the socket
+	 * 
 	 * @author Farhan Mahamud
 	 */
 	private void setupSocket() {
@@ -40,23 +40,17 @@ public class ElevatorListener implements Runnable{
 	}
 
 	/**
-	 * Private method used for closing the socket
-	 */
-	private void closeSocket() {
-		socket.close();
-	}
-
-	/**
 	 * Method used by the scheduler to update the list of the requests assigned by
 	 * the scheduler.
 	 * 
 	 * @param r Request, the highest priority request from the Scheduler
 	 */
 	public synchronized void updateFloorQueue() {
-		
+
 		Elevator elevator = elevSys.getElevator();
-		
-		byte[] data = new ElevatorInfoRequest(elevator.getCarNumber(), elevator.getCurrentFloor(), elevator.getCurrentDirection(), elevator.getCurrentElevatorState()).toByteArray();
+
+		byte[] data = new ElevatorInfoRequest(elevator.getCarNumber(), elevator.getCurrentFloor(),
+				elevator.getCurrentDirection(), elevator.getCurrentElevatorState()).toByteArray();
 		byte[] receive = this.sendElevatorRequestPacket(data);
 
 		if (receive[0] == 0 && receive[1] == 0) {
@@ -66,17 +60,22 @@ public class ElevatorListener implements Runnable{
 		}
 
 	}
-	
 
-
+	/**
+	 * Adds a request to the elevator based on packet bytes received from the
+	 * scheduler.
+	 * 
+	 * @param requestData byte[], the request info received from the scheduler.
+	 */
 	private void addRequestsFromBytes(byte[] requestData) {
 		List<Request> requests = Request.fromByteArray(requestData);
-		
+
 		elevSys.addRequests(requests);
 	}
-	
+
 	/**
 	 * Public function to send and receive a UDP packet to and from the socket
+	 * 
 	 * @param data
 	 * @return byte[]
 	 * @author Farhan Mahamud
@@ -86,7 +85,8 @@ public class ElevatorListener implements Runnable{
 		byte[] receiveData = new byte[PacketUtils.BUFFER_SIZE];
 
 		try {
-			sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), PacketUtils.SCHEDULER_ELEVATOR_PORT); // Initialize packet
+			sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(),
+					PacketUtils.SCHEDULER_ELEVATOR_PORT); // Initialize packet
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -107,12 +107,12 @@ public class ElevatorListener implements Runnable{
 		try {
 			// Block until a datagram is received via sendReceiveSocket.
 			System.out.println("Elevator: Waiting to receive message from Scheduler");
-			
+
 			socket.receive(receivePacket); // Waiting to receive packet from host
 		} catch (SocketTimeoutException e) {
-			return new byte[] {0, 0};
+			return new byte[] { 0, 0 };
 		} catch (IOException e) {
-		
+
 			e.printStackTrace();
 			System.exit(1);
 		}
@@ -123,7 +123,7 @@ public class ElevatorListener implements Runnable{
 
 		return receivePacket.getData();
 	}
-	
+
 	/**
 	 * Prints a given array 'message' for a certain amount of length as bytes
 	 * 
@@ -141,6 +141,7 @@ public class ElevatorListener implements Runnable{
 
 	/**
 	 * Prints a given byte array
+	 * 
 	 * @param data
 	 * @author Farhan Mahamud
 	 */
@@ -153,13 +154,13 @@ public class ElevatorListener implements Runnable{
 		}
 		System.out.println("");
 	}
-	
+
 	@Override
 	public void run() {
-		while(true) {
+		while (true) {
 			this.updateFloorQueue();
 		}
-		
+
 	}
 
 }
