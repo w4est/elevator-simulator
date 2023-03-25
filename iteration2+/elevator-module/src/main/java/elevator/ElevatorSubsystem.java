@@ -359,8 +359,8 @@ public class ElevatorSubsystem implements Runnable {
 		Thread eThread1 = new Thread(e);
 		Thread eThread2 = new Thread(e2);
 		
-		ElevatorListener listen = new ElevatorListener(e, eThread1);
-		ElevatorListener listen2 = new ElevatorListener(e2, eThread2);
+		ElevatorListener listen = new ElevatorListener(e);
+		ElevatorListener listen2 = new ElevatorListener(e2);
 		Thread listenThread = new Thread(listen);
 		Thread listenThread2 = new Thread(listen2);
 		

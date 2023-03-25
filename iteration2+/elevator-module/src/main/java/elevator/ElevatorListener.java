@@ -16,14 +16,12 @@ import common.Request;
 public class ElevatorListener implements Runnable {
 
 	private ElevatorSubsystem elevSys;
-	private Thread elevSysThread;
 	private DatagramPacket sendPacket, receivePacket; // Packets for sending and receiveing
 	protected DatagramSocket socket; // Socket used for sending and receiving UDP packets
 	private static boolean debug = false;
 
-	public ElevatorListener(ElevatorSubsystem e, Thread eThread) {
+	public ElevatorListener(ElevatorSubsystem e) {
 		elevSys = e;
-		elevSysThread = eThread;
 		setupSocket();
 	}
 
@@ -134,10 +132,6 @@ public class ElevatorListener implements Runnable {
 
 		return receivePacket.getData();
 
-	}
-	
-	private void sendDoorFault() {
-		elevSysThread.interrupt();
 	}
 
 	/**
