@@ -10,9 +10,6 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-import simulator.InputFileReader;
-import simulator.SimulationEntry;
-
 public class InputFileReaderTest {
 
 	private static final String TEST_FILE1 = "src/test/resources/reader_test1.txt";
