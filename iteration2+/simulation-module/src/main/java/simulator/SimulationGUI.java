@@ -92,17 +92,19 @@ public class SimulationGUI {
 	
 	/**
 	 * Fault used for someone pushing at the door. (first 2 bytes: {9,1})
-	 * Send fault to FloorSubsystem -> Scheduler -> ElevatorSubsystem
+	 * Send fault to ElevatorFaultListener -> ElevatorSubsystem
+	 * @param elevatorNum int, the elevator car number selected
 	 */
 	private void sendDoorFault(int elevatorNum) {
 		byte[] fault = PacketHeaders.DoorFault.getHeaderBytes();
 		sendFaultToElevatorListener(fault, elevatorNum);
 	}
-
+	
 	/**
-	 *  Fault used for trying to leave and exit the system. (first 2 bytes: {9,2})
-	 *  Elevator slows and floor timer fault will shut it down.
-	 * Send fault to FloorSubsystem -> Scheduler -> ElevatorSubsystem
+	 * Fault used for trying to leave and exit the system. (first 2 bytes: {9,2})
+	 * Elevator slows and will shut down.
+	 * Send fault to ElevatorFaultListener -> ElevatorSubsystem
+	 * @param elevatorNum int, the elevator car number selected
 	 */
 	private void sendSlowFault(int elevatorNum) {
 		byte[] fault = PacketHeaders.SlowFault.getHeaderBytes();

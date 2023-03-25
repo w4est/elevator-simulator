@@ -3,17 +3,17 @@ package elevator;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
 
 import common.PacketUtils;
 
 /**
- * Thread constantly checks for faults from the FloorSubsystem (using ELEVATOR_PORT)
+ * Thread constantly checks for faults received from the SimulationGUI calls.
+ * A Door Fault will send an interrupt and elevator should fix itself (transient fault)
+ * A Slow Fault will slow down the elevator until its forced to shut down.
  * 
- * @author subea
- *
+ * Note: A new port number is the ELEVATOR_PORT + the elevator number.
+ * @author Subear Jama
  */
 public class ElevatorFaultListener implements Runnable{
 	
@@ -23,10 +23,15 @@ public class ElevatorFaultListener implements Runnable{
 	private int portNum;
 	private Thread elevatorThread;
 	
+	/**
+	 * Constructor sets up a different port number for every elevator
+	 * @param e               ElevatorSubsystem, the elevator
+	 * @param elevatorThread  Thread, the elevator's thread
+	 */
 	public ElevatorFaultListener(ElevatorSubsystem e, Thread elevatorThread) {
-		portNum = PacketUtils.ELEVATOR_PORT + e.getElevator().getCarNumber();
+		this.portNum = PacketUtils.ELEVATOR_PORT + e.getElevator().getCarNumber();
 		
-		elevSys = e;
+		this.elevSys = e;
 		this.elevatorThread = elevatorThread;
 		try {
 			receiveSocket = new DatagramSocket(portNum);
@@ -36,6 +41,9 @@ public class ElevatorFaultListener implements Runnable{
 		}
 	}
 	
+	/**
+	 * Method constantly called in run() to receive faults
+	 */
 	private void checkForFaults() {
 		
 		byte[] receiveData = new byte[PacketUtils.BUFFER_SIZE];

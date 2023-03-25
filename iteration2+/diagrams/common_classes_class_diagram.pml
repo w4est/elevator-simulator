@@ -18,7 +18,7 @@ package "common classes" #DDDDDD {
     + getRequestComplete() : boolean
     + setRequestComplete() : void
     + toByteArray() : byte[]
-    + {static} fromByteArray(byte[]) : Request
+    + {static} fromByteArray(message:byte[]) : List<Request>
 } 
 
 class ElevatorInfoRequest {
@@ -62,9 +62,25 @@ class PacketUtils {
     + {static} stateToByteArray(ElevatorState): byte[]
 }
 
+enum Fault {
+    DoorFault
+    SlowFault
+}
+
+class FaultMessage {
+    - Fault fault
+    + getFault(): Fault
+    + setFault(fault:Fault): void
+    + toByteArray(): byte[]
+    + {static} fromByteArray(message:byte[]): FaultMessage
+}
+
+
 enum PacketHeaders {
    Request
    ElevatorInfoRequest
+   DoorFault
+   SlowFault
 
    + getHeaderBytes() : byte[]
 }
@@ -85,6 +101,7 @@ enum ElevatorState {
    ElevatorInfoRequest -> ElevatorState
 }
 
+FaultMessage -> Fault
 
 Request -> LocalTime
 @enduml
