@@ -24,9 +24,11 @@ All of the tests are included in the same java packages as the source, but under
 1. common-classes (module)
    * RequestTest.java
    * ElevatorInfoRequestTest.java
+   * FaultMessageTest.java
 1. elevator-module (module)
    * ElevatorSubsystemTest.java
    * ElevatorTest.java
+   * ElevatorFaultListenerTest.java
 2. floor-module (module)
    * FloorSubsystemTest.java
 3. scheduler-module (module)
@@ -59,6 +61,8 @@ All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in th
 ![Elevator class diagram](./diagrams/elevator_module_class_diagram.png)
 * Elevator.java : a class to represent the elevator hardware 
 * ElevatorSubsystem.java : a class to manage elevators
+* ElevatorListener.java: a class that actively (IE poll) the scheduler to communicate with it
+* ElevatorFaultListener.java : a class that passively waits for fault packets
   
 # floor (module)
 ![FloorSubsystem class diagram](./diagrams/floorsubsystem__module_class_diagram.png)
@@ -76,7 +80,9 @@ All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in th
 
 ![Simulation class diagram](./diagrams/simulation_module_class_diagram.png)
 * Simulation.java : responsible for program initialization & running the simulation from the console
-* SimulationRunner.java : A class that used to kickoff the Simulation class.
+* SimulationThread.java : A class used to box the simulation in a thread, used in SimulationRunner.java and SimulationGUI.java
+* SimulationRunner.java : A class that used to kickoff the Simulation class from the command line.
+* SimulationGUI.java : A class used to also kickoff the simulation class, and allows sending of faults
 * InputFileReader.java : used within FloorSubsystem to help read a text file.
 * SimulationEntry.java : used within FloorSubsystem to help read a text file.
 
@@ -95,10 +101,11 @@ Below are the set up instructions. For more information, see "L2G2_Test_Instruct
 9. Let eclipse download the appropriate dependencies (Such as JUnit)
 10. In the "scheduler-module" package run the Scheduler.java
 11. In the "floor-module" package run the FloorSubsystem.java
-12. In the "simulator" package run "Simulation.java" to send data the to the elevator system!
+12. In the "elevator-module" package run the ElevatorSubsystem.java
+13. In the "simulator" package run "Simulation.java" to send data the to the elevator system!
  * If you'd like to run in realtime mode, add the argument --realtime
- * If you'd like to run a new file for sending requests, use the argument --file [filename]
-13. In the "elevator-module" package run the ElevatorSubsystem.java (It is imperative that this is last)
+ * If you'd like to run a new file for sending requests, use the argument --file [filename] (This can only be used on non-gui mode this iteration)
+ * If you'd like to run with  a GUI (allowing sending of faults), use the argument --gui
 14. See progress in the console. It is suggested to stop the elevator early to make it easier to read it's logs (It is always active)
 
 ### Another way to run:
@@ -113,10 +120,11 @@ Below are the set up instructions. For more information, see "L2G2_Test_Instruct
 9. Let eclipse download the appropriate dependencies (Such as JUnit)
 10. In the "scheduler-module" package run the Scheduler.java
 11. In the "floor-module" package run the FloorSubsystem.java
-12. In the "simulator" package run "Simulation.java" to send data the to the elevator system!
+12. In the "elevator-module" package run the ElevatorSubsystem.java
+13. In the "simulator" package run "Simulation.java" to send data the to the elevator system!
  * If you'd like to run in realtime mode, add the argument --realtime
- * If you'd like to run a new file for sending requests, use the argument --file [filename]
-13. In the "elevator-module" package run the ElevatorSubsystem.java (It is imperative that this is last)
+ * If you'd like to run a new file for sending requests, use the argument --file [filename] (This can only be used on non-gui mode this iteration)
+ * If you'd like to run with  a GUI (allowing sending of faults), use the argument --gui
 14. See progress in the console. It is suggested to stop the elevator early to make it easier to read it's logs (It is always active)
 
 ### Running tests (Using JUnit)
@@ -131,6 +139,22 @@ Below are the set up instructions. For more information, see "L2G2_Test_Instruct
 4. Input the goals as "compile test"
 5. All tests in all modules will be run to completion.
 
+## Using the Gui
+
+The gui can be used to start the simulation, and can also send faults to elevators.
+
+To send a fault, enter the elevator to send the fault's number into the spinbox (Currently, that is elevator 1 or 2), and then click the corresponding fault button.
+The fault buttons will be enabled after the simulation starts.
+
+Due to the time nature of faults, realtime sending of inputs is always one with the GUI mode.
+
+The door fault should be sent when an elevator is moving it's door. Receiving fault data while moving up or down does not indicate to the system
+that a door fault is actually occuring (as it's not either opening or closing).
+
+You can activate a door fault multiple times, and the window is generous (2.5s to open or close, and a retry is a full 2.5s).
+
+The slow fault will cripple an elevator, making it take twice as long to move between floors. 
+You will see that deadling of moving will not be made, and the elevator will terminate it's function at that time.
 
 ## Breakdown Of Responsibilities
 For more information on how everything was split equally, see "L2G2_Teamwork_Breakdown.pdf".
