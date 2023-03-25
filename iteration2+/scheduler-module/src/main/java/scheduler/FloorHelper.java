@@ -29,7 +29,7 @@ public class FloorHelper implements Runnable {
 	 */
 	public FloorHelper(Scheduler scheduler) {
 		try {
-			receiveSocket = new DatagramSocket(5003);
+			receiveSocket = new DatagramSocket(PacketUtils.SCHEDULER_FLOOR_PORT);
 		} catch (SocketException e) {
 			e.printStackTrace();
 			System.exit(1);
