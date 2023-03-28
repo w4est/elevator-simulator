@@ -32,11 +32,14 @@ public class FloorSubsystem implements Runnable {
 	private DatagramSocket sendSocket;		//sending requests to scheduler (port 5003)
 	private DatagramPacket receivePacket,sendPacket;
 	
+	private int schedulerIp;
+	
 	/**
 	 * FloorSubsystem Constructor sets up the number of floors and DatagramSockets.
 	 * @param maxFloor int, represents the number of floors the FloorSubsystem should create.
+	 * @param schedulerIpAddress int, the scheduler pc's ip address to send to
 	 */
-	public FloorSubsystem(int maxFloor) {
+	public FloorSubsystem(int maxFloor, int schedulerIpAddress) {
 		this.MAX_FLOOR = maxFloor;
 		this.allFloors = new ArrayList<Floor>(MAX_FLOOR);
 		this.peopleWaitingOnAllFloors = 0;
@@ -52,7 +55,8 @@ public class FloorSubsystem implements Runnable {
 		} catch (SocketException se) {
 		      se.printStackTrace();
 		      System.exit(1);
-	    } 
+	    }
+		this.schedulerIp = schedulerIpAddress;
 	}
 	
 	/**
