@@ -37,7 +37,7 @@ public class ElevatorSubsystemTest {
 	@SuppressWarnings("rawtypes")
 	void receiveRequest() {
 		DatagramSocket s = Mockito.mock(DatagramSocket.class);
-		ElevatorSubsystem elevSub = new ElevatorSubsystem(1);
+		ElevatorSubsystem elevSub =  new ElevatorSubsystem(1, 100, 100, 100, 7, 1);
 		ElevatorListener elevListen = new ElevatorListener(elevSub, s);
 		
 		try {
@@ -70,7 +70,7 @@ public class ElevatorSubsystemTest {
 	@SuppressWarnings("rawtypes")
 	public void receiveMultipleRequests() {
 		DatagramSocket s = Mockito.mock(DatagramSocket.class);
-		ElevatorSubsystem elevSub = new ElevatorSubsystem(1);
+		ElevatorSubsystem elevSub =  new ElevatorSubsystem(1, 100, 100, 100, 7, 1);
 		ElevatorListener elevListen = new ElevatorListener(elevSub, s);
 		
 		try {
@@ -113,7 +113,7 @@ public class ElevatorSubsystemTest {
 	@SuppressWarnings("rawtypes")
 	void receiveConfimation() {
 		DatagramSocket s = Mockito.mock(DatagramSocket.class);
-		ElevatorSubsystem elevSub = new ElevatorSubsystem(1);
+		ElevatorSubsystem elevSub =  new ElevatorSubsystem(1, 100, 100, 100, 7, 1);
 		ElevatorListener elevListen = new ElevatorListener(elevSub, s);
 		try {
 			Mockito.doAnswer(new Answer() {
@@ -149,7 +149,7 @@ public class ElevatorSubsystemTest {
 	 */
 	@Test
 	void testAddRequest() {
-		ElevatorSubsystem elevSus = new ElevatorSubsystem(1);
+		ElevatorSubsystem elevSus = new ElevatorSubsystem(1, 100, 100, 100, 7, 1);
 		Elevator elev = elevSus.getElevator();
 		elev.setElevatorStateManually(ElevatorState.STOP_OPENED);
 		

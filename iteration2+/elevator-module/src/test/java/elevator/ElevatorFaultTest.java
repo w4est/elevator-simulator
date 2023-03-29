@@ -28,7 +28,7 @@ public class ElevatorFaultTest {
 	@SuppressWarnings("rawtypes")
 	void receiveDoorFault() {
 		DatagramSocket s = Mockito.mock(DatagramSocket.class);
-		ElevatorSubsystem elevSub = new ElevatorSubsystem(1);
+		ElevatorSubsystem elevSub = new ElevatorSubsystem(1, 100, 100, 100, 7, 1);
 		Thread elevSubThread = Mockito.mock(Thread.class);
 		ElevatorFaultListener fault = new ElevatorFaultListener(elevSub, elevSubThread, s);
 		
