@@ -23,7 +23,7 @@ public class ElevatorRunner {
 		
 		for (int i = 0; i < numElevators.orElse(DEFAULT_NUM_ELEVATORS); i++) {
 			
-			ElevatorSubsystem e = new ElevatorSubsystem(1, floorMovementTime.orElse(DEFAULT_FLOOR_MOVEMENT_TIME),
+			ElevatorSubsystem e = new ElevatorSubsystem(i + 1, floorMovementTime.orElse(DEFAULT_FLOOR_MOVEMENT_TIME),
 					doorTime.orElse(DEFAULT_DOOR_MOVEMENT_TIME), loadingTime.orElse(DEFAULT_LOAD_TIME_PER_PERSON),
 					maxFloor.orElse(DEFAULT_MAX_FLOOR), minFloor.orElse(DEFAULT_MIN_FLOOR));
 			Thread eThread = new Thread(e);
