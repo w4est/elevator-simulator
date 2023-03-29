@@ -16,6 +16,10 @@ import common.Request;
  */
 public class Elevator {
 
+	private long floorMovementTime = 4000L;
+	private long doorMovementTime = 2500L;
+	private long loadTimePerPerson = 1500L;
+	
 	private int currentFloor; // The current floor of the elevator
 	private Direction currentDirection; // The current direction of the elevator
 	private int carNumber; // The unique car number
@@ -34,7 +38,31 @@ public class Elevator {
 		this.elevatorState = ElevatorState.STOP_OPENED; // Initial state is opened to wait for requests
 		elevatorQueue = new ArrayList<>();
 	}
-	
+		
+	public long getFloorMovementTime() {
+		return floorMovementTime;
+	}
+
+	public void setFloorMovementTime(long floorMovementTime) {
+		this.floorMovementTime = floorMovementTime;
+	}
+
+	public long getDoorMovementTime() {
+		return doorMovementTime;
+	}
+
+	public void setDoorMovementTime(long doorMovementTime) {
+		this.doorMovementTime = doorMovementTime;
+	}
+
+	public long getLoadTimePerPerson() {
+		return loadTimePerPerson;
+	}
+
+	public void setLoadTimePerPerson(long loadTimePerPerson) {
+		this.loadTimePerPerson = loadTimePerPerson;
+	}
+
 	/**
 	 * Method used to get the elevator's current state.
 	 * @return ElevatorState, the state of the elevator
@@ -219,7 +247,7 @@ public class Elevator {
 		while (noDoorAlerts == false) {
 			noDoorAlerts = true;
 			try {
-				Thread.sleep(2500);
+				Thread.sleep(doorMovementTime);
 			} catch (InterruptedException e) {
 				// The door was hit / is not acting properly, try again
 				System.out.println("Door fault received while moving doors, try again!");
@@ -233,7 +261,7 @@ public class Elevator {
 	public void waitForPeopleToMoveOffOrOnElevator(int numPeople) {
 		// Make sure we spend the exact amount of time required, event if
 		// interrupts come at this time (we don't have interrupt handling here)
-		long timeForPeopleToMove = 1500 * numPeople;
+		long timeForPeopleToMove = loadTimePerPerson * numPeople;
 		long timeStartedMoving = System.currentTimeMillis();
 		while (timeForPeopleToMove > 0) {
 			try {
@@ -243,6 +271,25 @@ public class Elevator {
 				// No interruptions matter here, resume the process of people moving off or on
 				if (System.currentTimeMillis() - timeStartedMoving < timeForPeopleToMove) {
 					timeForPeopleToMove = System.currentTimeMillis() - timeStartedMoving;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Moves the elevator to the next floor
+	 */
+	public void moveElevatorToNextFloor() {
+		long timeStartedMoving = System.currentTimeMillis();
+		long timeToSpend = slowMode ? floorMovementTime * 2 : floorMovementTime;
+		while (timeToSpend > 0) {
+			try {
+				Thread.sleep(timeToSpend);
+				timeToSpend = 0L;
+			} catch (InterruptedException e) {
+				// Keep going, interruptions don't affect elevator motors
+				if (System.currentTimeMillis() - timeStartedMoving < timeToSpend) {
+					timeToSpend = System.currentTimeMillis() - timeStartedMoving;
 				}
 			}
 		}

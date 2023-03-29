@@ -2,7 +2,6 @@
 package elevator;
 
 // Import libraries
-import java.net.DatagramSocket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,53 +20,30 @@ import common.Request;
 public class ElevatorSubsystem implements Runnable {
 
 	private Elevator elevator; // The elevator associated with the subsystem
-//	private DatagramPacket sendPacket, receivePacket; // Packets for sending and receiveing
-//	protected DatagramSocket socket; // Socket used for sending and receiving UDP packets
-	public final static int DEFAULT_MAX_FLOOR = 7; // The default max floor
-	public final static int DEFAULT_MIN_FLOOR = 1; // The default min floor
 	private final int MAX_FLOOR; // The variable max floor set by the constructor
 	private final int MIN_FLOOR; // The variable min floor set by the constructor
 	private ArrayList<Request> floorQueues; // The list of requests given by the scheduler
 
-	private final long FLOOR_MOVEMENT_DEADLINE = 5000L;
 	private boolean running = true;
 
 	/**
 	 * The default constructor if no minimum and maximum floors are not given
 	 * 
-	 * @param s         // The scheduler
 	 * @param carNumber // The unique car number for the elevator
+	 * @param floorMovementTime The non default time of 
 	 * @author Farhan Mahamud
 	 */
-	public ElevatorSubsystem(int carNumber) {
-		this.MIN_FLOOR = DEFAULT_MIN_FLOOR;
-		this.MAX_FLOOR = DEFAULT_MAX_FLOOR;
-		this.elevator = new Elevator(carNumber);
-		floorQueues = new ArrayList<>();
-		this.elevator.setCurrentFloor(MIN_FLOOR);
-//		this.setupSocket();
-	}
-
-	/**
-	 * This is another constructor for the user for passing in custom maximum and
-	 * minimum floor levels
-	 * 
-	 * @param s         // The scheduler
-	 * @param carNumber // The unique car number for the elevator
-	 * @param max       // The maximum floor level
-	 * @param min       // The minimum floor level
-	 * @author Farhan Mahamud
-	 */
-	public ElevatorSubsystem(/* Scheduler s, */ int carNumber, int max, int min) {
-
+	public ElevatorSubsystem(int carNumber, long floorMovementTime, long doorMovementTime, long loadTimePerPerson, int max, int min) {
 		if (min >= max) {
 			throw new IllegalArgumentException("Elevator needs at least 2 floors");
 		}
 
 		this.MIN_FLOOR = min;
 		this.MAX_FLOOR = max;
-
 		this.elevator = new Elevator(carNumber);
+		this.elevator.setFloorMovementTime(carNumber);
+		this.elevator.setDoorMovementTime(carNumber);
+		this.elevator.setLoadTimePerPerson(carNumber);
 		floorQueues = new ArrayList<>();
 		this.elevator.setCurrentFloor(MIN_FLOOR);
 	}
@@ -226,25 +202,11 @@ public class ElevatorSubsystem implements Runnable {
 			this.elevator.setCurrentFloor(nextFloorDown);
 		}
 
-		// Elevator moving floor to floor
-		// Make sure we spend the exact amount of time required, event if
-		// interrupts come at this time (we don't have interrupt handling here)
-		long timeStartedMoving = System.currentTimeMillis();
-		long timeToSpend = elevator.isSlowMode() ? 8000 : 4000;
-		while (timeToSpend > 0) {
-			try {
-				Thread.sleep(timeToSpend);
-				timeToSpend = 0L;
-			} catch (InterruptedException e) {
-				// Keep going, interruptions don't affect elevator motors
-				if (System.currentTimeMillis() - timeStartedMoving < timeToSpend) {
-					timeToSpend = System.currentTimeMillis() - timeStartedMoving;
-				}
-			}
-		}
+		long startTime = System.currentTimeMillis();
+		elevator.moveElevatorToNextFloor();
 
-		// Check deadline met
-		if (System.currentTimeMillis() - timeStartedMoving > FLOOR_MOVEMENT_DEADLINE) {
+		// Check deadline met (we give 75ms over the floor speed as our deadling)
+		if (System.currentTimeMillis() - startTime > elevator.getFloorMovementTime() + 75) {
 			emergencyStop();
 		} else {
 			System.out.println(
@@ -363,31 +325,6 @@ public class ElevatorSubsystem implements Runnable {
 	public void activateSlowFault() {
 		System.out.println("Elevator" + elevator.getCarNumber() + " is acting weird and slowed down!");
 		elevator.setSlowMode(true);
-	}
-
-	public static void main(String[] args) {
-		ElevatorSubsystem e = new ElevatorSubsystem(1);
-		ElevatorSubsystem e2 = new ElevatorSubsystem(2);
-		Thread eThread1 = new Thread(e);
-		Thread eThread2 = new Thread(e2);
-
-		ElevatorListener listen = new ElevatorListener(e);
-		ElevatorListener listen2 = new ElevatorListener(e2);
-		Thread listenThread = new Thread(listen);
-		Thread listenThread2 = new Thread(listen2);
-
-		ElevatorFaultListener faultListen = new ElevatorFaultListener(e, eThread1);
-		ElevatorFaultListener faultListen2 = new ElevatorFaultListener(e2, eThread2);
-
-		Thread faultListenThread = new Thread(faultListen);
-		Thread faultListenThread2 = new Thread(faultListen2);
-
-		eThread1.start();
-		eThread2.start();
-		listenThread.start();
-		listenThread2.start();
-		faultListenThread.start();
-		faultListenThread2.start();
 	}
 
 	@Override
