@@ -80,7 +80,7 @@ public class SimulationGUI {
 				slowFault.setEnabled(true);
 				System.out.println("Starting simulation from gui.");
 
-				Thread simulationThread = new Thread(new SimulationThread(new String[] { "--realtime" }));
+				Thread simulationThread = new Thread(new SimulationThread(new String[] {}));
 				simulationThread.start();
 			}
 		});

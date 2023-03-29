@@ -23,20 +23,16 @@ public class Simulation {
 
 	private final String[] args;
 	private final DatagramSocket datagramSocket;
-	
+
 	public Simulation(String[] args, DatagramSocket datagramSocket) {
 		this.args = args;
 		this.datagramSocket = datagramSocket;
 	}
 
-	
 	public void runSimulation() throws FileNotFoundException, IOException {
-		// Realtime mode is much slower to test, must be enabled upon request
-		boolean realTimeMode = isRealtimeFlagInStringArgs(args);
 
 		String testFile = readInputFileFromStringArgs(args); // directory of test file for FloorSubsystem
 
-		
 		LocalTime initialTime;
 		long startTime = System.nanoTime();
 
@@ -48,11 +44,10 @@ public class Simulation {
 			while (entry.isPresent()) {
 				// Only wait for timestamps if it's realtimeMode.
 				long deltaTime = System.nanoTime() - startTime;
-				if (entry.isPresent() && (!realTimeMode || isItRequestTime(initialTime, deltaTime, entry.get()))) {
+				if (entry.isPresent() && (isItRequestTime(initialTime, deltaTime, entry.get()))) {
 					SimulationEntry currentEntry = entry.get();
-					System.out.println(
-							String.format("Sending Entry, realtime mode is %s, entry is %s, simulation time is: %s",
-									realTimeMode, entry.get().toString(), deltaTime));
+					System.out.println(String.format("Sending Entry, entry is %s, simulation time is: %s",
+							entry.get().toString(), deltaTime));
 					sendRequestAtFloor(currentEntry, datagramSocket);
 
 					// Success, the new user should be simulated, read next entry
@@ -72,17 +67,6 @@ public class Simulation {
 		}
 
 		return file;
-	}
-
-	private static boolean isRealtimeFlagInStringArgs(String args[]) {
-
-		for (int i = 0, max = args.length; i < max; i++) {
-			if (args[i].equalsIgnoreCase("--realtime")) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**
