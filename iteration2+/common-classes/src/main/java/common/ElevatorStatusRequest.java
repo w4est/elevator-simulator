@@ -3,6 +3,11 @@ package common;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+/**
+ * Class used to store information when sending elevator status updates to simulation
+ * @author farha
+ *
+ */
 public class ElevatorStatusRequest {
 
 	private int floorNumber;
@@ -38,6 +43,18 @@ public class ElevatorStatusRequest {
 		Direction direction = Direction.fromInt(byteBuffer.getInt());
 		ElevatorState state = ElevatorState.fromInt(byteBuffer.getInt());
 		return new ElevatorStatusRequest(floorNumber, direction, state);
+	}
+
+	public int getFloorNumber() {
+		return floorNumber;
+	}
+
+	public Direction getDirection() {
+		return direction;
+	}
+
+	public ElevatorState getState() {
+		return state;
 	}
 
 }
