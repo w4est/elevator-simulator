@@ -95,15 +95,15 @@ public class Scheduler {
 				if (i < 3) {
 					if (requests.get(priorityRequest).getFloorButton().equals(Direction.UP)) {
 						if ((requests.get(t).getFloorButton().equals(requests.get(priorityRequest).getFloorButton()))
-								&& (requests.get(t).getFloorNumber() >= requests.get(priorityRequest)
-										.getFloorNumber())) {
+								&& (requests.get(t).getFloorNumber() >= requests.get(priorityRequest).getFloorNumber()
+										|| requests.get(t).getFloorNumber() >= elevatorFloor)) {
 							returnRequests.add(requests.get(t));
 							i++;
 						}
 					} else if (requests.get(priorityRequest).getFloorButton().equals(Direction.DOWN)) {
 						if ((requests.get(t).getFloorButton().equals(requests.get(priorityRequest).getFloorButton()))
-								&& (requests.get(t).getFloorNumber() <= requests.get(priorityRequest)
-										.getFloorNumber())) {
+								&& (requests.get(t).getFloorNumber() <= requests.get(priorityRequest).getFloorNumber()
+										|| requests.get(t).getFloorNumber() <= elevatorFloor)) {
 							returnRequests.add(requests.get(t));
 							i++;
 						}

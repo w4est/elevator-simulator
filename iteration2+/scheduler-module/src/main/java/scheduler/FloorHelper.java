@@ -78,7 +78,7 @@ public class FloorHelper implements Runnable {
 	 */
 	public void sendPacket(byte[] sendData) {
 		try {
-			sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getLocalHost(), 5001);
+			sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getLocalHost(), PacketUtils.FLOOR_PORT);
 		} catch (UnknownHostException e1) {
 			e1.printStackTrace();
 			System.exit(1);
