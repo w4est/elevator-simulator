@@ -111,7 +111,7 @@ public class ElevatorSubsystem implements Runnable {
 	public synchronized void addRequests(List<Request> requests) {
 		for (Request r : requests) {
 			floorQueues.add(r);
-			elevator.addPeople(r);
+			elevator.addDestination(r);
 		}
 		notifyAll();
 	}
