@@ -9,6 +9,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
+import common.ElevatorStatusRequest;
 import common.PacketHeaders;
 import common.PacketUtils;
 
@@ -56,6 +57,9 @@ public class SimulationListener implements Runnable{
 
 		byte[] sendData = new byte[PacketUtils.BUFFER_SIZE];
 		byte[] receiveData = new byte[PacketUtils.BUFFER_SIZE];
+		
+		Elevator elevator = elevSys.getElevator();
+		receiveData = new ElevatorStatusRequest(elevator.getCurrentFloor(), elevator.getCurrentDirection(), elevator.getCurrentElevatorState()).toByteArray();
 
 		try {
 			sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getLocalHost(),
@@ -102,17 +106,6 @@ public class SimulationListener implements Runnable{
 
 	}
 	
-	public byte[] toByteArray() {
-		byte[] message = new byte[22];
-		Elevator e = elevSys.getElevator();
-		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
-		byteBuffer.put(PacketHeaders.ElevatorInfoRequest.getHeaderBytes());
-		byteBuffer.putInt(e.getCurrentFloor());
-		byteBuffer.putInt(e.getCurrentElevatorState().toInt());
-		byteBuffer.putInt(e.getCurrentDirection().toInt());
-		return message;
-	}
-
 	@Override
 	public void run() {
 		sendElevatorUpdatePacket();
