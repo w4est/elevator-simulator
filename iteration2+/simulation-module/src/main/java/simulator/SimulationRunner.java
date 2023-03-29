@@ -6,7 +6,7 @@ public class SimulationRunner {
 	public static void main(String[] args) throws IOException {
 
 		if (isGuiFlagInStringArgs(args)) {
-			SimulationGUI simulationGUI = new SimulationGUI();
+			SimulationGUI simulationGUI = new SimulationGUI(22,4);
 			simulationGUI.openScreen();
 		} else {
 			Thread simulationThread = new Thread(new SimulationThread(args));
