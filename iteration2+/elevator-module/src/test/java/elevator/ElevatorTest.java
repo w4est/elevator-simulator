@@ -90,9 +90,9 @@ public class ElevatorTest {
 		Request r1 = new Request(LocalTime.of(1, 1), 2, Direction.UP, 5);
 		Request r2 = new Request(LocalTime.of(1, 2), 4, Direction.UP, 5);
 		Request r3 = new Request(LocalTime.of(1, 3), 3, Direction.UP, 7);
-		elevator.addPeople(r1);
-		elevator.addPeople(r2);
-		elevator.addPeople(r3);
+		elevator.addDestination(r1);
+		elevator.addDestination(r2);
+		elevator.addDestination(r3);
 		assertEquals(false, elevator.getElevatorQueue().isEmpty());
 
 		// stop() and clearFloor() still can't do anything since elevator isn't at

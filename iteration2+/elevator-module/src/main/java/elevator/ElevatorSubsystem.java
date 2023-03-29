@@ -87,7 +87,7 @@ public class ElevatorSubsystem implements Runnable {
 	public synchronized void addRequests(List<Request> requests) {
 		for (Request r : requests) {
 			floorQueues.add(r);
-			elevator.getElevatorQueue().add(r);
+			elevator.addDestination(r);
 		}
 		notifyAll();
 	}
@@ -112,12 +112,26 @@ public class ElevatorSubsystem implements Runnable {
 		System.out.println("	1. Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
 				+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_OPENED
 
-		// Elevator door is closing to begin its path
+		// Elevator door is closing to begin its path, unless there are requests to pick
+		// up on the current floor
 		// STOP_OPENED -> STOP_CLOSED
-		elevator.openOrCloseDoor();
+		boolean isStartingFloor = false;
+		for (Request r : this.elevator.getElevatorQueue()) {
+			if (r.getFloorNumber() == this.elevator.getCurrentFloor()) {
+				isStartingFloor = true;
+			}
+		}
 
-		System.out.println("	2. Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
-				+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
+		if (!isStartingFloor) {
+			elevator.openOrCloseDoor();
+
+			System.out.println("	2. Elevator " + this.elevator.getCarNumber() + " Current Floor & State: " + "Floor "
+					+ this.elevator.getCurrentFloor() + ", State: " + this.elevator.getCurrentElevatorState()); // STOP_CLOSED
+		} else {
+			this.elevator.stopStartFloorCheck();
+			movePeopleOnElevator(elevator.getCurrentFloor()); // in method will go to STOP_CLOSED then
+			// MOVING_UP/DOWN
+		}
 
 		// 2: set the elevator's current direction (MOVING_UP/DOWN)
 		changeDirection();
@@ -229,7 +243,6 @@ public class ElevatorSubsystem implements Runnable {
 		for (int i = floorQueues.size() - 1; i >= 0; i--) {
 			if (floorQueues.get(i).getFloorNumber() == currentFloor) {
 				people++;
-				elevator.addPeople(floorQueues.get(i));
 				floorQueues.remove(i);
 			}
 		}

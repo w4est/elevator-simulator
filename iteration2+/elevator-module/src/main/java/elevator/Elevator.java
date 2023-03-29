@@ -144,7 +144,7 @@ public class Elevator {
 	 * Method used to add requests to the elevator's request queue
 	 * @param r Request, the request to add
 	 */
-	public void addPeople(Request r) {
+	public void addDestination(Request r) {
 		elevatorQueue.add(r);
 	}
 	
