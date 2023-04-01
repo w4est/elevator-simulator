@@ -340,6 +340,7 @@ public class FloorSubsystem implements Runnable {
 	}
 	
 	public static void main(String[] args) {
+
 		FloorSubsystem fs = new FloorSubsystem(22, 4);                // Create floor object (# of floors, # of elevators)
 		FloorSimulationListener fsListener = new FloorSimulationListener(fs);
 		// Create & start 2 threads with same object
