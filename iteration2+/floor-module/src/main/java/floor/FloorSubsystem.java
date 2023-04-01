@@ -32,20 +32,20 @@ public class FloorSubsystem implements Runnable {
 	private DatagramSocket sendSocket;		//sending requests to scheduler (port 5003)
 	private DatagramPacket receivePacket,sendPacket;
 	
-	private final int SCHEDULER_IP;
 	
 	/**
 	 * FloorSubsystem Constructor sets up the number of floors and DatagramSockets.
 	 * @param maxFloor int, represents the number of floors the FloorSubsystem should create.
+	 * @param numOfElevators int, the elevators per floor
 	 */
-	public FloorSubsystem(int maxFloor) {
+	public FloorSubsystem(int maxFloor, int numOfElevators) {
 		this.MAX_FLOOR = maxFloor;
 		this.allFloors = new ArrayList<Floor>(MAX_FLOOR);
 		this.peopleWaitingOnAllFloors = 0;
 		this.allRequests = new ArrayList<Request>();
 		// initialize all floors to have 0 people
 		for (int i = 1; i < MAX_FLOOR + 1; i++) {
-			addFloor(i, 0);
+			addFloor(i, 0, numOfElevators);
 		}
 		this.firstThreadActive = false;
 		try {
@@ -56,7 +56,6 @@ public class FloorSubsystem implements Runnable {
 		      System.exit(1);
 	    }
 		
-		this.SCHEDULER_IP = 19216801; //schedulerIpAddress int, the scheduler pc's ip address to send to
 	}
 	
 	/**
@@ -65,8 +64,8 @@ public class FloorSubsystem implements Runnable {
 	 * @param s DatagramSocket, the send socket.
 	 * @param r DatagramSocket, the receive socket.
 	 */
-	public FloorSubsystem(int maxFloor, DatagramSocket s, DatagramSocket r) {
-		this(maxFloor);
+	public FloorSubsystem(int maxFloor, int numOfElevators, DatagramSocket s, DatagramSocket r) {
+		this(maxFloor, numOfElevators);
 		this.closeSocket(); // close the other constructor's ports and use new sockets
 		this.sendSocket = s;
 		this.receiveSocket = r;
@@ -77,6 +76,13 @@ public class FloorSubsystem implements Runnable {
 	 */
 	public ArrayList<Request> getFloorRequests(){
 		return this.allRequests;
+	}
+	
+	/**
+	 * Getter method used in FloorSubsystemUpdateGUI to get all the floors to update.
+	 */
+	public ArrayList<Floor> getAllFloors(){
+		return this.allFloors;
 	}
 	
 	/**
@@ -99,10 +105,11 @@ public class FloorSubsystem implements Runnable {
 	 * It uses the floor's number and the number of people on that floor.
 	 * @param floorNumber int, the floor's number.
 	 * @param numPeople   int, the number of people on that floor.
+	 * @param numOfElevators int, the elevators per floor
 	 */
-	private void addFloor(int floorNumber, int numPeople) {
+	private void addFloor(int floorNumber, int numPeople, int numOfElevators) {
 		if (allFloors.size() != MAX_FLOOR) {
-			Floor newFloor = new Floor(floorNumber);
+			Floor newFloor = new Floor(floorNumber, numOfElevators);
 			newFloor.addNumberOfPeople(numPeople);
 			allFloors.add(newFloor);
 		} else {
@@ -179,10 +186,10 @@ public class FloorSubsystem implements Runnable {
 	 */
 	private void printPacketInfo(String consoleMessage, String toOrFrom, DatagramPacket packet, byte[] data) {
 		System.out.println(consoleMessage);
-		System.out.println(toOrFrom + " host: " + packet.getAddress());
-		System.out.println("host port: " + packet.getPort()); // sending to = destination host port
 		// Uncomment below if you want more information about the packet (used for debugging)
 		/*
+		System.out.println(toOrFrom + " host: " + packet.getAddress());
+		System.out.println("host port: " + packet.getPort()); // sending to = destination host port
 		int len = packet.getLength();
 		System.out.println("Length: " + len);
 		System.out.println("Containing: ");
@@ -193,8 +200,9 @@ public class FloorSubsystem implements Runnable {
 		//used len instead of data.length because of big byte array sizes filled with zeros (100)
 		for(int i=0; i< len; i++) {
 			System.out.print(data[i] +" ");
-	    }*/
+	    }
 		System.out.println();
+		*/
 	}
 	
 	/*
@@ -205,8 +213,7 @@ public class FloorSubsystem implements Runnable {
 	public void receiveInfo() {
 		byte data[] = new byte[PacketUtils.BUFFER_SIZE]; // space for received data (128)
 		receivePacket = new DatagramPacket(data, data.length); // for receiving packet 
-		try {        
-			System.out.println("Waiting for packet...");
+		try {
 			receiveSocket.receive(receivePacket); // Blocked until packet is received
 		} catch (IOException e) {
 			System.out.print("IO Exception: likely:");
@@ -218,8 +225,7 @@ public class FloorSubsystem implements Runnable {
 		
 		//Case 1: if receivePacket is a request from simulation (first 2 bytes "03") then store in FloorSubsystem
 		if (receivePacket.getData()[0] == (byte) 0 && receivePacket.getData()[1] == (byte) 3) {
-			printPacketInfo("FloorSubsystem: Received Packet:", "From Simulation", receivePacket,
-					receivePacket.getData());
+			printPacketInfo("FloorSubsystem: Received Packet from Simulation", "Simulation", receivePacket, receivePacket.getData());
 			// Set up request list
 			List<Request> inputRequests = Request.fromByteArray(receivePacket.getData());
 			allRequests.add(inputRequests.get(0));
@@ -243,14 +249,15 @@ public class FloorSubsystem implements Runnable {
 		
 		//**Case 2: if the packet is from the scheduler (first 2 bytes "01"), update the FloorSubsystem lamp
 		else if(receivePacket.getData()[0] == (byte)0 && receivePacket.getData()[1] == (byte)1) {
-			printPacketInfo("FloorSubsystem: Received Packet:", "From Simulation", receivePacket, receivePacket.getData());
+			printPacketInfo("FloorSubsystem: Received Packet from Scheduler", "Scheduler", receivePacket, receivePacket.getData());
 			ElevatorInfoRequest elevatorStatus = ElevatorInfoRequest.fromByteArray(receivePacket.getData());
-			System.out.println("FloorSubsystem Received From Scheduler: Elevator #"+ elevatorStatus.getCarNumber() +" current floor is " + elevatorStatus.getFloorNumber() +
+			System.out.println("FloorSubsystem Updating Floor Lamps With: Elevator #"+ elevatorStatus.getCarNumber() +" current floor is " + elevatorStatus.getFloorNumber() +
 					", Direction is "+elevatorStatus.getDirection() + ", and state is "+ elevatorStatus.getState());
 			
 			// check through all Floors and remove people from floor if the elevator is on it
 			for (Floor f: allFloors) {
-				f.setLampCount(elevatorStatus.getFloorNumber()); //update lamp for every floor
+				//update floor lamp for every floor
+				f.setFloorLamp(elevatorStatus.getCarNumber(),elevatorStatus.getFloorNumber()); 
 				if (f.getFloorNumber() == elevatorStatus.getFloorNumber()) {
 					this.removePersonFromFloor(elevatorStatus.getFloorNumber()); //remove person from floor
 					//turn off lamp (can use setUpButton or setDownButton, will turn off both)
@@ -273,14 +280,14 @@ public class FloorSubsystem implements Runnable {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		printPacketInfo("FloorSubsystem: Sending Request To Scheduler:", "To", sendPacket, requestByte);
+		//printPacketInfo("FloorSubsystem: Sending Request To Scheduler", "To", sendPacket, requestByte);
 		try {
 			sendSocket.send(sendPacket);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		System.out.println("FloorSubsystem: Request Sent!\n");
+		//System.out.println("FloorSubsystem: Request Sent!\n");
 	}
 	
 	
@@ -333,14 +340,18 @@ public class FloorSubsystem implements Runnable {
 	}
 	
 	public static void main(String[] args) {
-		FloorSubsystem fs1 = new FloorSubsystem(22);                // Create floor object
+
+		FloorSubsystem fs = new FloorSubsystem(22, 4);                // Create floor object (# of floors, # of elevators)
+		FloorSimulationListener fsListener = new FloorSimulationListener(fs);
 		// Create & start 2 threads with same object
 		// thread "FloorSubstystem sending" for sending requests to the scheduler (port 5003)
 		// thread "FloorSubsystem receiving" for receiving request input from simulation & info from Scheduler (port 5001)
-		Thread floorThread1 = new Thread(fs1, "FloorSubsystem1");  // Create thread passing its respective object
-		Thread floorThread2 = new Thread(fs1, "FloorSubsystem2");  // Another thread with same object
+		Thread floorThread1 = new Thread(fs, "FloorSubsystem1");  // Create thread passing its respective object
+		Thread floorThread2 = new Thread(fs, "FloorSubsystem2");  // Another thread with same object
+		Thread floorUpdateThread = new Thread(fsListener, "FloorSimulationListener"); // Thread used for updating GUI
 		floorThread1.start();                                 // Starts run() method for thread
 		floorThread2.start();
+		floorUpdateThread.start();
 	}
 	
 	
