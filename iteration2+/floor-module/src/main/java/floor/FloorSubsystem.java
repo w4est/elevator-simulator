@@ -333,7 +333,7 @@ public class FloorSubsystem implements Runnable {
 	}
 	
 	public static void main(String[] args) {
-		FloorSubsystem fs1 = new FloorSubsystem(7);                // Create floor object
+		FloorSubsystem fs1 = new FloorSubsystem(22);                // Create floor object
 		// Create & start 2 threads with same object
 		// thread "FloorSubstystem sending" for sending requests to the scheduler (port 5003)
 		// thread "FloorSubsystem receiving" for receiving request input from simulation & info from Scheduler (port 5001)

@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -19,13 +21,25 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import common.ElevatorState;
 import common.PacketHeaders;
 import common.PacketUtils;
 
 public class SimulationGUI {
 
+	public static String idleStateOpen = "IDLE Open";
+	public static String idleStateClosed = "IDLE Closed";
+	public static String movingUp = "Moving Up";
+	public static String movingDown = "Moving Down";
+	
+	private SimulationGUI selfReference;
+	
+	
 	private JFrame frame;
 	private JPanel centerPanel;
+	
+	private Map<Integer, Map<Integer, JPanel>> floorPanels = new HashMap<>();
+	private Map<Integer, JPanel> stateLabels = new HashMap<>();
 
 	/**
 	 * Constructor sets up the GUI for the Elevator Simulator
@@ -33,6 +47,7 @@ public class SimulationGUI {
 	 * @param elevators int, the number of elevators
 	 */
 	public SimulationGUI(int floors, int elevators) {
+		this.selfReference = this;
 		this.frame = new JFrame("Group 2 Elevator Simulator");
 		this.frame.setLayout(new BorderLayout());
 
@@ -82,6 +97,9 @@ public class SimulationGUI {
 
 				Thread simulationThread = new Thread(new SimulationThread(new String[] {}));
 				simulationThread.start();
+				
+				Thread statusThread = new Thread(new StatusUpdater(selfReference));
+				statusThread.start();
 			}
 		});
 		//North Panel
@@ -96,8 +114,8 @@ public class SimulationGUI {
 		this.centerPanel = new JPanel();
 		this.centerPanel.setBackground(Color.black);
 		this.centerPanel.setPreferredSize(new Dimension(100,100));
-		for (int i=0; i<elevators; i++) {
-			visualFloorSetup(floors);
+		for (int i = 0; i < elevators; i++) {
+			visualFloorSetup(i + 1, floors);
 		}
 		this.frame.add(centerPanel, BorderLayout.CENTER);
 		
@@ -125,8 +143,11 @@ public class SimulationGUI {
 	/**
 	 * Method used in constructor's center panel to set up the floors per elevator
 	 */
-	private void visualFloorSetup(int floors) {
+	private void visualFloorSetup(int elevatorNumber, int floors) {
 		//every floor will be a JPanel & the jpanel with green border represents elevator position
+		
+		// Each elevator column needs a map of floors
+		floorPanels.put(elevatorNumber, new HashMap<>());
 		
 		//sub panel elevatorPanel within centerPanel
 		JPanel elevatorPanel = new JPanel();
@@ -135,38 +156,42 @@ public class SimulationGUI {
 		
 		// elevator direction light (up or down)
 		
-		JPanel upOrDown = new JPanel();
+		/*JPanel upOrDown = new JPanel();
 		upOrDown.setBackground(Color.orange);
 		JLabel directionLabel = new JLabel("UP LIGHT");
 		upOrDown.add(directionLabel);
-		elevatorPanel.add(upOrDown, BorderLayout.NORTH);		
+		elevatorPanel.add(upOrDown, BorderLayout.NORTH);*/		
 		
 		// floors
 		JPanel oneFloorPanel = new JPanel();
 		oneFloorPanel.setLayout(new BoxLayout(oneFloorPanel, BoxLayout.PAGE_AXIS)); // top to bottom
-		for (int i = floors; i>1; i--) {
+		for (int i = floors; i > 0; i--) {
 			JPanel oneFloor = new JPanel();
-			oneFloor.setBorder(BorderFactory.createLineBorder(Color.gray));
-			oneFloor.setPreferredSize(new Dimension(20,22));
-			JLabel floorLabel = new JLabel("Floor "+i);
+			if (i != 1) {
+				oneFloor.setBorder(BorderFactory.createLineBorder(Color.gray));
+				oneFloor.setPreferredSize(new Dimension(30, 22));
+			}
+			else {
+				//first floor is green by default (elevator starts there)
+				oneFloor.setBorder(BorderFactory.createLineBorder(Color.green, 2));
+				oneFloor.setPreferredSize(new Dimension(30,22));
+			}
+
+			JLabel floorLabel = new JLabel("Floor " + i);
 			oneFloor.add(floorLabel);
+			// Add the floor panel to the list.
+			floorPanels.get(elevatorNumber).put(i, oneFloor);
 			oneFloorPanel.add(oneFloor);
 		}
-		//first floor is green by default (elevator starts there)
-		JPanel firstFloor = new JPanel();
-		firstFloor.setBorder(BorderFactory.createLineBorder(Color.green, 2));
-		firstFloor.setPreferredSize(new Dimension(20,22));
-		JLabel floorLabel1 = new JLabel("Floor 1");
-		firstFloor.add(floorLabel1);
-		oneFloorPanel.add(firstFloor);
 		
 		elevatorPanel.add(oneFloorPanel, BorderLayout.CENTER);
 		
 		// elevator state (open or closed)
 		JPanel doors = new JPanel();
 		doors.setBackground(Color.gray);
-		JLabel stateTitle = new JLabel("STATE");
+		JLabel stateTitle = new JLabel(idleStateOpen);
 		doors.add(stateTitle);
+		stateLabels.put(elevatorNumber, doors);
 		elevatorPanel.add(doors, BorderLayout.SOUTH);
 		
 		this.centerPanel.add(elevatorPanel);
@@ -208,5 +233,42 @@ public class SimulationGUI {
 			e.printStackTrace();
 			System.exit(1);
 		}
+	}
+	
+	public synchronized void updateState(int elevatorNumber, int currentFloor, ElevatorState elevatorState) {
+		switch (elevatorState) {
+		case MOVING_DOWN:
+			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setBackground(Color.blue);
+			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setText(movingDown);
+			break;
+		case MOVING_UP:
+			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setBackground(Color.blue);
+			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setText(movingUp);
+			break;
+		case STOP_CLOSED:
+			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setBackground(Color.blue);
+			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setText(idleStateClosed);
+			break;
+		case STOP_OPENED:
+			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setBackground(Color.gray);
+			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setText(idleStateOpen);
+			break;
+		default:
+			break;
+		}
+		
+		// Set where the floor is
+		Map<Integer, JPanel> elevatorFloors = floorPanels.get(elevatorNumber);
+		
+		// Set them all to default colors
+		for (Map.Entry<Integer, JPanel> entry: elevatorFloors.entrySet()) {
+			entry.getValue().setBorder(BorderFactory.createLineBorder(Color.gray));
+			
+			if (entry.getKey() == currentFloor) {
+				// If we are at the current floor, make it green
+				entry.getValue().setBorder(BorderFactory.createLineBorder(Color.green, 2));
+			}
+		}
+		
 	}
 }
