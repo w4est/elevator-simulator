@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,22 +22,27 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import common.ElevatorState;
+import common.ElevatorStatusRequest;
 import common.PacketHeaders;
 import common.PacketUtils;
 
 public class SimulationGUI {
 
-	public static String idleStateOpen = "IDLE Open";
-	public static String idleStateClosed = "IDLE Closed";
-	public static String movingUp = "Moving Up";
-	public static String movingDown = "Moving Down";
+	public static final String idleStateOpen = "IDLE Open";
+	public static final String idleStateClosed = "IDLE Closed";
+	public static final String movingUp = "Moving Up";
+	public static final String movingDown = "Moving Down";
+	public static final String broken = "Broken";
 	
 	private SimulationGUI selfReference;
-	
+
 	
 	private JFrame frame;
 	private JPanel centerPanel;
+	
+	private JButton startButton;
+	private JButton doorFault;
+	private JButton slowFault;
 	
 	private Map<Integer, Map<Integer, JPanel>> floorPanels = new HashMap<>();
 	private Map<Integer, JPanel> stateLabels = new HashMap<>();
@@ -61,7 +67,7 @@ public class SimulationGUI {
 		l.setBounds(250, 150, 150, 30);
 		elevatorSpinner.setBounds(400, 150, 50, 30);
 		
-		JButton doorFault = new JButton("Send door fault");
+		doorFault = new JButton("Send door fault");
 		doorFault.setBounds(230, 100, 200, 40);
 		doorFault.setActionCommand("doorFault");
 		doorFault.addActionListener(new ActionListener() {
@@ -72,7 +78,7 @@ public class SimulationGUI {
 		});
 		doorFault.setEnabled(false);
 
-		JButton slowFault = new JButton("Send slow fault");
+		slowFault = new JButton("Send slow fault");
 		slowFault.setBounds(430, 100, 200, 40);
 		slowFault.setActionCommand("slowFault");
 		slowFault.addActionListener(new ActionListener() {
@@ -83,7 +89,7 @@ public class SimulationGUI {
 		});
 		slowFault.setEnabled(false);
 
-		JButton startButton = new JButton("start simulation");
+		startButton = new JButton("start simulation");
 		startButton.setBounds(130, 100, 100, 40);
 		startButton.setActionCommand("start");
 		startButton.addActionListener(new ActionListener() {
@@ -95,10 +101,17 @@ public class SimulationGUI {
 				slowFault.setEnabled(true);
 				System.out.println("Starting simulation from gui.");
 
-				Thread simulationThread = new Thread(new SimulationThread(new String[] {}));
-				simulationThread.start();
+				SimulationRunnable simulationRunnable = null;
+				try {
+					simulationRunnable = new SimulationRunnable(new String[] {});
+				} catch (SocketException e) {
+					e.printStackTrace();
+				}
+				Thread simThread = new Thread(simulationRunnable);
+				simThread.start();
 				
-				Thread statusThread = new Thread(new StatusUpdater(selfReference));
+				Thread statusThread = new Thread(
+						new StatusUpdater(selfReference, elevators, simulationRunnable.getSimulation()));
 				statusThread.start();
 			}
 		});
@@ -235,8 +248,9 @@ public class SimulationGUI {
 		}
 	}
 	
-	public synchronized void updateState(int elevatorNumber, int currentFloor, ElevatorState elevatorState) {
-		switch (elevatorState) {
+	public synchronized void updateState(ElevatorStatusRequest status) {
+		int elevatorNumber = status.getElevatorNumber();
+		switch (status.getState()) {
 		case MOVING_DOWN:
 			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setBackground(Color.blue);
 			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setText(movingDown);
@@ -257,6 +271,11 @@ public class SimulationGUI {
 			break;
 		}
 		
+		if (status.isBroken()) {
+			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setBackground(Color.orange);
+			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setText(idleStateOpen);
+		}
+		
 		// Set where the floor is
 		Map<Integer, JPanel> elevatorFloors = floorPanels.get(elevatorNumber);
 		
@@ -264,11 +283,21 @@ public class SimulationGUI {
 		for (Map.Entry<Integer, JPanel> entry: elevatorFloors.entrySet()) {
 			entry.getValue().setBorder(BorderFactory.createLineBorder(Color.gray));
 			
-			if (entry.getKey() == currentFloor) {
+			if (entry.getKey() == status.getFloorNumber()) {
 				// If we are at the current floor, make it green
 				entry.getValue().setBorder(BorderFactory.createLineBorder(Color.green, 2));
 			}
 		}
 		
+	}
+	
+	public synchronized void simulationComplete(long endTime) {
+		
+		// TODO, show the completion time somewhere on GUI?
+		System.out.println("Simulation Complete, time taken: " + endTime);
+		
+		startButton.setEnabled(true);
+		doorFault.setEnabled(false);
+		slowFault.setEnabled(false);
 	}
 }

@@ -2,6 +2,7 @@ package common;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Class used to store information when sending elevator status updates to simulation
@@ -12,14 +13,16 @@ public class ElevatorStatusRequest {
 
 	private int elevatorNumber;
 	private int floorNumber;
-	private Direction direction;
+	private int pendingRequests;
+	private boolean broken;
 	private ElevatorState state;
 	
-	public ElevatorStatusRequest(int elevatorNumber, int f, Direction d, ElevatorState e) {
+	public ElevatorStatusRequest(int elevatorNumber, int f, int pendingRequests, boolean broken, ElevatorState e) {
 		this.elevatorNumber = elevatorNumber;
-		floorNumber = f;
-		direction = d;
-		state = e;
+		this.floorNumber = f;
+		this.pendingRequests = pendingRequests;
+		this.broken = broken;
+		this.state = e;
 	}
 	
 	public byte[] toByteArray() {
@@ -28,7 +31,8 @@ public class ElevatorStatusRequest {
 		byteBuffer.put(PacketHeaders.ElevatorStatus.getHeaderBytes());
 		byteBuffer.putInt(floorNumber);
 		byteBuffer.putInt(elevatorNumber);
-		byteBuffer.putInt(direction.toInt());
+		byteBuffer.putInt(pendingRequests);
+		byteBuffer.putInt(broken ? 1 : 0);
 		byteBuffer.putInt(state.toInt());
 		return message;
 	}
@@ -44,17 +48,18 @@ public class ElevatorStatusRequest {
 
 		int floorNumber = byteBuffer.getInt();
 		int elevatorNumber = byteBuffer.getInt();
-		Direction direction = Direction.fromInt(byteBuffer.getInt());
+		int pendingRequests = byteBuffer.getInt();
+		boolean broken = byteBuffer.getInt() == 1 ? true : false;
 		ElevatorState state = ElevatorState.fromInt(byteBuffer.getInt());
-		return new ElevatorStatusRequest(elevatorNumber, floorNumber, direction, state);
+		return new ElevatorStatusRequest(elevatorNumber, floorNumber, pendingRequests, broken, state);
 	}
 
 	public int getFloorNumber() {
 		return floorNumber;
 	}
 
-	public Direction getDirection() {
-		return direction;
+	public boolean isBroken() {
+		return broken;
 	}
 
 	public ElevatorState getState() {
@@ -67,6 +72,28 @@ public class ElevatorStatusRequest {
 
 	public void setElevatorNumber(int elevatorNumber) {
 		this.elevatorNumber = elevatorNumber;
+	}
+	
+	public int getPendingRequests() {
+		return pendingRequests;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(broken, elevatorNumber, floorNumber, pendingRequests, state);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ElevatorStatusRequest other = (ElevatorStatusRequest) obj;
+		return broken == other.broken && elevatorNumber == other.elevatorNumber && floorNumber == other.floorNumber
+				&& pendingRequests == other.pendingRequests && state == other.state;
 	}
 
 }

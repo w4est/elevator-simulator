@@ -18,7 +18,7 @@ public class SimulationRunner {
 					elevatorNumber.orElse(DEFAULT_NUM_ELEVATORS));
 			simulationGUI.openScreen();
 		} else {
-			Thread simulationThread = new Thread(new SimulationThread(args));
+			Thread simulationThread = new Thread(new SimulationRunnable(args));
 			simulationThread.start();
 		}
 	}

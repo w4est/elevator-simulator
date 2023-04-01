@@ -32,7 +32,6 @@ public class FloorSubsystem implements Runnable {
 	private DatagramSocket sendSocket;		//sending requests to scheduler (port 5003)
 	private DatagramPacket receivePacket,sendPacket;
 	
-	
 	/**
 	 * FloorSubsystem Constructor sets up the number of floors and DatagramSockets.
 	 * @param maxFloor int, represents the number of floors the FloorSubsystem should create.
@@ -55,7 +54,6 @@ public class FloorSubsystem implements Runnable {
 		      se.printStackTrace();
 		      System.exit(1);
 	    }
-		
 	}
 	
 	/**

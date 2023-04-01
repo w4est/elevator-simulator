@@ -26,6 +26,7 @@ public class Elevator {
 	private ElevatorState elevatorState; // The current state of the elevator
 	private ArrayList<Request> elevatorQueue; // The requests stored in an elevator
 	private boolean slowMode = false; // Used to simulate motor problems
+	private boolean broken = false; // Used to indicate when a problem is detected.
 	
 	/**
 	 * The default constructor
@@ -293,5 +294,13 @@ public class Elevator {
 				}
 			}
 		}
+	}
+
+	public boolean isBroken() {
+		return broken;
+	}
+	
+	public void setBroken(boolean broken) {
+		this.broken = broken;
 	}
 }
