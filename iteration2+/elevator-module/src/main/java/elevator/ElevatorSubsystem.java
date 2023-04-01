@@ -41,9 +41,9 @@ public class ElevatorSubsystem implements Runnable {
 		this.MIN_FLOOR = min;
 		this.MAX_FLOOR = max;
 		this.elevator = new Elevator(carNumber);
-		this.elevator.setFloorMovementTime(carNumber);
-		this.elevator.setDoorMovementTime(carNumber);
-		this.elevator.setLoadTimePerPerson(carNumber);
+		this.elevator.setFloorMovementTime(floorMovementTime);
+		this.elevator.setDoorMovementTime(doorMovementTime);
+		this.elevator.setLoadTimePerPerson(loadTimePerPerson);
 		floorQueues = new ArrayList<>();
 		this.elevator.setCurrentFloor(MIN_FLOOR);
 	}

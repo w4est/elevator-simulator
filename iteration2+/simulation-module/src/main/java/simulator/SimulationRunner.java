@@ -5,8 +5,8 @@ import java.util.Optional;
 
 public class SimulationRunner {
 	
-	public final static int DEFAULT_MAX_FLOOR = 7;
-	public final static int DEFAULT_NUM_ELEVATORS = 2;
+	public final static int DEFAULT_MAX_FLOOR = 22;
+	public final static int DEFAULT_NUM_ELEVATORS = 4;
 	
 	public static void main(String[] args) throws IOException {
 

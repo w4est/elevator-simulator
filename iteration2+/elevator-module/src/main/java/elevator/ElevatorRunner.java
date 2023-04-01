@@ -4,12 +4,12 @@ import java.util.Optional;
 
 public class ElevatorRunner {
 
-	public final static int DEFAULT_MAX_FLOOR = 7; // The default max floor
+	public final static int DEFAULT_MAX_FLOOR = 22; // The default max floor
 	public final static int DEFAULT_MIN_FLOOR = 1; // The default min floor
 	public final static long DEFAULT_FLOOR_MOVEMENT_TIME = 4000L;
 	public final static long DEFAULT_DOOR_MOVEMENT_TIME = 2500L;
 	public final static long DEFAULT_LOAD_TIME_PER_PERSON = 1500L;
-	public final static int DEFAULT_NUM_ELEVATORS = 2;
+	public final static int DEFAULT_NUM_ELEVATORS = 4;
 
 	public static void main(String[] args) {
 
@@ -34,9 +34,13 @@ public class ElevatorRunner {
 			ElevatorFaultListener faultListen = new ElevatorFaultListener(e, eThread);
 			Thread faultListenThread = new Thread(faultListen);	
 			
+			SimulationListener simulationListener = new SimulationListener(e);
+			Thread simulationListenerThread = new Thread(simulationListener);
+			
 			eThread.start();
 			listenThread.start();
 			faultListenThread.start();
+			simulationListenerThread.start();
 		}
 	}
 

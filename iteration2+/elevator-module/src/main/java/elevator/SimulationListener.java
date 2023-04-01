@@ -57,11 +57,10 @@ public class SimulationListener implements Runnable {
 	public void sendElevatorUpdatePacket() {
 
 		byte[] sendData = new byte[PacketUtils.BUFFER_SIZE];
-		byte[] receiveData = new byte[PacketUtils.BUFFER_SIZE];
 
 		Elevator elevator = elevSys.getElevator();
-		receiveData = new ElevatorStatusRequest(elevator.getCurrentFloor(), elevator.getCurrentDirection(),
-				elevator.getCurrentElevatorState()).toByteArray();
+		sendData = new ElevatorStatusRequest(elevator.getCarNumber(), elevator.getCurrentFloor(),
+				elevator.getCurrentDirection(), elevator.getCurrentElevatorState()).toByteArray();
 
 		try {
 			sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getLocalHost(),
