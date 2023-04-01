@@ -31,8 +31,7 @@ public class FloorSubsystem implements Runnable {
 	private DatagramSocket receiveSocket;	//receiving requests from simulation & info from Scheduler (port 5001)
 	private DatagramSocket sendSocket;		//sending requests to scheduler (port 5003)
 	private DatagramPacket receivePacket,sendPacket;
-	
-	private final int SCHEDULER_IP;
+
 	
 	/**
 	 * FloorSubsystem Constructor sets up the number of floors and DatagramSockets.
@@ -55,8 +54,6 @@ public class FloorSubsystem implements Runnable {
 		      se.printStackTrace();
 		      System.exit(1);
 	    }
-		
-		this.SCHEDULER_IP = 19216801; //schedulerIpAddress int, the scheduler pc's ip address to send to
 	}
 	
 	/**

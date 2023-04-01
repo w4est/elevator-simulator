@@ -327,6 +327,7 @@ public class ElevatorSubsystem implements Runnable {
 	 */
 	private void emergencyStop() {
 		running = false;
+		elevator.setBroken(true);
 		System.out.println("Elevator " + this.getElevator().getCarNumber()
 				+ " encountered a slow running fault and terminated. Emergency services contacted to save the stuck people.");
 	}

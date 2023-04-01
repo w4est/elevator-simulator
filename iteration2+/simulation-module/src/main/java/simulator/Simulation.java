@@ -23,6 +23,7 @@ public class Simulation {
 
 	private final String[] args;
 	private final DatagramSocket datagramSocket;
+	private boolean allRequestsComplete = false;
 
 	public Simulation(String[] args, DatagramSocket datagramSocket) {
 		this.args = args;
@@ -54,11 +55,12 @@ public class Simulation {
 					entry = iReader.getNextEntry();
 				}
 			}
+			allRequestsComplete = true;
 		}
 	}
 
 	private static String readInputFileFromStringArgs(String args[]) {
-		String file = "src/test/resources/request_test2.txt"; // directory of test file for FloorSubsystem
+		String file = "src/test/resources/request_test.txt"; // directory of test file for FloorSubsystem
 
 		for (int i = 0, max = args.length; i < max; i++) {
 			if (args[i].equalsIgnoreCase("--file") && (i + 1 < max)) {
@@ -112,5 +114,9 @@ public class Simulation {
 		}
 
 		return true;
+	}
+
+	public boolean allRequestsComplete() {
+		return allRequestsComplete;
 	}
 }

@@ -1,7 +1,6 @@
 package elevator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -9,9 +8,6 @@ import java.net.DatagramSocket;
 import java.nio.ByteBuffer;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.text.AbstractDocument.ElementEdit;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
