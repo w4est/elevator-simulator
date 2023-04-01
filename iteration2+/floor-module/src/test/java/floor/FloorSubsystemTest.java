@@ -32,7 +32,7 @@ public class FloorSubsystemTest {
 		DatagramSocket s = Mockito.mock(DatagramSocket.class);
 		DatagramSocket r = Mockito.mock(DatagramSocket.class);
 		
-		FloorSubsystem fs = new FloorSubsystem(8,s,r);
+		FloorSubsystem fs = new FloorSubsystem(8,2,s,r); // num of floors = 8
 		assertEquals(fs.getFloorRequests().size(), 0);
 		try {
 			Mockito.doAnswer(new Answer() {
@@ -70,7 +70,7 @@ public class FloorSubsystemTest {
 		DatagramSocket s = Mockito.mock(DatagramSocket.class);
 		DatagramSocket r = Mockito.mock(DatagramSocket.class);
 		
-		FloorSubsystem fs = new FloorSubsystem(8,s,r);
+		FloorSubsystem fs = new FloorSubsystem(8,2,s,r);
 		assertEquals(fs.getFloorRequests().size(), 0);
 		
 		try {
@@ -109,7 +109,7 @@ public class FloorSubsystemTest {
 		DatagramSocket s = Mockito.mock(DatagramSocket.class);
 		DatagramSocket r = Mockito.mock(DatagramSocket.class);
 		
-		FloorSubsystem fs = new FloorSubsystem(8,s,r);
+		FloorSubsystem fs = new FloorSubsystem(8,2,s,r);
 		assertEquals(fs.getFloorRequests().size(), 0);
 		try {
 			Mockito.doAnswer(new Answer() {
