@@ -1,26 +1,33 @@
 package floor;
 
+import java.util.ArrayList;
+
 /**
  * Floor Class used in FloorSubsystem to set up a floor in a building.
  * @author Subear Jama
  */
 public class Floor{
-	private final int floorNumber;
-	private int numberOfPeople;
-	private boolean upButton;
-	private boolean downButton;
-	private int lampCount;
+	private final int floorNumber; // the floor's number
+	private int numberOfPeople;    // number of people currently on the floor
+	private boolean upButton;      // floor's up button (pressed = on, not pressed = off)
+	private boolean downButton;   
+	private ArrayList<Integer> floorLamps; // the elevator(s) current position (uses index for elevator #)
 	
 	/**
 	 * Floor Constructor sets up the initial state of a Floor.
 	 * @param floorNum int, the floor's number
+	 * @param numOfElevators int, the elevators per floor
 	 */
-	public Floor (int floorNum) {
+	public Floor (int floorNum, int numOfElevators) {
 		this.floorNumber = floorNum;
 		this.numberOfPeople = 0;
 		this.upButton = false;
 		this.downButton = false;
-		this.lampCount = 0;
+		this.floorLamps = new ArrayList<Integer>(numOfElevators);
+		// later the elevator position will update according to the elevator num being the index of floorLamps
+		for (int i = 1; i < numOfElevators + 1; i++) {
+			this.floorLamps.add(1);
+		}
 	}
 	
 	/**
@@ -105,11 +112,16 @@ public class Floor{
 		return this.downButton;
 	}
 	
-	public void setLampCount(int elevatorNumber) {
-		this.lampCount = elevatorNumber;
+	/**
+	 * Method sets the FloorLamp for that particular elevator
+	 * @param elevatorNumber int, the index to put the eleavtor's position
+	 * @param elevatorPosition int, the elevator number's current floor
+	 */
+	public void setFloorLamp(int elevatorNumber, int elevatorPosition) {
+		this.floorLamps.set(elevatorNumber, elevatorPosition);
 	}
 	
-	public int getLampCount() {
-		return this.lampCount;
+	public ArrayList<Integer> getFloorLamp() {
+		return this.floorLamps;
 	}
 }
