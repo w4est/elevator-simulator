@@ -10,6 +10,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import common.ElevatorStatusRequest;
+import common.FloorStatusRequest;
 import common.PacketHeaders;
 import common.PacketUtils;
 
@@ -46,6 +48,7 @@ public class SimulationGUI {
 	
 	private Map<Integer, Map<Integer, JPanel>> floorPanels = new HashMap<>();
 	private Map<Integer, JPanel> stateLabels = new HashMap<>();
+	private ArrayList<JLabel> floorLamps = new ArrayList<JLabel>();
 
 	/**
 	 * Constructor sets up the GUI for the Elevator Simulator
@@ -175,6 +178,16 @@ public class SimulationGUI {
 		// floors
 		JPanel oneFloorPanel = new JPanel();
 		oneFloorPanel.setLayout(new BoxLayout(oneFloorPanel, BoxLayout.PAGE_AXIS)); // top to bottom
+		
+		//first create a lamp at the top (stored in ArrayList to update in updateFloor())
+		JPanel floorLamp = new JPanel();
+		floorLamp.setBackground(Color.yellow);
+		floorLamp.setPreferredSize(new Dimension(30,22));
+		JLabel lampLabel = new JLabel("-");
+		floorLamp.add(lampLabel);
+		floorLamps.add(lampLabel);    // add JLabel into ArrayList
+		oneFloorPanel.add(floorLamp); // add straight into top of BoxLayout
+		
 		for (int i = floors; i > 0; i--) {
 			JPanel oneFloor = new JPanel();
 			if (i != 1) {
@@ -286,6 +299,23 @@ public class SimulationGUI {
 			}
 		}
 		
+	}
+	
+	/**
+	 * This method is used to update the GUI for the floor lamps and buttons
+	 * @param status FloorStatusRequest, the floor data sent from the FloorSubsystem
+	 */
+	public synchronized void updateFloor(FloorStatusRequest status) {
+		int elevatorNum = status.getElevatorCarNum();
+		int elevatorPosition = status.getElevatorCurrentFloor();
+		//String direction = status.getUpButton() == true? "↑": "↓";
+		
+		//System.out.println("Debug: " + elevatorNum +":"+ elevatorPosition);
+
+		// arraylist index is the order of elevators (index 0 = elevator 1 and so on)
+		this.floorLamps.get(elevatorNum - 1).setText(elevatorPosition+""); //update the specific elevator's lamp
+		
+		//TODO: I will add in more gui components to represent the buttons & # of people on each floor
 	}
 	
 	public synchronized void simulationComplete(long endTime) {

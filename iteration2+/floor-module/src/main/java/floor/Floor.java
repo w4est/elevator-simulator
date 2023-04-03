@@ -118,7 +118,7 @@ public class Floor{
 	 * @param elevatorPosition int, the elevator number's current floor
 	 */
 	public void setFloorLamp(int elevatorNumber, int elevatorPosition) {
-		this.floorLamps.set(elevatorNumber, elevatorPosition);
+		this.floorLamps.set(elevatorNumber - 1, elevatorPosition);
 	}
 	
 	public ArrayList<Integer> getFloorLamp() {
