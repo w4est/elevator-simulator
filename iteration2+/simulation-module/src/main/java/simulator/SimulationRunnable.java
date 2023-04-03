@@ -18,6 +18,7 @@ public class SimulationRunnable implements Runnable {
 	public SimulationRunnable(String[] args) throws SocketException {
 		this.args = args;
 		this.socket = new DatagramSocket();
+		this.sim = new Simulation(args, socket);
 	}
 	
 	@Override
@@ -25,7 +26,6 @@ public class SimulationRunnable implements Runnable {
 		try (socket) {
 			// Run headless
 			System.out.println("Starting simulation");
-			sim = new Simulation(args, socket);
 			sim.runSimulation();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

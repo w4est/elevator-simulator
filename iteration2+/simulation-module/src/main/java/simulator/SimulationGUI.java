@@ -166,15 +166,7 @@ public class SimulationGUI {
 		JPanel elevatorPanel = new JPanel();
 		elevatorPanel.setBackground(Color.blue);
 		elevatorPanel.setLayout(new BorderLayout());
-		
-		// elevator direction light (up or down)
-		
-		/*JPanel upOrDown = new JPanel();
-		upOrDown.setBackground(Color.orange);
-		JLabel directionLabel = new JLabel("UP LIGHT");
-		upOrDown.add(directionLabel);
-		elevatorPanel.add(upOrDown, BorderLayout.NORTH);*/		
-		
+			
 		// floors
 		JPanel oneFloorPanel = new JPanel();
 		oneFloorPanel.setLayout(new BoxLayout(oneFloorPanel, BoxLayout.PAGE_AXIS)); // top to bottom
