@@ -1,6 +1,5 @@
 package simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
@@ -14,7 +13,6 @@ import java.net.DatagramSocket;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -23,7 +21,6 @@ import org.mockito.stubbing.Answer;
 
 import common.ElevatorState;
 import common.ElevatorStatusRequest;
-import common.PacketUtils;
 
 public class StatusUpdaterTest {
 
