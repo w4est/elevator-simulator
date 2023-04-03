@@ -7,6 +7,7 @@ import java.net.SocketException;
 import java.util.Arrays;
 
 import common.ElevatorStatusRequest;
+import common.FloorStatusRequest;
 import common.PacketHeaders;
 import common.PacketUtils;
 
@@ -78,6 +79,11 @@ public class StatusUpdater implements Runnable {
 					// Send our result
 					gui.simulationComplete(System.currentTimeMillis() - startTime - stabilityDelta);
 				}
+			} 
+			// if the packet is from the FloorSubsystem, update the GUI
+			else if (Arrays.equals(header, PacketHeaders.FloorStatus.getHeaderBytes())) {
+				FloorStatusRequest floorStatus = FloorStatusRequest.fromByteArray(packet.getData());
+				gui.updateFloor(floorStatus);
 			}
 
 		} catch (IOException e) {
