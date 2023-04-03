@@ -78,6 +78,10 @@ public class FloorStatusRequest {
 		return this.downButtonPressed;
 	}
 	
+	public int getElevatorCarNum() {
+		return this.elevatorCarNum;
+	}
+	
 	public int getElevatorCurrentFloor() {
 		return this.elevatorCurrentFloor;
 	}
