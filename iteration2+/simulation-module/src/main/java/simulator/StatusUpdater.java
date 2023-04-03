@@ -20,6 +20,7 @@ public class StatusUpdater implements Runnable {
 	private SimulationGUI gui;
 	private Simulation simulation;
 	private boolean running = true;
+	private final DatagramSocket listenSocket;
 	
 	private ElevatorStatusRequest[] lastUpdate;
 	private long[] lastUpdateTime;
@@ -29,7 +30,7 @@ public class StatusUpdater implements Runnable {
 	private boolean[] elevatorStable;
 	private static final long stabilityDelta = 500;
 	
-	public StatusUpdater(SimulationGUI gui, int elevatorCount, Simulation simulation) {
+	public StatusUpdater(SimulationGUI gui, int elevatorCount, Simulation simulation, DatagramSocket listenSocket) {
 		this.gui = gui;
 		this.simulation = simulation;
 		this.startTime = System.currentTimeMillis();
@@ -41,24 +42,26 @@ public class StatusUpdater implements Runnable {
 			elevatorStable[i] = false;
 			lastUpdateTime[i] = Long.MAX_VALUE; // Make sure we can't have a delta too big on the first evaluation.
 		}
+		
+		this.listenSocket = listenSocket;
 	}
 	
 	@Override
 	public void run() {
 
-		try (DatagramSocket listenSocket = new DatagramSocket(PacketUtils.SIMULATION_PORT)) {
+		try (this.listenSocket) {
 			listenSocket.setSoTimeout(500);
 
 			while (running) {
 
-				checkForUpdates(listenSocket);
+				checkForUpdates();
 			}
 		} catch (SocketException e1) {
 			e1.printStackTrace();
 		}
 	}
 	
-	private void checkForUpdates(DatagramSocket listenSocket) {
+	void checkForUpdates() {
 		try {
 
 			byte[] buffer = new byte[PacketUtils.BUFFER_SIZE];
@@ -90,7 +93,7 @@ public class StatusUpdater implements Runnable {
 	*   - Every elevator has no requests pending (Or, is broken!)
 	*   - Every elevator has had no changes in it's status for 500+ms
 	*/
-	private boolean checkIfFinished(ElevatorStatusRequest request) {
+	boolean checkIfFinished(ElevatorStatusRequest request) {
 		int arrayPosition = request.getElevatorNumber() - 1;
 		ElevatorStatusRequest lastStatusUpdate = lastUpdate[arrayPosition];
 		long lastStatusUpdateTime = lastUpdateTime[arrayPosition];

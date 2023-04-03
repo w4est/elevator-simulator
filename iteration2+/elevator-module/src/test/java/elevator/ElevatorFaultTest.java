@@ -56,7 +56,7 @@ public class ElevatorFaultTest {
 		}
 
 		fault.checkForFaults();
-		Mockito.verify(elevSubThread, times(1)).interrupt();;
+		Mockito.verify(elevSubThread, times(1)).interrupt();
 	}
 
 	/**

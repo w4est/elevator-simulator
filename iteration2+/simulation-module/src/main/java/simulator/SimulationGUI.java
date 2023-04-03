@@ -110,8 +110,13 @@ public class SimulationGUI {
 				Thread simThread = new Thread(simulationRunnable);
 				simThread.start();
 				
-				Thread statusThread = new Thread(
-						new StatusUpdater(selfReference, elevators, simulationRunnable.getSimulation()));
+				Thread statusThread = null;
+				try {
+					statusThread = new Thread(new StatusUpdater(selfReference, elevators,
+							simulationRunnable.getSimulation(), new DatagramSocket(PacketUtils.SIMULATION_PORT)));
+				} catch (SocketException e) {
+					e.printStackTrace();
+				}
 				statusThread.start();
 			}
 		});
