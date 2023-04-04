@@ -84,12 +84,13 @@ public class ElevatorSubsystem implements Runnable {
 		return floorQueues;
 	}
 
-	public synchronized void addRequests(List<Request> requests) {
+	public void addRequests(List<Request> requests) {
 		for (Request r : requests) {
-			floorQueues.add(r);
-			elevator.addDestination(r);
+			synchronized (floorQueues) {
+				floorQueues.add(r);
+				elevator.addDestination(r);
+			}
 		}
-		notifyAll();
 	}
 
 	/**
@@ -100,11 +101,10 @@ public class ElevatorSubsystem implements Runnable {
 	 * 
 	 * @author Subear Jama and Farhan Mahamud
 	 */
-	private synchronized void operate() {
-		while (floorQueues.isEmpty()) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
+	private void operate() {
+		synchronized (floorQueues) {
+			if (floorQueues.isEmpty()) {
+				return;
 			}
 		}
 
@@ -240,10 +240,12 @@ public class ElevatorSubsystem implements Runnable {
 	public void movePeopleOnElevator(int currentFloor) {
 		int people = 0;
 
-		for (int i = floorQueues.size() - 1; i >= 0; i--) {
-			if (floorQueues.get(i).getFloorNumber() == currentFloor) {
-				people++;
-				floorQueues.remove(i);
+		synchronized (floorQueues) {
+			for (int i = floorQueues.size() - 1; i >= 0; i--) {
+				if (floorQueues.get(i).getFloorNumber() == currentFloor) {
+					people++;
+					floorQueues.remove(i);
+				}
 			}
 		}
 

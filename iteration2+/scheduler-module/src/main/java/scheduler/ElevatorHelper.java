@@ -123,7 +123,7 @@ public class ElevatorHelper implements Runnable {
 			// and the print statements are overwhelming, making it hard to see any relevant
 			// information.
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 				System.exit(1);

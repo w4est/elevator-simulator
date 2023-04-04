@@ -313,8 +313,9 @@ public class SimulationGUI {
 		//System.out.println("Debug: " + elevatorNum +":"+ elevatorPosition);
 
 		// arraylist index is the order of elevators (index 0 = elevator 1 and so on)
-		this.floorLamps.get(elevatorNum - 1).setText(elevatorPosition+""); //update the specific elevator's lamp
-		
+		if (!this.floorLamps.get(elevatorNum - 1).getText().equals(String.valueOf(elevatorPosition))) {
+			this.floorLamps.get(elevatorNum - 1).setText(elevatorPosition+""); //update the specific elevator's lamp
+		}
 		//TODO: I will add in more gui components to represent the buttons & # of people on each floor
 	}
 	
