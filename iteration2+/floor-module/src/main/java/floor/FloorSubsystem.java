@@ -175,34 +175,6 @@ public class FloorSubsystem implements Runnable {
 		}
 	}
 	
-	/**
-	 * Method used to reduce code duplication for printing packet info to the console.
-	 * @param consoleMessage String, message to be sent
-	 * @param toOrFrom String, used to print "To" or "From".
-	 * @param packet DatagramPacket, the packet containing the message
-	 * @param data byte[], the byte array stored in the packet
-	 */
-	private void printPacketInfo(String consoleMessage, String toOrFrom, DatagramPacket packet, byte[] data) {
-		System.out.println(consoleMessage);
-		// Uncomment below if you want more information about the packet (used for debugging)
-		/*
-		System.out.println(toOrFrom + " host: " + packet.getAddress());
-		System.out.println("host port: " + packet.getPort()); // sending to = destination host port
-		int len = packet.getLength();
-		System.out.println("Length: " + len);
-		System.out.println("Containing: ");
-		// System.out.println(new String(packet.getData(),0,len)); // or could print "s"
-		String message = new String(data,0,len);   // Convert data from byte array to String!
-		System.out.println("\t - String: " + message);
-		System.out.print("\t - Bytes: ");
-		//used len instead of data.length because of big byte array sizes filled with zeros (100)
-		for(int i=0; i< len; i++) {
-			System.out.print(data[i] +" ");
-	    }
-		System.out.println();
-		*/
-	}
-	
 	/*
 	 * Method receives two things from FloorSubsystem port 5001
 	 * Case 1: Receiving requests from Simulation to store in FloorSubsystem
@@ -223,7 +195,6 @@ public class FloorSubsystem implements Runnable {
 		
 		//Case 1: if receivePacket is a request from simulation (first 2 bytes "03") then store in FloorSubsystem
 		if (receivePacket.getData()[0] == (byte) 0 && receivePacket.getData()[1] == (byte) 3) {
-			printPacketInfo("FloorSubsystem: Received Packet from Simulation", "Simulation", receivePacket, receivePacket.getData());
 			// Set up request list
 			List<Request> inputRequests = Request.fromByteArray(receivePacket.getData());
 			allRequests.add(inputRequests.get(0));
@@ -247,11 +218,8 @@ public class FloorSubsystem implements Runnable {
 		
 		//**Case 2: if the packet is from the scheduler (first 2 bytes "01"), update the FloorSubsystem lamp
 		else if(receivePacket.getData()[0] == (byte)0 && receivePacket.getData()[1] == (byte)1) {
-			printPacketInfo("FloorSubsystem: Received Packet from Scheduler", "Scheduler", receivePacket, receivePacket.getData());
 			ElevatorInfoRequest elevatorStatus = ElevatorInfoRequest.fromByteArray(receivePacket.getData());
-			System.out.println("FloorSubsystem Updating Floor Lamps With: Elevator #"+ elevatorStatus.getCarNumber() +" current floor is " + elevatorStatus.getFloorNumber() +
-					", Direction is "+elevatorStatus.getDirection() + ", and state is "+ elevatorStatus.getState());
-			
+
 			// check through all Floors and remove people from floor if the elevator is on it
 			for (Floor f: allFloors) {
 				//update floor lamp for every floor
@@ -278,14 +246,12 @@ public class FloorSubsystem implements Runnable {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		//printPacketInfo("FloorSubsystem: Sending Request To Scheduler", "To", sendPacket, requestByte);
 		try {
 			sendSocket.send(sendPacket);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		//System.out.println("FloorSubsystem: Request Sent!\n");
 	}
 	
 	

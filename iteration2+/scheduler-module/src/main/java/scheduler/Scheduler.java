@@ -84,6 +84,7 @@ public class Scheduler {
 		ArrayList<Request> returnRequests = null;
 
 		if (priorityRequest != null) {
+			System.out.println("Requests detected, sending requests.");
 			returnRequests = new ArrayList<Request>();
 			// if there are multiple requests that fit the elevator path well (same
 			// direction as the prioritized request and same floor or after), then all of

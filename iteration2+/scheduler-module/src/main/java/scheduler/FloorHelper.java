@@ -96,6 +96,7 @@ public class FloorHelper implements Runnable {
 	 * receivePacket method.
 	 */
 	public void run() {
+		System.out.println("Floor Helper is running.");
 		while (true) {
 			receivePacket();
 		}

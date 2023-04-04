@@ -18,7 +18,6 @@ public class ElevatorListener implements Runnable {
 	private ElevatorSubsystem elevSys;
 	private DatagramPacket sendPacket, receivePacket; // Packets for sending and receiveing
 	protected DatagramSocket socket; // Socket used for sending and receiving UDP packets
-	private static boolean debug = false;
 
 	public ElevatorListener(ElevatorSubsystem e) {
 		elevSys = e;
@@ -60,9 +59,7 @@ public class ElevatorListener implements Runnable {
 		byte[] receive = this.sendElevatorRequestPacket(data);
 
 		if (receive[0] == 0 && receive[1] == 0) {
-			if (debug) {
-				System.out.println("No new request received");
-			}
+			// Nothing to do, empty packet
 		} else {
 			addRequestsFromBytes(receive);
 		}
@@ -100,11 +97,6 @@ public class ElevatorListener implements Runnable {
 			System.exit(1);
 		}
 
-		if (debug) {
-			System.out.println("Elevator: Sending packet");
-			printInfo(data);
-		}
-
 		try {
 			this.socket.send(sendPacket); // Sends packet to host
 		} catch (IOException e) {
@@ -116,10 +108,6 @@ public class ElevatorListener implements Runnable {
 
 		try {
 			// Block until a datagram is received via sendReceiveSocket.
-			if (debug) {
-				System.out.println("Elevator: Waiting to receive message from Scheduler");
-			}
-
 			socket.receive(receivePacket); // Waiting to receive packet from host
 		} catch (SocketTimeoutException e) {
 			return new byte[] { 0, 0 };
@@ -129,49 +117,11 @@ public class ElevatorListener implements Runnable {
 			System.exit(1);
 		}
 
-		if (debug) {
-			// Process the received datagram.
-			System.out.println("Elevator: Received data");
-			printInfo(receivePacket.getData());
-		}
-
+		// Process the received datagram.
 		return receivePacket.getData();
 
 	}
 
-	/**
-	 * Prints a given array 'message' for a certain amount of length as bytes
-	 * 
-	 * @param message
-	 * @param length
-	 * @author Farhan Mahamud
-	 */
-	public static void printByteArray(byte[] message, int length) {
-
-		System.out.print("Message as bytes: ");
-		for (int i = 0; i < length; i++) {
-			System.out.print(message[i] + " ");
-		}
-		System.out.println("");
-
-	}
-
-	/**
-	 * Prints a given byte array
-	 * 
-	 * @param data
-	 * @author Farhan Mahamud
-	 */
-	private void printInfo(byte[] data) {
-		System.out.println(new String(data, 0, data.length)); // or could print "s"
-
-		System.out.print("Message as bytes: ");
-		for (int i = 0; i < data.length; i++) {
-			System.out.print(data[i] + " ");
-		}
-		System.out.println("");
-
-	}
 
 	@Override
 	public void run() {
