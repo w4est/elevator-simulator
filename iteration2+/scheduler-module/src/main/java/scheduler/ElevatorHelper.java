@@ -118,16 +118,6 @@ public class ElevatorHelper implements Runnable {
 	public void run() {
 		while (true) {
 			receiveSendPacket();
-			// Between updates, sleeps briefly; this is temporary for while we are not using
-			// realtime. If this is not done, requests come through to the elevator too fast
-			// and the print statements are overwhelming, making it hard to see any relevant
-			// information.
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
 		}
 	}
 
