@@ -15,7 +15,7 @@ public class SimulationRunner {
 			Optional<Integer> elevatorNumber = getElevatorNumberInArgs(args);
 			
 			SimulationGUI simulationGUI = new SimulationGUI(maxFloor.orElse(DEFAULT_MAX_FLOOR),
-					elevatorNumber.orElse(DEFAULT_NUM_ELEVATORS));
+					elevatorNumber.orElse(DEFAULT_NUM_ELEVATORS), args);
 			simulationGUI.openScreen();
 		} else {
 			Thread simulationThread = new Thread(new SimulationRunnable(args));

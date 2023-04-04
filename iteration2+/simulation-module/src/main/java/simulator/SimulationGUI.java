@@ -19,6 +19,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -37,6 +38,7 @@ public class SimulationGUI {
 	public static final String broken = "Broken";
 	
 	private SimulationGUI selfReference;
+	private String[] args;
 
 	
 	private JFrame frame;
@@ -54,8 +56,10 @@ public class SimulationGUI {
 	 * Constructor sets up the GUI for the Elevator Simulator
 	 * @param floors int, the number of floors in the building
 	 * @param elevators int, the number of elevators
+	 * @param args 
 	 */
-	public SimulationGUI(int floors, int elevators) {
+	public SimulationGUI(int floors, int elevators, String[] args) {
+		this.args = args;
 		this.selfReference = this;
 		this.frame = new JFrame("Group 2 Elevator Simulator");
 		this.frame.setLayout(new BorderLayout());
@@ -106,7 +110,7 @@ public class SimulationGUI {
 
 				SimulationRunnable simulationRunnable = null;
 				try {
-					simulationRunnable = new SimulationRunnable(new String[] {});
+					simulationRunnable = new SimulationRunnable(args);
 				} catch (SocketException e) {
 					e.printStackTrace();
 				}
@@ -262,19 +266,19 @@ public class SimulationGUI {
 		int elevatorNumber = status.getElevatorNumber();
 		switch (status.getState()) {
 		case MOVING_DOWN:
-			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setBackground(Color.blue);
+			stateLabels.get(elevatorNumber).setBackground(Color.green);
 			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setText(movingDown);
 			break;
 		case MOVING_UP:
-			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setBackground(Color.blue);
+			stateLabels.get(elevatorNumber).setBackground(Color.cyan);
 			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setText(movingUp);
 			break;
 		case STOP_CLOSED:
-			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setBackground(Color.blue);
+			stateLabels.get(elevatorNumber).setBackground(Color.darkGray);
 			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setText(idleStateClosed);
 			break;
 		case STOP_OPENED:
-			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setBackground(Color.gray);
+			stateLabels.get(elevatorNumber).setBackground(Color.gray);
 			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setText(idleStateOpen);
 			break;
 		default:
@@ -321,9 +325,8 @@ public class SimulationGUI {
 	
 	public synchronized void simulationComplete(long endTime) {
 		
-		// TODO, show the completion time somewhere on GUI?
-		System.out.println("Simulation Complete, time taken: " + endTime);
-		
+		System.out.println(String.format("Simulation Complete, time taken: %s s",  endTime / 1000));
+		JOptionPane.showMessageDialog(this.frame, String.format("Simulation Complete, time taken: %s s",  endTime / 1000));
 		startButton.setEnabled(true);
 		doorFault.setEnabled(false);
 		slowFault.setEnabled(false);
