@@ -69,7 +69,6 @@ public class ElevatorHelper implements Runnable {
 			System.exit(1);
 		}
 
-		System.out.println("Scheduler received update packet from Elevator.");
 		byte[] packetHeader = Arrays.copyOf(receivePacket.getData(), 2);
 		if (Arrays.equals(PacketHeaders.ElevatorInfoRequest.getHeaderBytes(), packetHeader)) {
 			ElevatorInfoRequest elevatorStatus = ElevatorInfoRequest.fromByteArray(receivePacket.getData());
@@ -103,11 +102,8 @@ public class ElevatorHelper implements Runnable {
 				System.exit(1);
 			}
 
-			System.out.println("Scheduler sent request packet to Elevator.");
 
 			floorHelper.sendPacket(receivePacket.getData());
-
-			System.out.println("Scheduler passed update packet from Elevator to Floor.");
 		}
 	}
 
@@ -116,6 +112,7 @@ public class ElevatorHelper implements Runnable {
 	 * the receiveSendPacket method.
 	 */
 	public void run() {
+		System.out.println("Elevator Helper is running.");
 		while (true) {
 			receiveSendPacket();
 		}

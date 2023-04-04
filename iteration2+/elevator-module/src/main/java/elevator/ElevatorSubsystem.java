@@ -347,12 +347,6 @@ public class ElevatorSubsystem implements Runnable {
 	public void run() {
 		while (running) {
 			operate();
-			this.toString();
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// Nothing important is to happen, just start the next cycle a little early
-			}
 		}
 	}
 }

@@ -282,8 +282,8 @@ public class SimulationGUI {
 		}
 		
 		if (status.isBroken()) {
-			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setBackground(Color.orange);
-			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setText(idleStateOpen);
+			stateLabels.get(elevatorNumber).setBackground(Color.orange);
+			((JLabel) stateLabels.get(elevatorNumber).getComponent(0)).setText(broken);
 		}
 		
 		// Set where the floor is
