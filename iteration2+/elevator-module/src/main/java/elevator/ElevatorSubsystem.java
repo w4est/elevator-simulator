@@ -92,6 +92,102 @@ public class ElevatorSubsystem implements Runnable {
 		notifyAll();
 	}
 
+	private synchronized void operate2() {
+		while (floorQueues.isEmpty() && this.elevator.getElevatorQueue().isEmpty()) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+			}
+		}
+		
+		if (this.elevator.getCurrentElevatorState() == ElevatorState.STOP_OPENED
+				&& this.elevator.getCurrentDirection() == Direction.IDLE) {
+
+			// Elevator door is closing to begin its path, unless there are requests to pick
+			// up on the current floor
+			if (stopElevator() == 1) {
+				this.elevator.stopStartFloorCheck();
+				movePeopleOnElevator(elevator.getCurrentFloor()); // in method will go to STOP_CLOSED then
+																	// MOVING_UP/DOWN
+			} else {
+				// STOP_OPENED -> STOP_CLOSED
+				elevator.openOrCloseDoor();
+
+				System.out.println("	2. Elevator " + this.elevator.getCarNumber() + " Current Floor & State: "
+						+ "Floor " + this.elevator.getCurrentFloor() + ", State: "
+						+ this.elevator.getCurrentElevatorState()); // STOP_CLOSED
+			}
+
+		} else if (this.elevator.getCurrentElevatorState() == ElevatorState.STOP_CLOSED
+				&& this.elevator.getCurrentDirection() == Direction.IDLE) {
+
+			if (elevator.getElevatorQueue().isEmpty()) {
+				// If theres nothing to do, idle with the doors open
+				elevator.openOrCloseDoor();
+			} else if (stopElevator() == 1) {
+				// We are at the start of a request, start moving
+				changeDirection();
+			}
+		} else if (this.elevator.getCurrentElevatorState() == ElevatorState.MOVING_DOWN
+				|| this.elevator.getCurrentElevatorState() == ElevatorState.MOVING_UP) {
+			// stop for anyone floor scheduled to stop at
+			if (stopElevator() == 1) {
+				this.elevator.nextElevatorState(); // MOVING_UP/DOWN -> STOP_CLOSED
+				System.out.println("	3: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: "
+						+ "Floor " + this.elevator.getCurrentFloor() + ", State: "
+						+ this.elevator.getCurrentElevatorState()); // STOP_CLOSED
+
+				// Elevator door is opening to pick up people
+				// STOP_CLOSED -> STOP_OPENED
+				elevator.openOrCloseDoor();
+
+				System.out.println("	4: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: "
+						+ "Floor " + this.elevator.getCurrentFloor() + ", State: "
+						+ this.elevator.getCurrentElevatorState()); // STOP_OPENED
+
+				movePeopleOnElevator(elevator.getCurrentFloor()); // in method will go to STOP_CLOSED then
+																	// MOVING_UP/DOWN
+
+			}
+			// stop for destination request
+			else if (stopElevator() == 2) {
+				this.elevator.nextElevatorState(); // MOVING_UP/DOWN -> STOP_CLOSED
+				System.out.println("	5: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: "
+						+ "Floor " + this.elevator.getCurrentFloor() + ", State: "
+						+ this.elevator.getCurrentElevatorState()); // STOP_CLOSED
+
+				// Elevator door is opening to drop off people
+				// STOP_CLOSED -> STOP_OPENED
+				elevator.openOrCloseDoor();
+
+				this.elevator.setCurrentDirection(Direction.IDLE);
+				System.out.println("	6: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: "
+						+ "Floor " + this.elevator.getCurrentFloor() + ", State: "
+						+ this.elevator.getCurrentElevatorState()); // STOP_OPENED
+
+				// elevator reached destination, clear floor and break while loop
+				int peopleRemoved = this.elevator.clearFloor();
+				System.out.println("	7. Elevator " + this.elevator.getCarNumber()
+						+ " reached destination and dropped off " + peopleRemoved + " request(s)!");
+
+				if (!elevator.getElevatorQueue().isEmpty()){
+					// Elevator door is closing after dropping off people
+					elevator.waitForPeopleToMoveOffOrOnElevator(peopleRemoved);
+					// STOP_OPENED -> STOP_CLOSE
+					elevator.openOrCloseDoor();
+
+					System.out.println("	8: Elevator " + this.elevator.getCarNumber() + " Current Floor & State: "
+							+ "Floor " + this.elevator.getCurrentFloor() + ", State: "
+							+ this.elevator.getCurrentElevatorState()); // STOP_CLOSED
+					changeDirection();
+				}
+			}
+
+			// move elevator up or down 1 floor based on current elevator state
+			moveElevator();
+		}
+	}
+	
 	/**
 	 * Private method repeatedly called in run until the scheduler is done. Used to
 	 * setup elevator movement and handle requests.
@@ -344,13 +440,7 @@ public class ElevatorSubsystem implements Runnable {
 	@Override
 	public void run() {
 		while (running) {
-			operate();
-			this.toString();
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// Nothing important is to happen, just start the next cycle a little early
-			}
+			operate2();
 		}
 	}
 }
