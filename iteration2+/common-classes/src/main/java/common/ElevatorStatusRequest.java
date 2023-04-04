@@ -17,9 +17,10 @@ public class ElevatorStatusRequest {
 	private boolean broken;
 	private ElevatorState state;
 	
-	public ElevatorStatusRequest(int elevatorNumber, int f, int pendingRequests, boolean broken, ElevatorState e) {
+	public ElevatorStatusRequest(int elevatorNumber, int floorNumber, int pendingRequests, boolean broken,
+			ElevatorState e) {
 		this.elevatorNumber = elevatorNumber;
-		this.floorNumber = f;
+		this.floorNumber = floorNumber;
 		this.pendingRequests = pendingRequests;
 		this.broken = broken;
 		this.state = e;
