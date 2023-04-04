@@ -37,6 +37,7 @@ public class SimulationGUI {
 	public static final String broken = "Broken";
 	
 	private SimulationGUI selfReference;
+	private String[] args;
 
 	
 	private JFrame frame;
@@ -54,8 +55,10 @@ public class SimulationGUI {
 	 * Constructor sets up the GUI for the Elevator Simulator
 	 * @param floors int, the number of floors in the building
 	 * @param elevators int, the number of elevators
+	 * @param args 
 	 */
-	public SimulationGUI(int floors, int elevators) {
+	public SimulationGUI(int floors, int elevators, String[] args) {
+		this.args = args;
 		this.selfReference = this;
 		this.frame = new JFrame("Group 2 Elevator Simulator");
 		this.frame.setLayout(new BorderLayout());
@@ -106,7 +109,7 @@ public class SimulationGUI {
 
 				SimulationRunnable simulationRunnable = null;
 				try {
-					simulationRunnable = new SimulationRunnable(new String[] {});
+					simulationRunnable = new SimulationRunnable(args);
 				} catch (SocketException e) {
 					e.printStackTrace();
 				}
