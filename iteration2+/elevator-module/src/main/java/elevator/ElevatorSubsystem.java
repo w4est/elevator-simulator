@@ -121,13 +121,13 @@ public class ElevatorSubsystem implements Runnable {
 		} else if (this.elevator.getCurrentElevatorState() == ElevatorState.STOP_CLOSED
 				&& this.elevator.getCurrentDirection() == Direction.IDLE) {
 
-			if (elevator.getElevatorQueue().isEmpty()) {
+			if (elevator.getElevatorQueue().isEmpty() || stopElevator() == 2) {
 				// If theres nothing to do, idle with the doors open
 				elevator.openOrCloseDoor();
 			} else if (stopElevator() == 1) {
 				// We are at the start of a request, start moving
 				changeDirection();
-			}
+			} 
 		} else if (this.elevator.getCurrentElevatorState() == ElevatorState.MOVING_DOWN
 				|| this.elevator.getCurrentElevatorState() == ElevatorState.MOVING_UP) {
 			// stop for anyone floor scheduled to stop at

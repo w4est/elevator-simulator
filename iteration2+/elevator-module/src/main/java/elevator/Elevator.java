@@ -192,7 +192,7 @@ public class Elevator {
 		boolean foundStartFloor = false;
 		for (Request r: this.elevatorQueue) {
 			//if the elevator currentFloor reached a request starting floor, STOP and set request (reachedStartFloor)
-			if (r.getFloorNumber() == currentFloor && r.getReachedStartFloor() == false) {
+			if (r.getFloorNumber() == currentFloor) {
 				r.setReachedStartFloor(true);
 				foundStartFloor = true;
 			} 
