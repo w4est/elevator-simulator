@@ -22,19 +22,38 @@ package "common classes" #DDDDDD {
 } 
 
 class ElevatorInfoRequest {
+    - int carNumber;
     - int floorNumber;
     - Direction direction;
     - ElevatorState state;
 
     + toByteArray() : byte[]
-    + fromByteArray(byte[]) : ElevatorInfoRequest
+    + {static} fromByteArray(byte[]) : ElevatorInfoRequest
 
+    + getCarNumber() : int
     + getFloorNumber() : int
     + setFloorNumber(int) : void
     + getDirection() : Direction
     + setDirection(Direction) : void
     + getState() : ElevatorState
     + setState(ElevatorState) : void
+}
+
+class ElevatorStatusRequest {
+    - int elevatorNumber
+    - int floorNumber
+    - int pendingRequests
+    - boolean broken
+    - ElevatorState state
+
+    + toByteArray() : byte[]
+    + {static} fromByteArray(byte[]) : ElevatorStatusRequest
+
+    + getFloorNumber(): int
+    + isBroken(): boolean
+    + getState(): ElevatorState
+    + getElevatorNumber(): int
+    + getPendingRequests(): int
 }
 
 enum Direction {
@@ -52,7 +71,7 @@ class PacketUtils {
     + {static} int SCHEDULER_FLOOR_PORT
     + {static} int SCHEDULER_ELEVATOR_PORT
     + {static} int FLOOR_PORT
-    + {static} int SYNC_PORT
+    + {static} int SIMULATION_PORT
 
     + {static} putStringIntoByteBuffer(int, byte[], String) : int
     + {static} packetContainsString(byte[], String) : boolean
@@ -75,10 +94,24 @@ class FaultMessage {
     + {static} fromByteArray(message:byte[]): FaultMessage
 }
 
+class FloorStatusRequest {
+    - int floorNumber
+    - int numOfPeople
+    - boolean upButtonPressed
+    - private boolean downButtonPressed
+    - private int elevatorCarNum
+    - private int elevatorCurrentFloor
+
+    + toByteArray(): byte[]
+    + {static} fromByteArray(message:byte[]): FloorStatusRequest
+}
+
 
 enum PacketHeaders {
    Request
    ElevatorInfoRequest
+   ElevatorStatus
+   FloorStatus
    DoorFault
    SlowFault
 
@@ -99,9 +132,14 @@ enum ElevatorState {
    Request -> Direction
    ElevatorInfoRequest -> Direction
    ElevatorInfoRequest -> ElevatorState
+   ElevatorInfoRequest ..|> PacketHeaders
+   ElevatorStatusRequest ..|> PacketHeaders
+   FaultMessage ..|> PacketHeaders
+   FloorStatusRequest ..|> PacketHeaders
+   
+   FaultMessage -> Fault
 }
 
-FaultMessage -> Fault
 
 Request -> LocalTime
 @enduml
