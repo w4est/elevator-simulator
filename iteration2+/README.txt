@@ -52,6 +52,10 @@ All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in th
 * Direction : A shared enum to indicate direction of the elevator
 * ElevatorInfoRequest : A class representing an elevator state, sent by the Elevator
 * ElevatorState : A shared enum to indicate the state of an elevator
+* ElevatorStatusRequest: A shared class to convert an elevator request into a byte array to be used and sent via UDP packets
+* Fault : A shared enum to indicate what kind of fault has occured
+* FaultMessage: A shared class to convert a Fault message into a byte array and be used to sent via UDP packets
+* FloorStatusRequest: A shared class to convert a floor request into a byte array to be used and sent via UDP packets
 * PacketHeaders : An enum that helps manage packet headers for reading of network objects
 * PacketUtils : A class with helpfule static functions and constants
 * Request : A class that is sent from the simulation, representing a request
@@ -60,14 +64,17 @@ All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in th
 
 ![Elevator class diagram](./diagrams/elevator_module_class_diagram.png)
 * Elevator.java : a class to represent the elevator hardware 
-* ElevatorSubsystem.java : a class to manage elevators
-* ElevatorListener.java: a class that actively (IE poll) the scheduler to communicate with it
 * ElevatorFaultListener.java : a class that passively waits for fault packets
+* ElevatorListener.java: a class that actively (IE poll) the scheduler to communicate with it
+* ElevatorRunner.java: a class that runs the main() function for the elevator subsystem with default values
+* ElevatorSubsystem.java : a class to manage elevators
+* SimulationListener.java : a class for an elevator subsystem to send status updates to the simulation
   
 # floor (module)
 ![FloorSubsystem class diagram](./diagrams/floorsubsystem__module_class_diagram.png)
 * FloorSubsystem.java : a class to manage floor operations
 * Floor.java : used in FloorSubsystem to set up a floor in a building.
+* FloorSimulationListener.java : a class for a floor subsystem to send status updates to the simulation
   
 # scheduler-module (module)
 
@@ -85,6 +92,7 @@ All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in th
 * SimulationGUI.java : A class used to also kickoff the simulation class, and allows sending of faults
 * InputFileReader.java : used within FloorSubsystem to help read a text file.
 * SimulationEntry.java : used within FloorSubsystem to help read a text file.
+* SimulationGUI.java : A class to display the GUI to control the programs
 
 ## Set Up Instructions (Using Eclipse)
 Below are the set up instructions. For more information, see "L2G2_Test_Instructions.pdf".
@@ -99,9 +107,9 @@ Below are the set up instructions. For more information, see "L2G2_Test_Instruct
 7. Select Update Project...
 8. Select the project and click "Ok"
 9. Let eclipse download the appropriate dependencies (Such as JUnit)
-10. In the "scheduler-module" package run the Scheduler.java
-11. In the "floor-module" package run the FloorSubsystem.java
-12. In the "elevator-module" package run the ElevatorSubsystem.java
+10. In the "scheduler-module" package run the Scheduler.java (NOTE 1)
+11. In the "floor-module" package run the FloorSubsystem.java (NOTE 1)
+12. In the "elevator-module" package run the ElevatorSubsystem.java (NOTE 1)
 13. In the "simulator" package run "Simulation.java" to send data the to the elevator system!
  * If you'd like to run in realtime mode, add the argument --realtime
  * If you'd like to run a new file for sending requests, use the argument --file [filename] (This can only be used on non-gui mode this iteration)
@@ -118,14 +126,16 @@ Below are the set up instructions. For more information, see "L2G2_Test_Instruct
 7. Select Update Project...
 8. Select the project and click "Ok"
 9. Let eclipse download the appropriate dependencies (Such as JUnit)
-10. In the "scheduler-module" package run the Scheduler.java
-11. In the "floor-module" package run the FloorSubsystem.java
-12. In the "elevator-module" package run the ElevatorSubsystem.java
+10. In the "scheduler-module" package run the Scheduler.java (NOTE 1) 
+11. In the "floor-module" package run the FloorSubsystem.java (NOTE 1)
+12. In the "elevator-module" package run the ElevatorSubsystem.java (NOTE 1)
 13. In the "simulator" package run "Simulation.java" to send data the to the elevator system!
  * If you'd like to run in realtime mode, add the argument --realtime
  * If you'd like to run a new file for sending requests, use the argument --file [filename] (This can only be used on non-gui mode this iteration)
  * If you'd like to run with  a GUI (allowing sending of faults), use the argument --gui
 14. See progress in the console. It is suggested to stop the elevator early to make it easier to read it's logs (It is always active)
+
+* NOTE 1: You can run the programs in any order you want so long as Simulator.java is not run in headless mode
 
 ### Running tests (Using JUnit)
 1. Right click the "tests" folder in the project explorer from any module
