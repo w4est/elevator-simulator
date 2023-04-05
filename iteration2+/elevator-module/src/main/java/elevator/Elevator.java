@@ -16,9 +16,9 @@ import common.Request;
  */
 public class Elevator {
 
-	private long floorMovementTime = 4000L;
-	private long doorMovementTime = 2500L;
-	private long loadTimePerPerson = 1500L;
+	private long floorMovementTime = ElevatorRunner.DEFAULT_FLOOR_MOVEMENT_TIME;
+	private long doorMovementTime = ElevatorRunner.DEFAULT_DOOR_MOVEMENT_TIME;
+	private long loadTimePerPerson = ElevatorRunner.DEFAULT_LOAD_TIME_PER_PERSON;
 	
 	private int currentFloor; // The current floor of the elevator
 	private Direction currentDirection; // The current direction of the elevator
