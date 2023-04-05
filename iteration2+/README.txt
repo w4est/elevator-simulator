@@ -135,7 +135,7 @@ Below are the set up instructions. For more information, see "L2G2_Test_Instruct
  * If you'd like to run with  a GUI (allowing sending of faults), use the argument --gui
 14. See progress in the console. It is suggested to stop the elevator early to make it easier to read it's logs (It is always active)
 
-* NOTE 1: You can run the programs in any order you want so long as Simulator.java is run last
+* NOTE 1: You can run the programs in any order you want so long as Simulator.java is not run in headless mode
 
 ### Running tests (Using JUnit)
 1. Right click the "tests" folder in the project explorer from any module
