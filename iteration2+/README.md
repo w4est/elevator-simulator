@@ -48,7 +48,7 @@ All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in th
 
 # common-classes (module)
 
-![Common class diagram](./diagrams/common_classes_class_diagram.png)
+![Common class diagram](./diagrams/images/common_classes_class_diagram.png)
 * Direction : A shared enum to indicate direction of the elevator
 * ElevatorInfoRequest : A class representing an elevator state, sent by the Elevator
 * ElevatorState : A shared enum to indicate the state of an elevator
@@ -58,27 +58,27 @@ All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in th
 
 # elevator (module)
 
-![Elevator class diagram](./diagrams/elevator_module_class_diagram.png)
+![Elevator class diagram](./diagrams/images/elevator_module_class_diagram.png)
 * Elevator.java : a class to represent the elevator hardware 
 * ElevatorSubsystem.java : a class to manage elevators
 * ElevatorListener.java: a class that actively (IE poll) the scheduler to communicate with it
 * ElevatorFaultListener.java : a class that passively waits for fault packets
   
 # floor (module)
-![FloorSubsystem class diagram](./diagrams/floorsubsystem__module_class_diagram.png)
+![FloorSubsystem class diagram](./diagrams/images/floorsubsystem__module_class_diagram.png)
 * FloorSubsystem.java : a class to manage floor operations
 * Floor.java : used in FloorSubsystem to set up a floor in a building.
   
 # scheduler-module (module)
 
-![Scheduler class diagram](./diagrams/scheduler_module_class_diagram.png)
+![Scheduler class diagram](./diagrams/images/scheduler_module_class_diagram.png)
 * Scheduler.java : responsible for communication between FloorSubsystem and ElevatorSubsystem.
 * FloorHelper.java : A helper class for communication with the floors
 * ElevatorHelper.java : A helper class for communication with the elevators
 
 # simulation-module (module) 
 
-![Simulation class diagram](./diagrams/simulation_module_class_diagram.png)
+![Simulation class diagram](./diagrams/images/simulation_module_class_diagram.png)
 * Simulation.java : responsible for program initialization & running the simulation from the console
 * SimulationThread.java : A class used to box the simulation in a thread, used in SimulationRunner.java and SimulationGUI.java
 * SimulationRunner.java : A class that used to kickoff the Simulation class from the command line.
