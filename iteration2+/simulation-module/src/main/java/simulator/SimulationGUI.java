@@ -29,6 +29,11 @@ import common.FloorStatusRequest;
 import common.PacketHeaders;
 import common.PacketUtils;
 
+/**
+ * A class to create and display the GUI of the program
+ * @author farha
+ *
+ */
 public class SimulationGUI {
 
 	public static final String idleStateOpen = "IDLE Open";

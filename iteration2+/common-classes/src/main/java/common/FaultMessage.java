@@ -3,22 +3,42 @@ package common;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+/**
+ * A class to convert a fault into a message that can be sent via UDP packets
+ *
+ */
 public class FaultMessage {
 
-	Fault fault;
+	Fault fault; //The fault
 
+	/**
+	 * Default constructor
+	 * @param fault
+	 */
 	public FaultMessage(Fault fault) {
 		this.fault = fault;
 	}
 
+	/**
+	 * Gets the fault
+	 * @return
+	 */
 	public Fault getFault() {
 		return fault;
 	}
 
+	/**
+	 * Sets the fault
+	 * @param fault
+	 */
 	public void setFault(Fault fault) {
 		this.fault = fault;
 	}
 
+	/**
+	 * Converts the FaultMessage into a byte array
+	 * @return
+	 */
 	public byte[] toByteArray() {
 		byte[] message = new byte[2];
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
@@ -31,6 +51,11 @@ public class FaultMessage {
 		return message;
 	}
 
+	/**
+	 * Converts a byte array into a FaultMessage object
+	 * @param message
+	 * @return
+	 */
 	public static FaultMessage fromByteArray(byte[] message) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
 		byte[] header = new byte[2];

@@ -40,26 +40,50 @@ public class Elevator {
 		elevatorQueue = new ArrayList<>();
 	}
 		
+	/**
+	 * Gets floor movement time
+	 * @return
+	 */
 	public long getFloorMovementTime() {
 		return floorMovementTime;
 	}
 
+	/**
+	 * Set floor movement time
+	 * @param floorMovementTime
+	 */
 	public void setFloorMovementTime(long floorMovementTime) {
 		this.floorMovementTime = floorMovementTime;
 	}
 
+	/**
+	 * Get door movement time
+	 * @return
+	 */
 	public long getDoorMovementTime() {
 		return doorMovementTime;
 	}
 
+	/**
+	 * Set door movement time
+	 * @param doorMovementTime
+	 */
 	public void setDoorMovementTime(long doorMovementTime) {
 		this.doorMovementTime = doorMovementTime;
 	}
 
+	/**
+	 * Get loading time per person
+	 * @return
+	 */
 	public long getLoadTimePerPerson() {
 		return loadTimePerPerson;
 	}
 
+	/**
+	 * Sets loading time per person
+	 * @param loadTimePerPerson
+	 */
 	public void setLoadTimePerPerson(long loadTimePerPerson) {
 		this.loadTimePerPerson = loadTimePerPerson;
 	}
@@ -129,6 +153,10 @@ public class Elevator {
 		this.currentDirection = currentDirection;
 	}
 	
+	/**
+	 * Set car number
+	 * @param c
+	 */
 	public void setCarNum(int c) {
 		this.carNumber = c;
 	}
@@ -149,10 +177,18 @@ public class Elevator {
 		elevatorQueue.add(r);
 	}
 	
+	/**
+	 * Checks whether the elevator is in slow mode
+	 * @return
+	 */
 	public boolean isSlowMode() {
 		return slowMode;
 	}
 
+	/**
+	 * Set whether the elevator is in slow mode
+	 * @param slowMode
+	 */
 	public void setSlowMode(boolean slowMode) {
 		this.slowMode = slowMode;
 	}
@@ -237,6 +273,11 @@ public class Elevator {
 		return people;
 	}
 	
+	/**
+	 * Opens or closes the doors in real time
+	 * If it receives an InterrruptedException then 
+	 * the elevator will continue to attempt to open or close the dooe
+	 */
 	public void openOrCloseDoor() {
 
 		if (elevatorState != ElevatorState.STOP_CLOSED && elevatorState != ElevatorState.STOP_OPENED) {
@@ -258,7 +299,10 @@ public class Elevator {
 		elevatorState = elevatorState.nextState();
 	}
 	
-	
+	/**
+	 * Waits for people to get on or off the elevator
+	 * @param numPeople
+	 */
 	public void waitForPeopleToMoveOffOrOnElevator(int numPeople) {
 		// Make sure we spend the exact amount of time required, event if
 		// interrupts come at this time (we don't have interrupt handling here)

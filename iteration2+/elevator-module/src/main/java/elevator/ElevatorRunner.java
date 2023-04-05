@@ -2,6 +2,10 @@ package elevator;
 
 import java.util.Optional;
 
+/**
+ * A class to start running the elevator subsystem
+ *
+ */
 public class ElevatorRunner {
 
 	public final static int DEFAULT_MAX_FLOOR = 22; // The default max floor

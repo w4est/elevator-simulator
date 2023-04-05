@@ -3,6 +3,10 @@ package simulator;
 import java.io.IOException;
 import java.util.Optional;
 
+/**
+ * A class to run the simulation which will display 
+ * the GUI and start the execution of the other programs
+ */
 public class SimulationRunner {
 	
 	public final static int DEFAULT_MAX_FLOOR = 22;
