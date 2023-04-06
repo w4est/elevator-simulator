@@ -10,6 +10,13 @@ class ElevatorRunner {
     + {static} int DEFAULT_NUM_ELEVATORS 
 
     + {static} main: void
+    - {static} getLoadingSpeedInArgs: Optional<Long>
+    - {static} getElevatorDoorSpeedInArgs: Optional<Long>
+    - {static} getElevatorSpeedInArgs: Optional<Long>
+    - {static} getElevatorMinFloorInArgs: Optional<Long>
+    - {static} getElevatorMaxFloorInArgs: Optional<Long>
+    - {static} getElevatorNumberInArgs: Optional<Long>
+    
 }
 
 class ElevatorSubsystem <<Runnable>> {
