@@ -11,12 +11,10 @@ import java.net.SocketException;
  */
 public class SimulationRunnable implements Runnable {
 
-	Simulation sim;
-	String[] args;
+	private Simulation sim;
 	private final DatagramSocket socket;
 	
 	public SimulationRunnable(String[] args) throws SocketException {
-		this.args = args;
 		this.socket = new DatagramSocket();
 		this.sim = new Simulation(args, socket);
 	}

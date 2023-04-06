@@ -1,5 +1,6 @@
 @startuml
 
+
 package "common classes" #DDDDDD {
   class Request {
     - LocalTime localTime
@@ -18,7 +19,42 @@ package "common classes" #DDDDDD {
     + getRequestComplete() : boolean
     + setRequestComplete() : void
     + toByteArray() : byte[]
-    + {static} fromByteArray(byte[]) : Request
+    + {static} fromByteArray(message:byte[]) : List<Request>
+} 
+
+class ElevatorInfoRequest {
+    - int carNumber;
+    - int floorNumber;
+    - Direction direction;
+    - ElevatorState state;
+
+    + toByteArray() : byte[]
+    + {static} fromByteArray(byte[]) : ElevatorInfoRequest
+
+    + getCarNumber() : int
+    + getFloorNumber() : int
+    + setFloorNumber(int) : void
+    + getDirection() : Direction
+    + setDirection(Direction) : void
+    + getState() : ElevatorState
+    + setState(ElevatorState) : void
+}
+
+class ElevatorStatusRequest {
+    - int elevatorNumber
+    - int floorNumber
+    - int pendingRequests
+    - boolean broken
+    - ElevatorState state
+
+    + toByteArray() : byte[]
+    + {static} fromByteArray(byte[]) : ElevatorStatusRequest
+
+    + getFloorNumber(): int
+    + isBroken(): boolean
+    + getState(): ElevatorState
+    + getElevatorNumber(): int
+    + getPendingRequests(): int
 }
 
 enum Direction {
@@ -36,7 +72,7 @@ class PacketUtils {
     + {static} int SCHEDULER_FLOOR_PORT
     + {static} int SCHEDULER_ELEVATOR_PORT
     + {static} int FLOOR_PORT
-    + {static} int SYNC_PORT
+    + {static} int SIMULATION_PORT
 
     + {static} putStringIntoByteBuffer(int, byte[], String) : int
     + {static} packetContainsString(byte[], String) : boolean
@@ -46,9 +82,67 @@ class PacketUtils {
     + {static} stateToByteArray(ElevatorState): byte[]
 }
 
-   Request -> Direction
+enum Fault {
+    DoorFault
+    SlowFault
 }
 
+class FaultMessage {
+    - Fault fault
+    + getFault(): Fault
+    + setFault(fault:Fault): void
+    + toByteArray(): byte[]
+    + {static} fromByteArray(message:byte[]): FaultMessage
+}
+
+class FloorStatusRequest {
+    - int floorNumber
+    - int numOfPeople
+    - boolean upButtonPressed
+    - private boolean downButtonPressed
+    - private int elevatorCarNum
+    - private int elevatorCurrentFloor
+
+    + toByteArray(): byte[]
+    + {static} fromByteArray(message:byte[]): FloorStatusRequest
+}
+
+
+enum PacketHeaders {
+   Request
+   ElevatorInfoRequest
+   ElevatorStatus
+   FloorStatus
+   DoorFault
+   SlowFault
+
+   + getHeaderBytes() : byte[]
+}
+
+enum ElevatorState {
+   STOP_OPENED
+   STOP_CLOSED
+   MOVING_UP
+   MOVING_DOWN
+
+   + nextState() : ElevatorState
+   + toInt() : int
+   + {static} fromInt() : ElevatorState
+}
+
+   Request -> Direction
+   ElevatorInfoRequest -> Direction
+   ElevatorInfoRequest -> ElevatorState
+   ElevatorInfoRequest ..|> PacketHeaders
+   ElevatorStatusRequest ..|> PacketHeaders
+   FaultMessage ..|> PacketHeaders
+   FloorStatusRequest ..|> PacketHeaders
+   
+   FaultMessage -> Fault
+}
+
+
+Request -> LocalTime
 
 package "simulation module" #DDDDDD {
 class Simulation {
@@ -86,37 +180,79 @@ class SimulationEntry {
 
 class SimulationRunner {
    + main(String[]) : void
-   - isGuiFlagInStringArgs(String[]) : boolean
+   - {static} isGuiFlagInStringArgs(String[]): boolean
+   - {static} getElevatorMaxFloorInArgs(String[]): boolean
+   - {static} getElevatorNumberInArgs(String[]): boolean
 }
 
 class SimulationGUI {
+    + {static} String idleStateOpen
+    + {static} String idleStateClosed
+    + {static} String movingUp
+    + {static} String movingDown
+    + {static} String broken
+
+    - SimulationGUI selfReference
+    - String[] args
+    - JFrame frame
+    - JPanel centerPanel
+    - JButton startButton
+    - JButton doorFault
+    - JButton slowFault
+    - Map<Integer, Map<Integer, JPanel>> floorPanels
+    - Map<Integer, JPanel> stateLabels
+    - ArrayList<JLabel> floorLamps
+
    + openScreen() : void
+   - visualFloorSetup(int, int): void
    - sendDoorFault(int) : void
    - sendSlowFault(int) : void
    - sendFaultToElevatorListener(byte[], int): void
+   + updateState(ElevatorStatusRequest): void
+   + updateFloor(FloorStatusRequest): void
+   + simulationComplete(long): void
 }
 
-class SimulationThread {
-
+class SimulationRunnable <<Runnable>> {
+    - Simulation sim;
+    - String[] args;
+    - DatagramSocket socket;
+    + run(): void
 }
 
+class StatusUpdater <<Runnable>> {
+    - SimulationGUI gui
+    - Simulation simulation
+    - boolean running = true
+    - DatagramSocket listenSocket
+	
+    - ElevatorStatusRequest[] lastUpdate
+    - long[] lastUpdateTime
+    - long startTime = 0L
+    - boolean elevatorStable
+    - {static} long stabilityDelta
 
-    SimulationRunner ..> SimulationThread
+    + run(): void
+    checkForUpdates(): void
+    checkIfFinished(): boolean
+}
+
+    SimulationRunnable --> Simulation
+    SimulationRunner ..> SimulationRunnable
     SimulationRunner ..> SimulationGUI
-    SimulationGUI ..> SimulationThread
-    SimulationThread ..> Simulation
+    SimulationGUI ..> SimulationRunnable
+    SimulationGUI --> SimulationGUI
     InputFileReader ..> SimulationEntry
     InputFileReader ..> Direction
     Simulation ..> InputFileReader
     Simulation ..> SimulationEntry
+    StatusUpdater --> SimulationGUI
+    StatusUpdater --> Simulation
 }
 
 
-class DatagramSocket {
-
-}
-
-Simulation -> DatagramSocket
+StatusUpdater ..|> ElevatorStatusRequest
+StatusUpdater ..|> FloorStatusRequest
 Simulation ..|> PacketUtils
 SimulationGUI ..|> PacketUtils
 SimulationEntry -> LocalTime
