@@ -76,7 +76,6 @@ public class Floor{
 	public void removePeople(int peopleLeavingFloor) {
 		if (peopleLeavingFloor < numberOfPeople) {
 			this.numberOfPeople -= peopleLeavingFloor;
-			System.out.println("*Floor "+ this.floorNumber + ": "+ peopleLeavingFloor + " people got off floor");
 		}
 	}
 	
