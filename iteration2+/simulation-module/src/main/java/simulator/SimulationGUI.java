@@ -3,6 +3,7 @@ package simulator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -29,6 +30,10 @@ import common.FloorStatusRequest;
 import common.PacketHeaders;
 import common.PacketUtils;
 
+/**
+ * The Elevator Simulator GUI
+ * @author William Forrest and Subear Jama
+ */
 public class SimulationGUI {
 
 	public static final String idleStateOpen = "IDLE Open";
@@ -51,6 +56,9 @@ public class SimulationGUI {
 	private Map<Integer, Map<Integer, JPanel>> floorPanels = new HashMap<>();
 	private Map<Integer, JPanel> stateLabels = new HashMap<>();
 	private ArrayList<JLabel> floorLamps = new ArrayList<JLabel>();
+	private ArrayList<JPanel> floorUpButtons = new ArrayList<JPanel>();
+	private ArrayList<JPanel> floorDownButtons = new ArrayList<JPanel>();
+	private int numFloors;
 
 	/**
 	 * Constructor sets up the GUI for the Elevator Simulator
@@ -60,6 +68,7 @@ public class SimulationGUI {
 	 */
 	public SimulationGUI(int floors, int elevators, String[] args) {
 		this.args = args;
+		this.numFloors = floors;
 		this.selfReference = this;
 		this.frame = new JFrame("Group 2 Elevator Simulator");
 		this.frame.setLayout(new BorderLayout());
@@ -139,8 +148,9 @@ public class SimulationGUI {
 		this.centerPanel = new JPanel();
 		this.centerPanel.setBackground(Color.black);
 		this.centerPanel.setPreferredSize(new Dimension(100,100));
+		visualButtonSetup(floors); //set up floor buttons
 		for (int i = 0; i < elevators; i++) {
-			visualFloorSetup(i + 1, floors);
+			visualFloorSetup(i + 1, floors); //set up floors per elevator
 		}
 		this.frame.add(centerPanel, BorderLayout.CENTER);
 		
@@ -164,6 +174,50 @@ public class SimulationGUI {
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
+	
+	/**
+	 * Method used in constructor's center panel to set up the floor buttons
+	 */
+	private void visualButtonSetup(int floors) {
+		JPanel elevatorPanel = new JPanel();
+		elevatorPanel.setBackground(Color.blue);
+		elevatorPanel.setLayout(new BorderLayout());
+		
+		// floor buttons
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.PAGE_AXIS)); // top to bottom
+		
+		for (int i = floors; i > 0; i--) {
+			JPanel upAndDown = new JPanel();
+			upAndDown.setPreferredSize(new Dimension(70,22));
+			upAndDown.setLayout(new FlowLayout(FlowLayout.CENTER, 2,1)); // to remove whitespace
+			upAndDown.setBackground(Color.black);
+			//up button
+			JPanel upButton = new JPanel();
+			upButton.setBackground(Color.gray);
+			upButton.setPreferredSize(new Dimension(20,22));
+			JLabel upLabel = new JLabel("UP");
+			upButton.add(upLabel);
+			//down button
+			JPanel downButton = new JPanel();
+			downButton.setBackground(Color.gray);
+			downButton.setPreferredSize(new Dimension(42,22));
+			JLabel downLabel = new JLabel("DOWN");
+			downButton.add(downLabel);
+			
+			//combined per floor
+			upAndDown.add(upButton);
+			upAndDown.add(downButton);
+			buttonPanel.add(upAndDown);
+			//keep reference to update later
+			floorUpButtons.add(upButton);
+			floorDownButtons.add(downButton);
+		}
+		
+		elevatorPanel.add(buttonPanel, BorderLayout.CENTER);
+		this.centerPanel.add(elevatorPanel);
+	}
+	
 	
 	/**
 	 * Method used in constructor's center panel to set up the floors per elevator
@@ -312,15 +366,26 @@ public class SimulationGUI {
 	public synchronized void updateFloor(FloorStatusRequest status) {
 		int elevatorNum = status.getElevatorCarNum();
 		int elevatorPosition = status.getElevatorCurrentFloor();
-		//String direction = status.getUpButton() == true? "↑": "↓";
-		
-		//System.out.println("Debug: " + elevatorNum +":"+ elevatorPosition);
 
 		// arraylist index is the order of elevators (index 0 = elevator 1 and so on)
 		if (!this.floorLamps.get(elevatorNum - 1).getText().equals(String.valueOf(elevatorPosition))) {
 			this.floorLamps.get(elevatorNum - 1).setText(elevatorPosition+""); //update the specific elevator's lamp
 		}
-		//TODO: I will add in more gui components to represent the buttons & # of people on each floor
+		//update gui buttons components
+		int floorNum = status.getFloorNumber();
+		if (status.getUpButton() == true) {
+			this.floorUpButtons.get(numFloors - floorNum).setBackground(Color.white);
+		} else {
+			this.floorUpButtons.get(numFloors - floorNum).setBackground(Color.gray);
+		}
+		
+		if (status.getDownButton() == true) {
+			this.floorDownButtons.get(numFloors - floorNum).setBackground(Color.white);
+		} else {
+			this.floorDownButtons.get(numFloors - floorNum).setBackground(Color.gray);
+		}
+		
+		
 	}
 	
 	public synchronized void simulationComplete(long endTime) {

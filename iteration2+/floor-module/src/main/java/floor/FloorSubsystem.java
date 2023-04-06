@@ -225,7 +225,7 @@ public class FloorSubsystem implements Runnable {
 				//update floor lamp for every floor
 				f.setFloorLamp(elevatorStatus.getCarNumber(),elevatorStatus.getFloorNumber()); 
 				if (f.getFloorNumber() == elevatorStatus.getFloorNumber()) {
-					this.removePersonFromFloor(elevatorStatus.getFloorNumber()); //remove person from floor
+					this.removePersonFromFloor(f.getFloorNumber()); //remove person from floor
 					//turn off lamp (can use setUpButton or setDownButton, will turn off both)
 					f.setUpButton(false);
 				}
@@ -267,7 +267,6 @@ public class FloorSubsystem implements Runnable {
 					//or receive info from scheduler (lamp, etc) and update floor subsystem
 					while (!firstThreadActive) {
 						try {
-							//Thread.sleep(20000); // Wait 20 seconds to slow down
 							wait();
 						} catch (InterruptedException e) {
 							System.err.println(e);
@@ -286,7 +285,6 @@ public class FloorSubsystem implements Runnable {
 				while(true) {
 					while (firstThreadActive) {
 						try {
-							//Thread.sleep(20000); // Wait 20 seconds to slow down
 							wait();
 						} catch (InterruptedException e) {
 							System.err.println(e);
