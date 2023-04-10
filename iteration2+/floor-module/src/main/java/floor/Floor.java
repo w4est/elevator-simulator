@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * @author Subear Jama
  */
 public class Floor{
-	private final int floorNumber; // the floor's number
+	private final int FLOOR_NUMBER; // the floor's number
 	private int numberOfPeople;    // number of people currently on the floor
 	private boolean upButton;      // floor's up button (pressed = on, not pressed = off)
 	private boolean downButton;   
@@ -19,7 +19,7 @@ public class Floor{
 	 * @param numOfElevators int, the elevators per floor
 	 */
 	public Floor (int floorNum, int numOfElevators) {
-		this.floorNumber = floorNum;
+		this.FLOOR_NUMBER = floorNum;
 		this.numberOfPeople = 0;
 		this.upButton = false;
 		this.downButton = false;
@@ -92,7 +92,7 @@ public class Floor{
 	 * @return int, the floor number.
 	 */
 	public int getFloorNumber() {
-		return this.floorNumber;
+		return this.FLOOR_NUMBER;
 	}
 	
 	/**

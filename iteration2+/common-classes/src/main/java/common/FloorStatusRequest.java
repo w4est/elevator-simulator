@@ -4,7 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
- * Used to store floor information (per elevator lamp)
+ * Used by the FloorSimulationListener to store floor information (per elevator lamp)
+ * The StatusUpdater later unpackages it and uses the data to update the GUI
  * @author Subear Jama
  */
 public class FloorStatusRequest {
@@ -25,6 +26,10 @@ public class FloorStatusRequest {
 		this.elevatorCurrentFloor = currentFloor;
 	}
 	
+	/**
+	 * This method converts the data stored in this class in a byte array format
+	 * @return byte[], the byte array ordered: FloorStatus Header, floorNumber, numOfPeople, up, down, carNum, carCurrentFloor.
+	 */
 	public byte[] toByteArray() {
 		byte[] message = new byte[PacketUtils.BUFFER_SIZE];
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
@@ -40,7 +45,12 @@ public class FloorStatusRequest {
 		return message;
 	}
 
-	// o5
+	/**
+	 * This method converts the FloorStatusRequest's byte array back into readable data stored in an object.
+	 * NOTE: The header of the byte array must start with { 0, 5 }
+	 * @param message byte[], the byte array to convert
+	 * @return FloorStatusRequest, the object containing all data from byte array
+	 */
 	public static FloorStatusRequest fromByteArray(byte[] message) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(message);
 		byte[] header = new byte[2];

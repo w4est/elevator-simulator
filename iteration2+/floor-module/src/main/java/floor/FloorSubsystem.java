@@ -15,9 +15,13 @@ import common.Request;
 
 /**
  * FloorSubsystem Class communicates with Scheduler (Scheduler shared with the Elevator) using UDP.
- * It first takes requests from the simulator to store and send to the Scheduler.
- * It then receives info about the Elevator from the Scheduler and updates all the Floors.
  * 
+ * The FloorSubsystem has 3 Threads:
+ *    1 thread receives read requests from the SimulationRunner to store in the FloorSubsystem
+ *       this thread also receives info about the Elevator from the Scheduler and updates all the Floors.
+ *    1 thread sends new requests to the Scheduler.
+ *    1 thread updates the SimulationGUI using FloorSimulationListener class.
+ *    
  * @author Subear Jama
  */
 public class FloorSubsystem implements Runnable {
@@ -239,7 +243,7 @@ public class FloorSubsystem implements Runnable {
 	 * Method used in run() to send requests to the scheduler via port 5003
 	 * @param requestByte byte[],the request to store into a packet and send
 	 */
-	public synchronized void sendInfoToScheduler(byte[] requestByte) {
+	public void sendInfoToScheduler(byte[] requestByte) {
 		try {
 			sendPacket = new DatagramPacket(requestByte, requestByte.length,InetAddress.getLocalHost(), PacketUtils.SCHEDULER_FLOOR_PORT); // scheduler port 5003
 		} catch (UnknownHostException e) {

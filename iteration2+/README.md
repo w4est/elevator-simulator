@@ -71,7 +71,7 @@ All the diagrams (UML Class Diagram and UML Sequence Diagrams) are located in th
 * SimulationListener.java : a class for an elevator subsystem to send status updates to the simulation
   
 # floor (module)
-![FloorSubsystem class diagram](./diagrams/images/floorsubsystem__module_class_diagram.png)
+![FloorSubsystem class diagram](./diagrams/images/floor_module_class_diagram.png)
 * FloorSubsystem.java : a class to manage floor operations
 * Floor.java : used in FloorSubsystem to set up a floor in a building.
 * FloorSimulationListener.java : a class for a floor subsystem to send status updates to the simulation
