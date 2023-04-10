@@ -47,7 +47,7 @@ public class ElevatorRunner {
 	private static Optional<Long> getLoadingSpeedInArgs(String args[]) {
 
 		for (int i = 0, max = args.length; i < max; i++) {
-			if (args[i].equalsIgnoreCase("--loading_speed") && i + 1 < max) {
+			if (args[i].equalsIgnoreCase("--loading_time") && i + 1 < max) {
 				return Optional.ofNullable(Long.valueOf(args[i + 1]));
 			}
 		}
@@ -58,7 +58,7 @@ public class ElevatorRunner {
 	private static Optional<Long> getElevatorDoorSpeedInArgs(String args[]) {
 
 		for (int i = 0, max = args.length; i < max; i++) {
-			if (args[i].equalsIgnoreCase("--door_speed") && i + 1 < max) {
+			if (args[i].equalsIgnoreCase("--door_time") && i + 1 < max) {
 				return Optional.ofNullable(Long.valueOf(args[i + 1]));
 			}
 		}
@@ -69,7 +69,7 @@ public class ElevatorRunner {
 	private static Optional<Long> getElevatorSpeedInArgs(String args[]) {
 
 		for (int i = 0, max = args.length; i < max; i++) {
-			if (args[i].equalsIgnoreCase("--elevator_speed") && i + 1 < max) {
+			if (args[i].equalsIgnoreCase("--elevator_time") && i + 1 < max) {
 				return Optional.ofNullable(Long.valueOf(args[i + 1]));
 			}
 		}
