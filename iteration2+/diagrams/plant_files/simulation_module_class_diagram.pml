@@ -133,10 +133,10 @@ enum ElevatorState {
    Request -> Direction
    ElevatorInfoRequest -> Direction
    ElevatorInfoRequest -> ElevatorState
-   ElevatorInfoRequest ..|> PacketHeaders
-   ElevatorStatusRequest ..|> PacketHeaders
-   FaultMessage ..|> PacketHeaders
-   FloorStatusRequest ..|> PacketHeaders
+   ElevatorInfoRequest ..> PacketHeaders
+   ElevatorStatusRequest ..> PacketHeaders
+   FaultMessage ..> PacketHeaders
+   FloorStatusRequest ..> PacketHeaders
    
    FaultMessage -> Fault
 }
@@ -251,10 +251,10 @@ class StatusUpdater <<Runnable>> {
 }
 
 
-StatusUpdater ..|> ElevatorStatusRequest
-StatusUpdater ..|> FloorStatusRequest
-Simulation ..|> PacketUtils
-SimulationGUI ..|> PacketUtils
+StatusUpdater ..> ElevatorStatusRequest
+StatusUpdater ..> FloorStatusRequest
+Simulation ..> PacketUtils
+SimulationGUI ..> PacketUtils
 SimulationEntry -> LocalTime
 Request -> LocalTime
 @enduml
