@@ -307,7 +307,11 @@ public class FloorSubsystem implements Runnable {
 	
 	public static void main(String[] args) {
 
-		FloorSubsystem fs = new FloorSubsystem(22, 4);                // Create floor object (# of floors, # of elevators)
+		Optional<Integer> maxFloor = getElevatorMaxFloorInArgs(args);
+		Optional<Integer> numElevators = getElevatorNumberInArgs(args);
+
+		
+		FloorSubsystem fs = new FloorSubsystem(maxFloor.orElse(22), numElevators.orElse(4)); // Create floor object (# of floors, # of elevators)
 		FloorSimulationListener fsListener = new FloorSimulationListener(fs);
 		// Create & start 2 threads with same object
 		// thread "FloorSubstystem sending" for sending requests to the scheduler (port 5003)
@@ -320,5 +324,25 @@ public class FloorSubsystem implements Runnable {
 		floorUpdateThread.start();
 	}
 	
-	
+	private static Optional<Integer> getElevatorMaxFloorInArgs(String args[]) {
+
+		for (int i = 0, max = args.length; i < max; i++) {
+			if (args[i].equalsIgnoreCase("--max_floor") && i + 1 < max) {
+				return Optional.ofNullable(Integer.valueOf(args[i + 1]));
+			}
+		}
+
+		return Optional.empty();
+	}
+
+	private static Optional<Integer> getElevatorNumberInArgs(String args[]) {
+
+		for (int i = 0, max = args.length; i < max; i++) {
+			if (args[i].equalsIgnoreCase("--elevator_count") && i + 1 < max) {
+				return Optional.ofNullable(Integer.valueOf(args[i + 1]));
+			}
+		}
+
+		return Optional.empty();
+	}
 }
