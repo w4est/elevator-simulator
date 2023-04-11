@@ -118,10 +118,10 @@ class SimulationListener {
 }
 
    ElevatorSubsystem -> Elevator
-   ElevatorRunner ..|> ElevatorSubsystem
-   ElevatorRunner ..|> ElevatorListener
-   ElevatorRunner ..|> ElevatorFaultListener
-   ElevatorRunner ..|> SimulationListener
+   ElevatorRunner ..> ElevatorSubsystem
+   ElevatorRunner ..> ElevatorListener
+   ElevatorRunner ..> ElevatorFaultListener
+   ElevatorRunner ..> SimulationListener
 
 
 }
@@ -222,19 +222,6 @@ class FaultMessage {
     + {static} fromByteArray(message:byte[]): FaultMessage
 }
 
-class FloorStatusRequest {
-    - int floorNumber
-    - int numOfPeople
-    - boolean upButtonPressed
-    - private boolean downButtonPressed
-    - private int elevatorCarNum
-    - private int elevatorCurrentFloor
-
-    + toByteArray(): byte[]
-    + {static} fromByteArray(message:byte[]): FloorStatusRequest
-}
-
-
 enum PacketHeaders {
    Request
    ElevatorInfoRequest
@@ -260,10 +247,10 @@ enum ElevatorState {
    Request -> Direction
    ElevatorInfoRequest -> Direction
    ElevatorInfoRequest -> ElevatorState
-   ElevatorInfoRequest ..|> PacketHeaders
-   ElevatorStatusRequest ..|> PacketHeaders
-   FaultMessage ..|> PacketHeaders
-   FloorStatusRequest ..|> PacketHeaders
+   ElevatorInfoRequest ..> PacketHeaders
+   ElevatorStatusRequest ..> PacketHeaders
+   FaultMessage ..> PacketHeaders
+   FloorStatusRequest ..> PacketHeaders
    
    FaultMessage -> Fault
    
@@ -281,13 +268,14 @@ Elevator -> Request
 ElevatorListener -> ElevatorSubsystem
 ElevatorFaultListener -> ElevatorSubsystem
 ElevatorSubsystem -> Request
-ElevatorListener ..|> ElevatorInfoRequest
-ElevatorFaultListener  ..|> FaultMessage
+ElevatorListener ..> ElevatorInfoRequest
+ElevatorFaultListener  ..> FaultMessage
+SimulationListener ..> ElevatorStatusRequest
 
 
 
-ElevatorListener  ..|> PacketUtils
-ElevatorFaultListener  ..|> PacketHeaders
+ElevatorListener  ..> PacketUtils
+ElevatorFaultListener  ..> PacketHeaders
 
 
 

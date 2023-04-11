@@ -1,7 +1,7 @@
 @startuml
-package "common classes" #DDDDDD {
 
-class Request {
+package "common classes" #DDDDDD {
+  class Request {
     - LocalTime localTime
     - int floorNumber
     - Direction floorButton
@@ -37,6 +37,23 @@ class ElevatorInfoRequest {
     + setDirection(Direction) : void
     + getState() : ElevatorState
     + setState(ElevatorState) : void
+}
+
+class ElevatorStatusRequest {
+    - int elevatorNumber
+    - int floorNumber
+    - int pendingRequests
+    - boolean broken
+    - ElevatorState state
+
+    + toByteArray() : byte[]
+    + {static} fromByteArray(byte[]) : ElevatorStatusRequest
+
+    + getFloorNumber(): int
+    + isBroken(): boolean
+    + getState(): ElevatorState
+    + getElevatorNumber(): int
+    + getPendingRequests(): int
 }
 
 enum Direction {
@@ -77,10 +94,24 @@ class FaultMessage {
     + {static} fromByteArray(message:byte[]): FaultMessage
 }
 
+class FloorStatusRequest {
+    - int floorNumber
+    - int numOfPeople
+    - boolean upButtonPressed
+    - private boolean downButtonPressed
+    - private int elevatorCarNum
+    - private int elevatorCurrentFloor
+
+    + toByteArray(): byte[]
+    + {static} fromByteArray(message:byte[]): FloorStatusRequest
+}
+
 
 enum PacketHeaders {
    Request
    ElevatorInfoRequest
+   ElevatorStatus
+   FloorStatus
    DoorFault
    SlowFault
 
@@ -102,67 +133,12 @@ enum ElevatorState {
    ElevatorInfoRequest -> Direction
    ElevatorInfoRequest -> ElevatorState
    ElevatorInfoRequest ..> PacketHeaders
+   ElevatorStatusRequest ..> PacketHeaders
    FaultMessage ..> PacketHeaders
+   FloorStatusRequest ..> PacketHeaders
    
    FaultMessage -> Fault
 }
 
-package "scheduler module" #DDDDDD {
-
-    class Scheduler {
-       - TreeMap<LocalTime, Request> requests
-       
-       + organizeRequest(LocalTime, Request) : void
-       + sendRequests(Direction, int): ArrayList<Request>
-       + getRequests() : TreeMap<LocalTime, Request>
-       + {static} main(String[]) : void
-    }
-
-    class FloorHelper <<Runnable>> {
-        - DatagramSocket receiveSocket
-        - DatgramSocket sendSocket
-	- DatagramPacket receivePacket
-        - DatagramPacket sendPacket
-	- Scheduler scheduler
-  
-        + run() : void
-        + setSendSocket(DatagramSocket) : void
-        + setReceiveSocket(DatagramSocket) : void
-        + receivePacket() : void
-        + sendPacket(byte[]) : void
-    }
-
-    class ElevatorHelper <<Runnable>> {
-        - DatagramSocket receiveSocket
-        - DatgramSocket sendSocket
-	- DatagramPacket receivePacket
-        - DatagramPacket sendPacket
-	- Scheduler scheduler
-	- FloorHelper floorHelper
-  
-        + run() : void
-        + receiveSendPacket() : void
-        + setSendSocket(DatagramSocket) : void
-        + setReceiveSocket(DatagramSocket) : void
-    }
-}
-
-
-class DatagramSocket {
-
-}
-
 Request -> LocalTime
-FloorHelper -> DatagramSocket
-ElevatorHelper -> DatagramSocket
-FloorHelper -> DatagramPacket
-ElevatorHelper -> DatagramPacket
-FloorHelper ..> Request
-ElevatorHelper -> ElevatorInfoRequest
-FloorHelper ..> PacketUtils
-ElevatorHelper ..> PacketUtils
-Scheduler ..> Direction
-Scheduler ..> PacketUtils
-Scheduler ..> FloorHelper
-Scheduler ..> ElevatorHelper
 @enduml

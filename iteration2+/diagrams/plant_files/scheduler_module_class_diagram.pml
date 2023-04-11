@@ -1,15 +1,36 @@
 @startuml
-
 package "common classes" #DDDDDD {
 
+class Request {
+    - LocalTime localTime
+    - int floorNumber
+    - Direction floorButton
+    - int carButton
+    - boolean reachedStartFloor
+    - boolean requestComplete
+
+    + getLocalTime() : LocalTime
+    + getFloorNumber() : int
+    + getFloorButton() : Direction
+    + getCarButton() : int
+    + getReachedStartFloor() : boolean
+    + setReachedStartFloor(boolean arrived) : void
+    + getRequestComplete() : boolean
+    + setRequestComplete() : void
+    + toByteArray() : byte[]
+    + {static} fromByteArray(message:byte[]) : List<Request>
+} 
+
 class ElevatorInfoRequest {
+    - int carNumber;
     - int floorNumber;
     - Direction direction;
     - ElevatorState state;
 
     + toByteArray() : byte[]
-    + fromByteArray(byte[]) : ElevatorInfoRequest
+    + {static} fromByteArray(byte[]) : ElevatorInfoRequest
 
+    + getCarNumber() : int
     + getFloorNumber() : int
     + setFloorNumber(int) : void
     + getDirection() : Direction
@@ -33,7 +54,7 @@ class PacketUtils {
     + {static} int SCHEDULER_FLOOR_PORT
     + {static} int SCHEDULER_ELEVATOR_PORT
     + {static} int FLOOR_PORT
-    + {static} int SYNC_PORT
+    + {static} int SIMULATION_PORT
 
     + {static} putStringIntoByteBuffer(int, byte[], String) : int
     + {static} packetContainsString(byte[], String) : boolean
@@ -43,25 +64,28 @@ class PacketUtils {
     + {static} stateToByteArray(ElevatorState): byte[]
 }
 
-  class Request {
-    - LocalTime localTime
-    - int floorNumber
-    - Direction floorButton
-    - int carButton
-    - boolean reachedStartFloor
-    - boolean requestComplete
+enum Fault {
+    DoorFault
+    SlowFault
+}
 
-    + getLocalTime() : LocalTime
-    + getFloorNumber() : int
-    + getFloorButton() : Direction
-    + getCarButton() : int
-    + getReachedStartFloor() : boolean
-    + setReachedStartFloor(boolean arrived) : void
-    + getRequestComplete() : boolean
-    + setRequestComplete() : void
-    + toByteArray() : byte[]
-    + {static} fromByteArray(byte[]) : Request
-} 
+class FaultMessage {
+    - Fault fault
+    + getFault(): Fault
+    + setFault(fault:Fault): void
+    + toByteArray(): byte[]
+    + {static} fromByteArray(message:byte[]): FaultMessage
+}
+
+
+enum PacketHeaders {
+   Request
+   ElevatorInfoRequest
+   DoorFault
+   SlowFault
+
+   + getHeaderBytes() : byte[]
+}
 
 enum ElevatorState {
    STOP_OPENED
@@ -77,12 +101,11 @@ enum ElevatorState {
    Request -> Direction
    ElevatorInfoRequest -> Direction
    ElevatorInfoRequest -> ElevatorState
+   ElevatorInfoRequest ..> PacketHeaders
+   FaultMessage ..> PacketHeaders
+   
+   FaultMessage -> Fault
 }
-
-
-Request -> LocalTime
-@enduml
-
 
 package "scheduler module" #DDDDDD {
 
@@ -134,12 +157,12 @@ FloorHelper -> DatagramSocket
 ElevatorHelper -> DatagramSocket
 FloorHelper -> DatagramPacket
 ElevatorHelper -> DatagramPacket
-FloorHelper ..|> Request
+FloorHelper ..> Request
 ElevatorHelper -> ElevatorInfoRequest
-FloorHelper ..|> PacketUtils
-ElevatorHelper ..|> PacketUtils
-Scheduler ..|> Direction
-Scheduler ..|> PacketUtils
-Scheduler ..|> FloorHelper
-Scheduler ..|> ElevatorHelper
+FloorHelper ..> PacketUtils
+ElevatorHelper ..> PacketUtils
+Scheduler ..> Direction
+Scheduler ..> PacketUtils
+Scheduler ..> FloorHelper
+Scheduler ..> ElevatorHelper
 @enduml
